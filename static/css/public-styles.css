@@ -1,0 +1,113 @@
+/* Global Styles {{{1 */
+
+body {
+	color: #333;
+	background: #fff;
+	font: normal 12px Arial,Helvetica,sans-serif;
+}
+
+a { color: #00f; text-decoration: none; }
+a:focus, a:hover { color: #f00; text-decoration: underline; }
+
+h1,h2,h3 { text-shadow: 2px 2px 2px #ccc; }
+h1 { font-size: 2.5em; }
+h2 { font-size: 1.6em; }
+h3 { font-size: 1.3em; }
+
+td,th {
+	padding: 0 0.5em;
+}
+
+small { font-size: 80% }
+
+.left { float:left; }
+.right { float:right; }
+.text-center { text-align:center; }
+
+.hidden { display:none; }
+
+/* Body Container {{{1 */
+
+#body-container {
+	margin: 0 auto;
+	padding: 0;
+	width: 800px;
+}
+
+/* Messages and Errors {{{1 */
+
+#errors li, #messages li, #success li {
+	list-style-type:none;
+}
+#errors, #messages, #success {
+	clear: both;
+	padding:.5em !important;
+	margin-bottom:1em;
+	border:2px solid #ddd;
+	font-size: 1.3em;
+	font-weight:bold;
+	text-shadow: 1px 1px 1px #000;
+}
+#messages {
+	text-shadow: 1px 1px 1px #ccc !important;
+}
+#errors {background:#f62626; color:#fff; border-color:#bd0e0e;}
+#messages {background:#fffcc4; border-color:#f5d34e;}
+#success {background:#3aa33a; color:#fff; border-color:#507d50;}
+
+
+/* Form title and notes {{{1 */
+
+#form-title {
+	padding: 1em;
+	background-color: #aaeeff;
+}
+#form-title header {
+	text-align: center;
+	line-height: 1;
+	padding: 1em 0 3em 0;
+}
+#form-title #form-notes {
+	font-size: 1.6em;
+}
+
+/* Form questions and answers {{{1 */
+
+#questions { padding-top: 1em; }
+#questions .question {
+	margin: 1em 0;
+	border-bottom: 1px solid #ddd;
+}
+#questions .question .invalid {
+	color: #bd0e0e;
+	font-weight: bold;
+}
+
+#questions .answers {
+	padding: 1em 0 1em 2em;
+	font-size: 1.3em;
+	line-height: 1;
+}
+
+.answer textarea {
+	width: 500px;
+	height: 4em;
+	font: normal 1em 'Trebuchet MS',Verdana,Helvetica,sans-serif;
+
+}
+
+.answer:hover { background-color: #faffc5; }
+
+
+/* Submit button {{{1 */
+
+#submit {
+	padding: 2em 0 5em 0;
+	text-align: center;
+}
+#submit button {
+	font-size: 2.0em;
+}
+
+
+/* vim: set foldmethod=marker: */

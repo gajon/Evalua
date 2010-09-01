@@ -1,0 +1,149 @@
+/* Global Styles {{{1 */
+
+body             { color: #000; background: #fff; font: normal 16px Arial,sans-serif; }
+a                { color: #00f; text-decoration: none; }
+a:focus, a:hover { color: #00f; text-decoration: underline; }
+
+#body-container  { margin: 0 auto; padding: 0; width: 880px; }
+div.clear        { clear: both; }
+
+
+/* Banner {{{1 */
+
+#banner                  { padding: 15px 35px 0 35px; height: 100px; border-bottom: 1px solid #ccc; }
+
+#banner div.logo         { float: left; }
+#banner div.logo a       { background: url("/static/img/logo.jpg") no-repeat scroll 0 0 transparent; display: block; width: 284px; height: 77px; }
+#banner div.logo a span  { display: none; }
+
+#banner div.options      { float: right; padding-top: 30px; font-size: 12px; }
+#banner div.options ul   { list-style: none outside none; }
+#banner div.options li   { float: left; margin-left: 20px; }
+
+
+/* Questions {{{1 */
+
+#questions       { padding: 32px 32px 0 32px; }
+#questions label { color: #666; }
+#questions h1    { color: #000; text-shadow: 1px 1px 2px #666; font: italic normal normal 32px Georgia,sans-serif; }
+
+#questions #form-title { margin-top: 1em; }
+#questions #form-title label { display: block; }
+#questions #form-title input { font-size: 18px; width: 810px; }
+
+#questions #form-notes { margin-top: 1em; }
+#questions #form-notes label { display: block; }
+#questions #form-notes textarea { width: 810px; height: 4em; font: normal 16px Arial,sans-serif; }
+
+#questions-addarea { margin-top: 1em; border-top: 1px solid #ccc; padding-top: 1em; }
+
+
+/* Question Selection {{{1 */
+
+#questions-selection { clear: both; padding: 32px 32px 0 32px; }
+#questions-selection h3 { margin-bottom: 1em; }
+#questions-submit { clear: both; padding: 32px 32px 0 32px; }
+
+
+/* The Added Questions {{{1 */
+
+div.dummy-question { margin-bottom: 30px; }
+
+div.dummy-question div.question input { font-size: 18px; width: 650px; }
+div.dummy-question div.question div.input { float: left; }
+div.dummy-question div.question div.toolbar { float: left; }
+div.dummy-question div.question div.toolbar a { font-size: 11px; text-decoration: none; margin-right: 5px; }
+div.dummy-question div.question div.toolbar img { vertical-align: text-bottom; }
+
+div.dummy-question div.answers { clear: both; }
+div.dummy-question div.answer-line { clear: both; padding: 4px 0; }
+
+div.dummy-question div.answer-line div.input { float: left; margin-left: 20px; }
+
+/*div.dummy-question div.answer-line div.toolbar:hover { background-color: #faffc5; }*/
+div.dummy-question div.answer-line div.toolbar { float: left; width: 140px; }
+div.dummy-question div.answer-line div.toolbar a { color: #ccc; font-size: 11px; text-decoration: none; margin-right: 5px; }
+div.dummy-question div.answer-line div.toolbar a:hover { color: #00f; }
+div.dummy-question div.answer-line div.toolbar img { vertical-align: text-bottom; }
+
+div.dummy-question div.answer-line input { font-size: 16px; color: #333; width: 650px; }
+div.dummy-question div.answer-line textarea { width: 400px; height: 4em; color: #666; font: italic normal normal 16px Arial,sans-serif; }
+
+/* */
+div.dummy-question div.question.idle input { border: 1px solid #fff; }
+div.dummy-question div.answer-line.idle input { border: 1px solid #fff; }
+div.dummy-question div.answer-line.idle textarea { border: 1px solid #fff; }
+
+div.dummy-question div.question.idle div.toolbar { filter:alpha(opacity=00); -moz-opacity:0.0; -khtml-opacity: 0.0; opacity: 0.0; }
+div.dummy-question div.answer-line.idle div.toolbar { filter:alpha(opacity=00); -moz-opacity:0.0; -khtml-opacity: 0.0; opacity: 0.0; }
+/*div.dummy-question div.question.idle div.toolbar { visibility: hidden; }*/
+/*div.dummy-question div.answer-line.idle div.toolbar { visibility: hidden; }*/
+
+div.dummy-question div.question.highlight input { border: 1px dashed #333; }
+div.dummy-question div.answer-line.highlight input { border: 1px dashed #333; }
+div.dummy-question div.answer-line.highlight textarea { border: 1px dashed #333; }
+
+
+div.dummy-question div.answer-add { clear: both; margin-left: 20px; }
+div.dummy-question div.answer-add a { font-size: 12px; text-decoration: none; }
+div.dummy-question div.answer-add img { vertical-align: text-bottom; }
+
+
+/* Step 2 {{{1 */
+
+#options       { padding: 32px 32px 0 32px; }
+#options label { color: #666; margin-right: 1em; }
+#options h1    { color: #000; text-shadow: 1px 1px 2px #666; font: italic normal normal 32px Georgia,sans-serif; }
+/*#options h1 { color: #7baf26; text-shadow: 1px 1px 1px #000; }*/
+
+#options #time,
+#options #tries,
+#options #score,
+#options #comments,
+#options #email {
+	margin: 1em 0;
+}
+
+#options #score input    { margin-bottom: 0.5em; }
+#options #comments input { margin-bottom: 0.5em; }
+
+#options-submit { padding: 32px; }
+#options-submit a { margin-right: 2em; }
+
+
+/* Step 3 {{{1 */
+
+#form-info       { padding: 32px 32px 0 32px; }
+#form-info h1    { color: #000; text-shadow: 1px 1px 2px #666; font: italic normal normal 32px Georgia,sans-serif; }
+#form-info div { margin: 1em 0; }
+#form-info-submit { padding: 32px; }
+
+
+/* Footer {{{1 */
+
+#footer    { padding: 50px 0; color: #333; font-size: 11px; text-align: center; }
+#footer a  { color: #333; margin-right: 20px; }
+
+
+/* BUTTONS by ParticleTree {{{1
+   http://particletree.com/features/rediscovering-the-button-element/ */
+
+.buttons a, .buttons button { display:block; float:left; margin:0 7px 0 0; background-color:#f5f5f5; border:1px solid #dedede; border-top:1px solid #eee; border-left:1px solid #eee; font-family:"Lucida Grande", Tahoma, Arial, Verdana, sans-serif; font-size:12px; line-height:130%; text-decoration:none; font-weight:normal; color:#565656; cursor:pointer; padding:5px 10px 6px 7px; /* Links */ }
+.buttons button { width:auto; overflow:visible; padding:4px 10px 3px 7px; /* IE6 */ }
+.buttons button[type] { padding:5px 10px 5px 7px; /* Firefox */ line-height:17px; /* Safari */ }
+*:first-child+html button[type] { padding:4px 10px 3px 7px; /* IE7 */ }
+.buttons button img, .buttons a img { margin:0 3px -3px 0 !important; padding:0; border:none; width:16px; height:16px; }
+
+.buttons button:hover, .buttons a:hover { background-color:#dff4ff; border:1px solid #c2e1ef; color:#336699; }
+.buttons a:active { background-color:#6299c5; border:1px solid #6299c5; color:#fff; }
+
+.buttons button.positive, .buttons a.positive { color:#529214; }
+.buttons a.positive:hover, button.positive:hover { background-color:#E6EFC2; border:1px solid #C6D880; color:#529214; }
+.buttons a.positive:active { background-color:#529214; border:1px solid #529214; color:#fff; }
+
+.buttons a.negative, button.negative { color:#d12f19; }
+.buttons a.negative:hover, button.negative:hover { background:#fbe3e4; border:1px solid #fbc2c4; color:#d12f19; }
+.buttons a.negative:active { background-color:#d12f19; border:1px solid #d12f19; color:#fff; }
+
+
+/* vim: set foldmethod=marker: */
