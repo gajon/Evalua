@@ -41,6 +41,8 @@ The structure of a question is this:
 */
 
 var Quiztronic = {
+    incrementalCounter: 1,
+
     createForm: function (type) {
         if (type === 'radio-choice') {
             return this.createRadioChoiceForm();
@@ -70,11 +72,21 @@ var Quiztronic = {
             classname = opts.classname || 'radio-choice',
             value = opts.value || 'Describe a possible answer.',
             toolbar = (opts.toolbar === undefined) ? true : opts.toolbar,
-            remove = (opts.remove === undefined) ? true : opts.remove;
+            remove = (opts.remove === undefined) ? true : opts.remove,
+            group = opts.group || 0;
 
         var answerLine = $('<div class="answer-line idle"></div>'),
             answerWrapper = $('<div class="input"></div>'),
-            answer = $('<input type="text"/>').val(value).addClass(classname);
+            answer = $('<input type="text"/>').val(value).addClass(classname),
+            selectionWrapper = $('<div class="selection"></div>');
+
+        if (classname === 'radio-choice' || classname === 'true-false') {
+            selectionWrapper.append($('<input type="radio" value="yes" />').attr('name', 'group'+group));
+            answerLine.append(selectionWrapper);
+        } else if (classname === 'checkbox') {
+            selectionWrapper.append($('<input type="checkbox" value="yes" />'));
+            answerLine.append(selectionWrapper);
+        }
 
         answerWrapper.append(answer);
         answerLine.append(answerWrapper);
@@ -110,7 +122,7 @@ var Quiztronic = {
         return answerLine;
     },
 
-    answerAddHelper: function (classname, value, target) {
+    answerAddHelper: function (classname, value, target, group) {
         var that = this,
             icon = $('<img src="/static/icons/add.png" height="16" width="16" />'),
             addLink = $('<a href="#"></a>');
@@ -121,7 +133,8 @@ var Quiztronic = {
             e.preventDefault();
             $(target).append(that.makeAnswerInput({
                 classname: classname,
-                value: value
+                value: value,
+                group: group
             }));
         });
 
@@ -278,15 +291,17 @@ var Quiztronic = {
                             questionContainer,
                             'Describe una pregunta de opción múltiple');
         var answersContainer = this.makeAnswersContainer(questionContainer);
+        var group = this.incrementalCounter++;
 
-        $(answersContainer).append(this.makeAnswerInput({ value: 'Describe una posible respuesta.' }));
-        $(answersContainer).append(this.makeAnswerInput({ value: 'Describe otra posible respuesta.' }));
-        $(answersContainer).append(this.makeAnswerInput({ value: 'Describe otra posible respuesta.' }));
+        $(answersContainer).append(this.makeAnswerInput({ value: 'Describe una posible respuesta.', group: group }));
+        $(answersContainer).append(this.makeAnswerInput({ value: 'Describe otra posible respuesta.', group: group }));
+        $(answersContainer).append(this.makeAnswerInput({ value: 'Describe otra posible respuesta.', group: group }));
         $(questionContainer).append(
             this.answerAddHelper(
                 'radio-choice',
                 'Describe otra posible respuesta.',
-                answersContainer));
+                answersContainer,
+                group));
 
         return questionContainer;
     },
@@ -360,7 +375,14 @@ var Quiztronic = {
         };
 
         $(container).find('div.answer-line').each(function () {
-            var control = $(this).find('input');
+            var selectedC = $(this).find('.selection').find('input');
+            var selected = false;
+
+            if (selectedC.length > 0 && selectedC.attr('checked') === true) {
+                selected = true;
+            }
+
+            var control = $(this).find('.input').find('input');
             if (control.length === 0) {
                 control = $(this).find('textarea');
             }
@@ -368,7 +390,8 @@ var Quiztronic = {
             if (control.length !== 0) {
                 q.answers.push({
                     control: $(control).attr('class'),
-                    text: $(control).val()
+                    text: $(control).val(),
+                    selected: selected
                 });
             }
         });

@@ -192,6 +192,8 @@ This macro saves some typing:
                    `((:|type| . "answer")
                      (:|sort| . ,(%lowassoc answer-number alist))
                      (:|control| . ,(%lowassoc control alist))
+                     ;; TODO: add this field only when needed?
+                     (:|selected| . ,(%lowassoc selected alist))
                      (:|text| . ,(%lowassoc text alist))
                      (:|question| . ,question-id)))))
                ;(save-answer-old (alist question-id)

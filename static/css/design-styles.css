@@ -49,43 +49,41 @@ div.clear        { clear: both; }
 
 div.dummy-question { margin-bottom: 30px; }
 
-div.dummy-question div.question input { font-size: 18px; width: 650px; }
-div.dummy-question div.question div.input { float: left; }
-div.dummy-question div.question div.toolbar { float: left; }
-div.dummy-question div.question div.toolbar a { font-size: 11px; text-decoration: none; margin-right: 5px; }
+div.dummy-question div.question input           { font-size: 18px; width: 650px; }
+div.dummy-question div.question div.input       { float: left; }
+div.dummy-question div.question div.toolbar     { float: left; }
+div.dummy-question div.question div.toolbar a   { font-size: 11px; text-decoration: none; margin-right: 5px; }
 div.dummy-question div.question div.toolbar img { vertical-align: text-bottom; }
 
-div.dummy-question div.answers { clear: both; }
+div.dummy-question div.answers     { clear: both; }
 div.dummy-question div.answer-line { clear: both; padding: 4px 0; }
 
-div.dummy-question div.answer-line div.input { float: left; margin-left: 20px; }
-
-/*div.dummy-question div.answer-line div.toolbar:hover { background-color: #faffc5; }*/
-div.dummy-question div.answer-line div.toolbar { float: left; width: 140px; }
-div.dummy-question div.answer-line div.toolbar a { color: #ccc; font-size: 11px; text-decoration: none; margin-right: 5px; }
+div.dummy-question div.answer-line div.selection       { float: left; margin-left: 20px; }
+div.dummy-question div.answer-line div.input           { float: left; }
+div.dummy-question div.answer-line div.input input     { font-size: 16px; color: #333; width: 650px; }
+div.dummy-question div.answer-line div.input textarea  { width: 400px; height: 4em; color: #666; font: italic normal normal 16px Arial,sans-serif; }
+div.dummy-question div.answer-line div.toolbar         { float: left; width: 100px; }
+div.dummy-question div.answer-line div.toolbar a       { color: #ccc; font-size: 11px; text-decoration: none; margin-right: 5px; }
 div.dummy-question div.answer-line div.toolbar a:hover { color: #00f; }
-div.dummy-question div.answer-line div.toolbar img { vertical-align: text-bottom; }
-
-div.dummy-question div.answer-line input { font-size: 16px; color: #333; width: 650px; }
-div.dummy-question div.answer-line textarea { width: 400px; height: 4em; color: #666; font: italic normal normal 16px Arial,sans-serif; }
+div.dummy-question div.answer-line div.toolbar img     { vertical-align: text-bottom; }
 
 /* */
-div.dummy-question div.question.idle input { border: 1px solid #fff; }
-div.dummy-question div.answer-line.idle input { border: 1px solid #fff; }
-div.dummy-question div.answer-line.idle textarea { border: 1px solid #fff; }
+div.dummy-question div.question.idle input                 { border: 1px solid #fff; }
+div.dummy-question div.answer-line.idle div.input input    { border: 1px solid #fff; }
+div.dummy-question div.answer-line.idle div.input textarea { border: 1px solid #fff; }
 
 div.dummy-question div.question.idle div.toolbar { filter:alpha(opacity=00); -moz-opacity:0.0; -khtml-opacity: 0.0; opacity: 0.0; }
 div.dummy-question div.answer-line.idle div.toolbar { filter:alpha(opacity=00); -moz-opacity:0.0; -khtml-opacity: 0.0; opacity: 0.0; }
 /*div.dummy-question div.question.idle div.toolbar { visibility: hidden; }*/
 /*div.dummy-question div.answer-line.idle div.toolbar { visibility: hidden; }*/
 
-div.dummy-question div.question.highlight input { border: 1px dashed #333; }
-div.dummy-question div.answer-line.highlight input { border: 1px dashed #333; }
-div.dummy-question div.answer-line.highlight textarea { border: 1px dashed #333; }
+div.dummy-question div.question.highlight input                 { border: 1px dashed #333; }
+div.dummy-question div.answer-line.highlight div.input input    { border: 1px dashed #333; }
+div.dummy-question div.answer-line.highlight div.input textarea { border: 1px dashed #333; }
 
 
-div.dummy-question div.answer-add { clear: both; margin-left: 20px; }
-div.dummy-question div.answer-add a { font-size: 12px; text-decoration: none; }
+div.dummy-question div.answer-add     { clear: both; margin-left: 20px; }
+div.dummy-question div.answer-add a   { font-size: 12px; text-decoration: none; }
 div.dummy-question div.answer-add img { vertical-align: text-bottom; }
 
 
