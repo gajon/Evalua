@@ -78,6 +78,7 @@ BE CAREFUL."
 (defmacro standard-page ((&key (title "")
                                (show-banner t)
                                (show-footer t)
+                               (include-analytics-p t)
                                css-files js-files)
                          &body body)
   `(with-html-output-to-string (*standard-output* nil :prologue t :indent nil)
@@ -112,19 +113,24 @@ BE CAREFUL."
                  (:div :class "logo"
                        (:a :href "/" (:span "Evalua.mx")))
                  (:div :class "options"
-                       (:ul
-                         (:li (:a :href "/login" "Iniciar sesión"))
-                         (:li (:a :href "/prices" "Precios"))
-                         (:li (:a :href "/contacto" "Contacto"))))))
+                       ;(:ul
+                         ;(:li (:a :href "/login" "Iniciar sesión"))
+                         ;(:li (:a :href "/prices" "Precios"))
+                         ;(:li (:a :href "/contacto" "Contacto"))))))
+                         )))
            (:section :id "content"
              ,@body)
            ,(when show-footer
               `(:section :id "footer"
-                 (:p (:a :href "/terms" "Terminos y Condiciones")
-                     (:a :href "/prices" "Precios")
-                     (:a :href "/contacto" "Contacto")
+                 (:p
+                     (:a :href "#" "Términos y Condiciones")
+                     (:a :href "#" "Precios")
+                     (:a :href "#" "Contacto")
                      "&copy; 2010 Evalua.mx")
-                 (:div :class "clear"))))))))
+                 (:div :class "clear"))))
+         ,(when include-analytics-p
+            #| Include your analytics code below... |#
+            #| End of analytics code |#)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

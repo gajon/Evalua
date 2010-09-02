@@ -23,35 +23,52 @@ div.clear        { clear: both; }
 
 /* Middle section {{{1 */
 
+/* 880 - 35 - 35 = 810px */
 #middle-section            { clear: both; padding: 15px 35px; background-color: #f5f5f5; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
 
 #middle-section div.left   { float: left; width: 460px; }
 #middle-section h1         { font: italic normal normal 32px Georgia,sans-serif; text-shadow: 2px 2px 3px #666; }
 #middle-section hr         { margin: 25px 0; }
-#middle-section ol         { color: #666;  list-style-position: inside; }
-#middle-section li         { line-height: 2; }
+#middle-section ul         { color: #666;  list-style: none; }
+#middle-section li         { margin-bottom: 0.5em; }
 
-#middle-section div.right  { float: left; }
+#middle-section div.right  { float: left; width: 345px; text-align: center; }
 
 
 /* Big F Button {{{1 */
 
-#big-f-button             { padding: 32px; text-align: center; }
-#big-f-button a span      { display: none; }
-#big-f-button a           { background: url("/static/img/ActionButton.png") no-repeat scroll 0 0 transparent; display: inline-block; width: 290px; height: 63px; }
-#big-f-button a:focus,
-#big-f-button a:hover     { background: url("/static/img/ActionButtonHigh.png") no-repeat scroll 0 0 transparent; }
+/*#big-f-button             { padding: 32px; text-align: center; }*/
+/*#big-f-button a span      { display: none; }*/
+/*#big-f-button a           { background: url("/static/img/ActionButton.png") no-repeat scroll 0 0 transparent; display: inline-block; width: 290px; height: 63px; }*/
+/*#big-f-button a:focus,*/
+/*#big-f-button a:hover     { background: url("/static/img/ActionButtonHigh.png") no-repeat scroll 0 0 transparent; }*/
+
+#big-f-button       { padding: 32px 0 32px 223px; }
+#big-f-button label { font-style: italic; display: block; margin-bottom: 0.5em; }
+#big-f-button input { float: left; margin: 0; padding: 5px; width: 320px; height: 32px; font-size: 1.5em; background-color: #fff; border: 1px solid #ccc; border-right: 0 solid #fff !important; -moz-border-radius: 5px 0 0 5px; -webkit-border-radius: 5px 0 0 5px; -khtml-border-radius: 5px 0 0 5px; border-radius: 5px 0 0 5px; }
+#big-f-button button{ float: left; border: 1px solid #f07010; background-color: #ff871e; color: #fff; font-size: 1.5em; text-shadow: 1px 1px 2px #000; padding: 5px 10px; height: 44px; margin: 0; -moz-border-radius: 0 5px 5px 0; -webkit-border-radius: 0 5px 5px 0; -khtml-border-radius: 0 5px 5px 0; border-radius: 0 5px 5px 0; }
+#big-f-button button:hover { cursor: pointer; background-color: #ff9e4a; }
 
 
 /* More Features {{{1 */
 
-#more-features            { padding: 20px 0; margin: 0 35px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
-#more-features h2         { font-size: 18px; margin-bottom: 1em; }
-#more-features a          { font-style: italic; }
-#more-features ul         { color: #333; list-style-type: none; }
-#more-features li         { margin-bottom: 1em; }
+/* We have an available width of 880-32-32 = 816px */
+#more-features            { padding: 32px 0; margin: 0 32px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
 #more-features div.left   { float: left; width: 370px; }
 #more-features div.right  { float: right; width: 400px; }
+#more-features h2         { font-size: 18px; margin-bottom: 1em; }
+#more-features p          { margin-bottom: 1em; }
+#more-features a          { font-style: italic; }
+#more-features ul         { color: #333; list-style-type: none; }
+#more-features ul li      { padding: 2px 0 2px 25px; margin-bottom: 1em; list-style: none; background: url('/static/icons/arrow-right.png') no-repeat top left; }
+
+
+
+/* Wait registry {{{1 */
+
+#wait-registry { clear: both; padding: 32px 32px 0 32px; border-top: 1px solid #ccc; }
+#wait-registry h1 { margin-bottom: 1em; color: #000; text-shadow: 1px 1px 2px #666; font: italic normal normal 32px Georgia,sans-serif; }
+#wait-registry p { margin-bottom: 1em; }
 
 
 /* Footer {{{1 */

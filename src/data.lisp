@@ -246,6 +246,15 @@ This macro saves some typing:
       (:|date| . ,(format-iso8601-date now))
       (:|question| . ,question-id))))
 
+
+(defun data/add-wait-registry (email date user-agent remote-addr)
+  (clouchdb:create-document
+    `((:|type| . "wait-registry")
+      (:|email| . ,email)
+      (:|user-agent| . ,user-agent)
+      (:|remote-addr| . ,remote-addr)
+      (:|date| . ,(format-iso8601-date date)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; UTILITIES TO SETUP THE COUCHDB DATABASE, MAINLY THE
 ;;; DESIGN VIEWS.
