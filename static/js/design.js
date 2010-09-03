@@ -424,10 +424,34 @@ $(document).ready(function () {
             questions: JSON.stringify(questions),
             },
             function (res) {
+                var errorMsg,
+                    position;
+
                 if (res && res.status && res.status === 'ok' && res.id) {
                     location.pathname = '/create-new-form-step-2/?id=' + res.id;
+
+                } else if (res && res.status && res.status === 'error' && res.error) {
+
+                    if (res.error === 'title') {
+                        $('#id_title').addClass('error');
+
+                        errorMsg = $('<div class="error-msg"></div>');
+                        errorMsg.append('El título es obligatorio.');
+                        $('#id_title').parent().append(errorMsg);
+
+                        position = $('#id_title').offset().top - 50;
+                        $(window).scrollTop(position);
+
+                    } else if (res.error === 'empty-questions') {
+                        errorMsg = $('<div class="error-msg"></div>');
+                        errorMsg.append("La evaluación requiere al menos una pregunta.");
+                        $('#questions-addarea').append(errorMsg);
+                    }
+                    else {
+                        $('#questions-submit').append($('<h1>asdfasdf</h1>'));
+                    }
+
                 } else {
-                    // TODO
                     $('#questions-submit').append($('<h1>Error</h1>'));
                 }
             },

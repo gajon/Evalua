@@ -169,6 +169,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; SAVE FORM DESIGN.
 
+;(define-condition design-error (error)
+  ;((element :initarg :element
+            ;:reader design-error-element)
+   ;(message :initarg :msg
+            ;:reader design-error-message))
+  ;(:report (lambda (condition stream)
+             ;(format stream "~a"
+                     ;(design-error-message condition)))))
+
 (define-json-fn backend-save-form
   ;; The handler-case is to make it easy for us to bail at any point
   ;; while processing this request.
@@ -191,11 +200,12 @@
     (error (c)
            (htm (str (clouchdb:document-to-json
                        `((:|status| . "error")
-                         (:|condition| . ,(format nil "~a" c)))))))))
+                         (:|error| . ,(format nil "~a" c)))))))))
 
 (defun process-save-form (title notes json-questions time-zone)
-  (let* ((title (or title (error "Form title is required.")))
-         (decoded-data (clouchdb:json-to-document json-questions))
+  (let* ((title (or title (error "title")))
+         (decoded-data (or (clouchdb:json-to-document json-questions)
+                           (error "empty-questions")))
          (now (make-date (get-universal-time) (or time-zone 6)))
          (new-form
            (add-form

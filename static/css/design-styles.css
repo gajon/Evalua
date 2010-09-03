@@ -8,6 +8,10 @@ a:focus, a:hover { color: #00f; text-decoration: underline; }
 div.clear        { clear: both; }
 
 
+input.error { border: 2px solid #f62626; }
+div.error-msg { color:#f62626; font-style: italic; }
+
+
 /* Banner {{{1 */
 
 #banner                  { padding: 15px 35px 0 35px; height: 100px; border-bottom: 1px solid #ccc; }
