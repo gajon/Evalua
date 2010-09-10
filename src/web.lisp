@@ -65,34 +65,33 @@
     ;; More benefits and list of features.
     ;;
     (:section :id "more-features"
-      (:div :class "left"
-        (:h2 "¿Cómo funciona?")
-        (:p "Evalua.mx es muy sencillo de utilizar:")
+      (:div :class "diagram"
+            (:img :src "/static/img/comofunciona.png"))
+      (:div :class "firstcolumn"
         (:ul
           (:li "Diseña tu evaluación, creando preguntas y sus respuestas.")
-          (:li "Envíalo por correo electrónico o publícalo en tu página web.")
-          (:li "Monitorea las calificaciones y estadísticas.")))
-        ;(:p (:a :href "#" "Ver mas..")))
-      (:div :class "right"
-        (:h2 "Características")
-        (:ul
-          (:li "Diseña y crea tu evaluación o cuestionario en línea sin
-               necesidad de saber programar.")
+          (:li "Es muy sencillo de utilizar, no necesitas conocimientos técnicos.")
+          (:li "No es necesario instalar ningún software.")
           (:li "Se adapta a tus necesidades: número y tipo de preguntas,
-               intentos permitidos, tiempo límite, etc.")
+               intentos permitidos, tiempo límite, etc.")))
+      (:div :class "secondcolumn"
+        (:ul
+          (:li "Tus empleados, clientes o alumnos contestan la evaluación a
+               través de una página web.")
+          (:li "Sin publicidad, sin distracciones, sólo el logotipo de tu
+               empresa.")
+          (:li "Envíalo por correo electrónico o publícalo en tu sitio web.")))
+      (:div :class "thirdcolumn"
+        (:ul
           (:li "Recibe de manera inmediata la retroalimentación y
                calificación de los evaluados.")
           (:li "Almacena la evaluación y los resultados para consultas
                futuras, o para crear nuevas evaluaciones.")
-          (:li "Envía la evaluación a través de correo electrónico o
-               publícala en tu página de Internet, Blog, Facebook, Twitter,
-               etc.")
           (:li "Obtén reportes con calificaciones promedio, más alta, más
                baja, número de aprobados y reprobados, tiempo promedio de
                respuesta, número de aciertos y errores por pregunta, número
                de evaluados por rangos de calificación, distribución de
                resultados por pregunta, etc.")))
-        ;(:p (:a :href "#" "Ver mas..")))
       (:div :class "clear"))
     (:script
       #>SCRIPT

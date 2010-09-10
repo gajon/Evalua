@@ -52,15 +52,15 @@ div.clear        { clear: both; }
 
 /* More Features {{{1 */
 
-/* We have an available width of 880-32-32 = 816px */
-#more-features            { padding: 32px 0; margin: 0 32px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
-#more-features div.left   { float: left; width: 370px; }
-#more-features div.right  { float: right; width: 400px; }
-#more-features h2         { font-size: 18px; margin-bottom: 1em; }
+#more-features                  { padding: 32px 0; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
+#more-features div.diagram      { margin-bottom: 2em; }
+#more-features div.firstcolumn  { float: left; width: 33%; }
+#more-features div.secondcolumn { float: left; width: 33%; }
+#more-features div.thirdcolumn  { float: left; width: 33%; }
 #more-features p          { margin-bottom: 1em; }
 #more-features a          { font-style: italic; }
 #more-features ul         { color: #333; list-style-type: none; }
-#more-features ul li      { padding: 2px 0 2px 25px; margin-bottom: 1em; list-style: none; background: url('/static/icons/arrow-right.png') no-repeat top left; }
+#more-features ul li      { padding: 2px 0 2px 25px; margin-bottom: 1em; list-style: none; background: url('/static/icons/system-tick-alt-03.png') no-repeat top left; }
 
 
 
