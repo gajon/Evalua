@@ -10,7 +10,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Other Hunchentoot Settings
 
-(push 
+(push
   (create-folder-dispatcher-and-handler "/static/" *static-web-files*)
   *dispatch-table*)
 

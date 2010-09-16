@@ -39,12 +39,27 @@
 if there's a valid session. The variables `the-user` and `time-zone` are
 still being inserted into the lexical context but their values are nil.
 BE CAREFUL."
-  (flet ((gen-body (name &key prefix)
+  (flet ((gen-body (name &key prefix (auth t))
            `(progn
+              ;;;
+              ;;; The handler function
+              ;;;
               (defun ,name ()
-                (let (the-user (time-zone (session-value 'timezone)))
+                (let ((the-user (data/get-user (session-value 'username)))
+                      (time-zone (session-value 'timezone)))
                   (declare (ignorable the-user time-zone))
+                  ;; Enforce authentication when :auth t
+                  ,(when auth
+                     `(unless (and the-user
+                                   (string= (session-value 'authenticated) "yes"))
+                        (setf (session-value 'authenticated) nil)
+                        (redirect "/")))
+                  ;; Yay, we have a valid user, let's set the time zone.
+                  (setf (user-time-zone the-user) (session-value 'timezone))
                   ,@body))
+              ;;;
+              ;;; Update Hunchentoot's dispatch table.
+              ;;;
               (push (create-prefix-dispatcher
                       ,(if (stringp prefix)
                          (if (char= (char prefix 0) #\/)
@@ -55,7 +70,7 @@ BE CAREFUL."
                     *dispatch-table*))))
     (if (consp name-and-options)
       (apply #'gen-body name-and-options)
-      (gen-body name-and-options :prefix nil))))
+      (gen-body name-and-options))))
 
 (defmacro define-json-fn (name-and-options &body body)
   `(define-url-fn ,name-and-options
@@ -407,7 +422,7 @@ and  http://en.wikipedia.org/wiki/ISO_8601"
     (format nil
             "~d-~2,'0d-~2,'0dT~2,'0d:~2,'0d:~2,'0d~a~2,'0d:00"
             year month date hour minute second
-            (if (plusp zone) "-" "+") zone)))
+            (if (plusp zone) "-" "+") (abs zone))))
 
 (defun parse-iso8601-date (date)
   "Parse a date from a string in the following ISO 8601 format
@@ -465,6 +480,19 @@ the input string is NIL as well."
       (when (> (length trimmed) 0)
         trimmed))))
 
+(defun parse-int-or-force-value (str default &key (start 0) (end nil) (radix 10))
+  "Parses an integer from the given string. The string could be NIL or
+contain garbage, in which case the function simply returns the default value
+given as the second parameter. The function accepts the same arguments as
+`parse-integer`, except for :junk-allowed which is always T. There is no
+`pos` return value like in `parse-integer`."
+  (or (and str (parse-integer str
+                              :start start
+                              :end end
+                              :radix radix
+                              :junk-allowed t))
+      default))
+
 (defun parse-int-force-pos-or-zero (string &key (start 0) (end nil) (radix 10))
   "Parses an integer from the given string. The string could be NIL or contain
 garbage, in which case the function will simply return the number zero (0).
@@ -472,12 +500,7 @@ Otherwise, it will parse the string and return the ABSOLUTE VALUE of the
 number. The function accepts the same arguments as `parse-integer`, except for
 :junk-allowed which is always T. There is no `pos` return value like in
 `parse-integer`."
-  (abs (or (parse-integer (or string "0")
-                          :start start
-                          :end end
-                          :radix radix
-                          :junk-allowed t)
-           0)))
+  (abs (parse-int-or-force-value string 0 :start start :end end :radix radix)))
 
 ;(mapcar #'parse-int-force-pos-or-zero
 ;        (list "" nil "haosd" "1" "0" "23" "-12" "-1" "-0"))

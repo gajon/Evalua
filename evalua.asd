@@ -16,7 +16,10 @@
                              (:file "globals")
                              (:file "utils")
                              (:file "data")
-                             (:file "web"))))
+                             (:file "web")
+                             (:file "design")
+                             (:file "public")
+                             (:file "dashboard"))))
   :depends-on (:hunchentoot
                :cl-who
                :clouchdb

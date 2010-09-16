@@ -1,0 +1,60 @@
+/* Global Styles {{{1 */
+
+body             { color: #000; background: #fff; font: normal 16px Arial,sans-serif; }
+a                { color: #00f; text-decoration: none; }
+a:focus, a:hover { color: #00f; text-decoration: underline; }
+
+#body-container  { margin: 0 auto; padding: 0; width: 880px; }
+div.clear        { clear: both; }
+
+
+input.error { border: 2px solid #f62626; }
+div.error-msg { color:#f62626; font-style: italic; }
+
+
+/* Banner {{{1 */
+
+#banner                  { padding: 15px 35px 0 35px; height: 100px; border-bottom: 1px solid #ccc; }
+
+#banner div.logo         { float: left; }
+#banner div.logo a       { background: url("/static/img/logo.jpg") no-repeat scroll 0 0 transparent; display: block; width: 284px; height: 77px; }
+#banner div.logo a span  { display: none; }
+
+#banner div.options      { float: right; padding-top: 30px; font-size: 12px; }
+#banner div.options ul   { list-style: none outside none; }
+#banner div.options li   { float: left; margin-left: 20px; }
+
+
+/* Dashboard {{{1 */
+
+#dashboard { padding: 32px 0; }
+#dashboard h1 { color: #000; text-shadow: 1px 1px 2px #666; font: italic normal normal 32px Georgia,sans-serif; }
+
+/*#dashboard header a span   { display: none; }*/
+/*#dashboard header a        { background: url("/static/img/ActionButton.png") no-repeat scroll 0 0 transparent; display: inline-block; width: 290px; height: 63px; }*/
+/*#dashboard header a:focus,*/
+/*#dashboard header a:hover  { background: url("/static/img/ActionButtonHigh.png") no-repeat scroll 0 0 transparent; }*/
+
+#dashboard div.listing { clear: both; margin-top: 32px;
+font-size: 12px;  line-height: 1.6; }
+
+#dashboard div.listing h3 { font-size: 12px; font-weight: normal; }
+
+#dashboard div.listing table { margin-top: 10px; width: 100%; }
+#dashboard div.listing td { padding: 0 0.5em; vertical-align:middle; }
+#dashboard div.listing th { padding: 0 0.5em; }
+#dashboard div.listing tfoot th { text-align:center; }
+#dashboard div.listing tfoot th:first-child { text-align:left !important; }
+
+#dashboard div.listing .highlight { background-color: #faffc5 !important; }
+
+
+
+
+/* Footer {{{1 */
+
+#footer    { padding: 50px 0; color: #333; font-size: 11px; text-align: center; }
+#footer a  { color: #333; margin-right: 20px; }
+
+
+/* vim: set foldmethod=marker: */
