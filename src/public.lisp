@@ -3,13 +3,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; RENDER A PUBLIC FORM.
 
-(define-url-fn (a :prefix "a")
+(define-url-fn (public/a :prefix "a")
   (let ((form (or (data/get-form-by-public-id (parameter "id"))
                   (redirect "/"))))
     ;;
     ;;
     (when (and (eql :post (request-method*))
-               (process-submitted-answers form))
+               (public/process-submitted-answers form))
       (redirect (format nil "/thankyou?id=~a" (form-public-id form))))
     ;;
     ;;
@@ -39,14 +39,14 @@
                                  "Por favor contesta la pregunta.")))
                    (:div :class "answers"
                      (dolist (answer (question-answers question))
-                       (display-answer answer question)))))))
+                       (public/display-answer answer question)))))))
         ;;
         ;; Submit button
         ;;
         (:section :id "submit"
           (submit-button "Enviar respuestas"))))))
 
-(defun display-answer (answer question)
+(defun public/display-answer (answer question)
   (with-html-output (*standard-output*)
     (:div :class "answer"
       (cond ((or (string= (answer-control answer) "radio-choice")
@@ -80,7 +80,7 @@
                                       (escape-string (answer-id answer))))
              (text-area nil (escape-string (answer-id answer))))))))
 
-(defun process-submitted-answers (form)
+(defun public/process-submitted-answers (form)
   (let ((questions (form-questions form))
         (ht (make-hash-table :test 'equal)))
     ;; We collect all the POST values sent into a hash table. The keys are
@@ -113,28 +113,28 @@
     ;; and let the caller deal with it.
     (if (loop with success = t
               for question in questions
-              for valid = (validate-question question ht)
+              for valid = (public/validate-question question ht)
               unless valid do (setf (question-valid-p question) nil
                                     success nil)
               finally (return success))
-      (save-submitted-answers questions ht (form-time-zone form))
+      (public/save-submitted-answers questions ht (form-time-zone form))
       (push-error-msg "Por favor contesta todas las preguntas."))))
 
-(defun validate-question (question ht-submitted-answers)
+(defun public/validate-question (question ht-submitted-answers)
   (let ((answers (gethash (question-id question) ht-submitted-answers)))
     (unless answers
-      (return-from validate-question nil))
+      (return-from public/validate-question nil))
     (dolist (answer answers)
       (let ((answer (trim-or-nil answer)))
         (cond ((or (null answer) (< (length answer) 6))
-               (return-from validate-question nil))
+               (return-from public/validate-question nil))
               ((string= "wrap-" answer :end1 5 :end2 5)
                (let ((wrapped (gethash (subseq answer 5) ht-submitted-answers)))
                  (or (and wrapped (trim-or-nil (car wrapped)))
-                     (return-from validate-question nil))))))))
+                     (return-from public/validate-question nil))))))))
   t)
 
-(defun save-submitted-answers (questions ht time-zone)
+(defun public/save-submitted-answers (questions ht time-zone)
   ;; We use the time-zone recorded in the form, which is the time-zone of
   ;; the user who designed and created the form. That user is the one who
   ;; will see any dates, therefore we'd like to show them in his/her
@@ -146,7 +146,7 @@
           do (loop for answer in answers
                    for wrap? = (string= "wrap-" answer :end1 5 :end2 5)
                    for ansid = (or (and wrap? (subseq answer 5)) answer)
-                   do (add-submitted-answer
+                   do (data/add-submitted-answer
                         (question-id question)
                         ansid
                         (and wrap? (car (gethash ansid ht)))
@@ -157,7 +157,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 
-(define-url-fn (thankyou :prefix "thankyou")
+(define-url-fn (public/thankyou :prefix "thankyou")
   (let ((form (or (data/get-form-by-public-id (parameter "id"))
                   (redirect "/"))))
     (standard-page (:title "Gracias"

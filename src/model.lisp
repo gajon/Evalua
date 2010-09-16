@@ -47,7 +47,7 @@
       (if cached
         cached
         (setf cached
-              (get-questions-by-form _id))))))
+              (data/get-questions-by-form _id))))))
 
 (defgeneric question-answers (question)
   (:documentation "")
@@ -56,7 +56,7 @@
       (if cached
         cached
         (setf cached
-              (get-answers-by-question _id))))))
+              (data/get-answers-by-question _id))))))
 
 
 ;;; For the USER, the `username` is the id of the document.

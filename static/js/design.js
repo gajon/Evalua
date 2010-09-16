@@ -418,7 +418,7 @@ $(document).ready(function () {
             formNotes = $('#id_notes').val(),
             questions = Quiztronic.collectQuestionForms(addArea);
 
-        $.post('/backend-save-form/',
+        $.post('/design/backend-save-form/',
             {
             "id": formId,
             "title": formTitle,
@@ -430,7 +430,7 @@ $(document).ready(function () {
                     position;
 
                 if (res && res.status && res.status === 'ok' && res.id) {
-                    location.pathname = '/edit-form-options/?id=' + res.id;
+                    location.pathname = '/design/edit-form-options/?id=' + res.id;
 
                 } else if (res && res.status && res.status === 'error' && res.error) {
 

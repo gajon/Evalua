@@ -1,6 +1,6 @@
 (in-package #:evalua)
 
-(define-url-fn create-new-form
+(define-url-fn design/create-new-form
   ;; TODO: time-zone
   (let* ((now (make-date (get-universal-time) (or time-zone 6)))
          (fresh-form (data/create-fresh-form
@@ -15,14 +15,14 @@
                                       :email-dest (user-email the-user)))))
     ;; TODO: Error handling?
     (if fresh-form
-      (redirect (format nil "/edit-form?id=~a" (form-id fresh-form)))
+      (redirect (format nil "/design/edit-form?id=~a" (form-id fresh-form)))
       (redirect "/"))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; FORM DESIGN PAGE.
 
-(define-url-fn edit-form
+(define-url-fn design/edit-form
   ;; The only utility of this function is to render the initial HTML for the
   ;; JavaScript side to work. And the actual saving of posted information is
   ;; done by the function `backend-save-form` below.
@@ -63,7 +63,7 @@
 
 ;(define-condition design-error (error) ((element :initarg :element :reader design-error-element) (message :initarg :msg :reader design-error-message)) (:report (lambda (condition stream) (format stream "~a" (design-error-message condition)))))
 
-(define-json-fn backend-save-form
+(define-json-fn design/backend-save-form
   (unless (eql :post (request-method*)) (redirect "/"))
   ;; The handler-case is to make it easy for us to bail at any point
   ;; while processing this request.
@@ -82,7 +82,7 @@
       (if (and (data/save-form form-obj)
                (data/save-form-questions
                  form-obj
-                 (numerate-questions-and-answers decoded-data)))
+                 (design/numerate-questions-and-answers decoded-data)))
         (htm (str (clouchdb:document-to-json
                     `((:|status| . "ok")
                       (:|id| . ,(form-id form-obj))))))
@@ -95,7 +95,7 @@
                        `((:|status| . "error")
                          (:|error| . ,(format nil "~a" c)))))))))
 
-(defun numerate-questions-and-answers (data)
+(defun design/numerate-questions-and-answers (data)
   "This function will add a new key :|question-number| to each question's
   alist in increasing order, while also adding a new key :|answer-number| to
   each of the answers of each question. This is so that we can record the
@@ -116,12 +116,12 @@
   ;(numerate-questions-and-answers decoded-data2))
 
 
-(define-url-fn edit-form-options
+(define-url-fn design/edit-form-options
   (let ((form (or (data/get-form (parameter "id")) (redirect "/"))))
     ;;
     (when (and (eql :post (request-method*))
-               (process-form-options form))
-      (redirect (format nil "/form-info?id=~a" (form-id form))))
+               (design/process-form-options form))
+      (redirect (format nil "/design/form-info?id=~a" (form-id form))))
     ;;
     (standard-page (:title "Paso 2. Configura las opciones."
                     :css-files ("design-styles.css"))
@@ -151,7 +151,7 @@
                          :inputclass "positive"
                          :escape-label nil))))))
 
-(defun process-form-options (form-obj)
+(defun design/process-form-options (form-obj)
   (let ((time-limit (trim-or-nil (post-parameter "timelimit")))
         (tries (trim-or-nil (post-parameter "tries")))
         (score-p (string= (trim-or-nil (post-parameter "score")) "yes"))
@@ -166,7 +166,7 @@
       ;; Save it!
       (setf form-obj (data/save-form form-obj)))))
 
-(define-url-fn form-info
+(define-url-fn design/form-info
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
          (public-url (format nil "http://~a:8081/a?id=~a"
@@ -188,5 +188,3 @@
         (submit-button "<img src=\"/static/icons/accept.png\"/> Finalizar"
                        :inputclass "positive"
                        :escape-label nil)))))
-
-

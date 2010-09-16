@@ -55,7 +55,7 @@ This macro saves some typing:
   (error "Not implemented"))
 
 
-(defun get-questions-by-form (form-id)
+(defun data/get-questions-by-form (form-id)
   ;; The reason we are doing nreverse below is that the function
   ;; clouchdb:query-document reverses the results it receives
   ;; after matching them against the query. For instance, if the
@@ -78,7 +78,7 @@ This macro saves some typing:
                                     :end-key (list form-id
                                                    (make-hash-table)))))))
 
-(defun get-answers-by-question (question-id)
+(defun data/get-answers-by-question (question-id)
   (mapcar (lambda (alist) (data/build-answer-from-alist alist))
           (nreverse
             (clouchdb:query-document
@@ -241,7 +241,7 @@ This macro saves some typing:
           questions
           (repeatedly (form-id form-obj)))))
 
-(defun add-submitted-answer (question-id answer-id value now)
+(defun data/add-submitted-answer (question-id answer-id value now)
   ;; The answer-id is usually a valid _id referencing a document of type
   ;; 'answer'; however, it could be a free text if the question contained a
   ;; textarea box. TODO: I don't like this design choice.

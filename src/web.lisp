@@ -76,7 +76,7 @@
         (hidden-input "timezone")
         (text-input "Envíame un email cuando el producto esté listo:" "email")
         (submit-button "Enviar"))
-      (:div :class "clear")) ;(:a :href "/create-new-form" (:span "Crea una evaluación"))
+      (:div :class "clear")) ;(:a :href "/design/create-new-form" (:span "Crea una evaluación"))
     ;;
     ;; More benefits and list of features.
     ;;

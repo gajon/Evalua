@@ -31,7 +31,7 @@
             (:tbody
               (if active-forms
                 (loop for form-obj in active-forms
-                      do (render-form-as-row form-obj))
+                      do (dashboard/render-form-as-row form-obj))
                 (htm (:tr (:td :colspan 6
                                "No tienes evaluaciones activas.")))))))
         (:div :class "listing"
@@ -52,11 +52,11 @@
             (:tbody
               (if inactive-forms
                 (loop for form-obj in inactive-forms
-                      do (render-form-as-row form-obj))
+                      do (dashboard/render-form-as-row form-obj))
                 (htm (:tr (:td :colspan 6
                                "No tienes evaluaciones inactivas.")))))))))))
 
-(defun render-form-as-row (form-obj)
+(defun dashboard/render-form-as-row (form-obj)
   (let ((id (form-id form-obj))
         (date (form-date form-obj))
         (title (or (form-title form-obj) "N/A"))
