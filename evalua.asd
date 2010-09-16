@@ -15,6 +15,7 @@
                 :components ((:file "lol")
                              (:file "globals")
                              (:file "utils")
+                             (:file "model")
                              (:file "data")
                              (:file "web")
                              (:file "design")
