@@ -122,10 +122,11 @@ This macro saves some typing:
 
 (defun data/build-question-from-alist (alist)
   (make-instance 'question
-                 :id   (%lowassoc _id alist)
-                 :rev  (%lowassoc _rev alist)
-                 :text (%lowassoc text alist)
-                 :sort (%lowassoc sort alist)))
+                 :id      (%lowassoc _id alist)
+                 :rev     (%lowassoc _rev alist)
+                 :control (%lowassoc control alist)
+                 :text    (%lowassoc text alist)
+                 :sort    (%lowassoc sort alist)))
 
 (defun data/build-answer-from-alist (alist)
   (make-instance 'answer
@@ -221,6 +222,7 @@ This macro saves some typing:
              (let ((q (clouchdb:create-document
                         `((:|type| . "question")
                           (:|sort| . ,(%lowassoc question-number alist))
+                          (:|control| . ,(%lowassoc control alist))
                           (:|text| . ,(%lowassoc text alist))
                           (:|form| . ,form-id)))))
                ;; TODO: error handling?

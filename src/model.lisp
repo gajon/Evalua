@@ -27,6 +27,7 @@
   ((_id     :initarg :id       :reader question-id)
    (_rev    :initarg :rev      :reader question-rev)
    (sort    :initarg :sort     :reader question-sort)
+   (control :initarg :control  :reader question-control)
    (text    :initarg :text     :reader question-text)
    (valid-p :initform t :accessor question-valid-p)
    (cached-answer-objs :initform nil))

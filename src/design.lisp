@@ -31,7 +31,7 @@
                     :css-files ("design-styles.css?v=20100910")
                     :js-files ("jquery-1.4.2.min.js"
                                "json2.min.js"
-                               "design.js?v=20100910"))
+                               "design.js?v=20100921"))
       (hidden-input "id" :default-value (form-id form))
       (:section :id "questions"
         (:h1 "Paso 1. Diseña tu cuestionario")
@@ -104,16 +104,35 @@
     (labels ((numerate-answer (alist-answer)
                 (acons :|answer-number| (incf answer-number) alist-answer))
              (numerate-question (alist-q)
-                (pairlis (list :|answers| :|question-number| :|text|)
+                (pairlis (list :|answers| :|question-number| :|control| :|text|)
                          (list (mapcar #'numerate-answer
                                        (cdr (assoc :|answers| alist-q)))
                                (incf question-number)
+                               (cdr (assoc :|control| alist-q))
                                (cdr (assoc :|text| alist-q))))))
       (mapcar #'numerate-question data))))
 
-;(let ((decoded-data1 (clouchdb:json-to-document #"[{"text":"Pregunta","answers":[{"control":"radio-choice","text":"Input a possible answer."},{"control":"radio-choice","text":"Opcion 2"},{"control":"radio-choice","text":"Opcion 3"}]}]"#))
-      ;(decoded-data2 (clouchdb:json-to-document #"[{"text":"Opcion multiple","answers":[{"control":"radio-choice","text":"Input a possible answer."},{"control":"radio-choice","text":"Opcion 2"},{"control":"radio-choice","text":"Opcion 3"}]},{"text":"Falso - Verdadero","answers":[{"control":"true-false","text":"Verdadero"},{"control":"true-false","text":"Falso"}]},{"text":"Seleccion multiple","answers":[{"control":"checkbox","text":"Seleccion 1"},{"control":"checkbox","text":"Seleccion 2"},{"control":"checkbox","text":"Seleccion 3"}]},{"text":"Texto libre","answers":[{"control":"textarea","text":""}]}]"#)))
-  ;(numerate-questions-and-answers decoded-data2))
+;(let ((decoded-data1 (clouchdb:json-to-document
+                       ;#"[{"text":"Pregunta", "control":"radio-choice",
+                           ;"answers":[{"control":"radio-choice","text":"Input a possible answer."},
+                                      ;{"control":"radio-choice","text":"Opcion 2"},
+                                      ;{"control":"radio-choice","text":"Opcion 3"}]}]"#))
+      ;(decoded-data2 (clouchdb:json-to-document
+                       ;#"[{"text":"Opcion multiple", "control":"radio-choice",
+                           ;"answers":[{"control":"radio-choice","text":"Input a possible answer."},
+                                      ;{"control":"radio-choice","text":"Opcion 2"},
+                                      ;{"control":"radio-choice","text":"Opcion 3"}]},
+                          ;{"text":"Falso - Verdadero", "control":"true-false",
+                           ;"answers":[{"control":"true-false","text":"Verdadero"},
+                                      ;{"control":"true-false","text":"Falso"}]},
+                          ;{"text":"Seleccion multiple", "control":"checkbox",
+                           ;"answers":[{"control":"checkbox","text":"Seleccion 1"},
+                                      ;{"control":"checkbox","text":"Seleccion 2"},
+                                      ;{"control":"checkbox","text":"Seleccion 3"}]},
+                          ;{"text":"Texto libre", "control":"textarea",
+                           ;"answers":[{"control":"textarea","text":""}]}]"#)))
+  ;(declare (ignorable decoded-data1 decoded-data2))
+  ;(design/numerate-questions-and-answers decoded-data2))
 
 
 (define-url-fn design/edit-form-options

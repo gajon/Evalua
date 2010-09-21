@@ -161,10 +161,10 @@ var Quiztronic = {
     },
 
     // QUESTION INPUT AND WRAPPERS
-    makeQuestionInput: function (container, text) {
+    makeQuestionInput: function (container, text, classname) {
         var questionDiv = $('<div class="question idle"></div>');
         var inputDiv = $('<div class="input"></div>');
-        var input = $('<input type="text" />').val(text);
+        var input = $('<input type="text" />').val(text).addClass(classname);
         var toolbar = this.makeQuestionToolbar(container);
 
         container.append(questionDiv);
@@ -289,7 +289,8 @@ var Quiztronic = {
         var questionContainer = $('<div class="dummy-question"></div>');
         var question = this.makeQuestionInput(
                             questionContainer,
-                            'Describe una pregunta de opción múltiple');
+                            'Describe una pregunta de opción múltiple',
+                            'radio-choice');
         var answersContainer = this.makeAnswersContainer(questionContainer);
         var group = this.incrementalCounter++;
 
@@ -310,7 +311,8 @@ var Quiztronic = {
         var questionContainer = $('<div class="dummy-question"></div>');
         var question = this.makeQuestionInput(
                             questionContainer,
-                            'Describe una pregunta de falso-verdadero');
+                            'Describe una pregunta de falso-verdadero',
+                            'true-false');
         var answersContainer = this.makeAnswersContainer(questionContainer);
 
         $(answersContainer).append(this.makeAnswerInput({ classname: 'true-false', value: 'Verdadero', remove: false }));
@@ -324,7 +326,8 @@ var Quiztronic = {
         var questionContainer = $('<div class="dummy-question"></div>');
         var question = this.makeQuestionInput(
                             questionContainer,
-                            'Describe una pregunta de selección múltiple');
+                            'Describe una pregunta de selección múltiple',
+                            'checkbox');
         var answersContainer = this.makeAnswersContainer(questionContainer);
 
         $(answersContainer).append(this.makeAnswerInput({ classname: 'checkbox', value: 'Describe una de las posibles respuestas.' }));
@@ -344,7 +347,8 @@ var Quiztronic = {
         var questionContainer = $('<div class="dummy-question"></div>');
         var question = this.makeQuestionInput(
                             questionContainer,
-                            'Describe una pregunta de texto libre');
+                            'Describe una pregunta de texto libre',
+                            'textarea');
         var answersContainer = this.makeAnswersContainer(questionContainer);
         var answerLine = $('<div class="answer-line"></div>');
         var answer = $('<div class="input"><textarea class="textarea" readonly="readonly">Texto libre...</textarea></div>');
@@ -369,8 +373,10 @@ var Quiztronic = {
     },
 
     collectSingleQuestion: function (container) {
+        var input = $(container).find('div.question input'); 
         var q = {
-            text: $(container).find('div.question input').val(),
+            control: input.attr('class'),
+            text: input.val(),
             answers: []
         };
 
