@@ -16,24 +16,27 @@ jQuery.fn.log = function (msg) {
 /*
 The structure of a question is this:
 
-<div class="dummy-question type-of-question">
+<div class="dummy-question">
     <div class="question">
-        <div class="input"><input type="text"/></div>
+        <div class="input"><input class="type-of-question" type="text"/></div>
         <div class="toolbar"><a ...><a ...></div>
     </div>
+
     <div class="answers">
         <div class="answer-line">
-            <div class="input"><input .../></div>
+            <div class="selection"><input /></div>
+            <div class="input"><input class="type-of-question" type="type"/></div>
             <div class="toolbar">
                 <a><img><span>Text</span></a>
                 <a><img><span>Text</span></a>
                 ...
             </div>
         </div>
+
         <div class="answer-line">...</div>
         ...
-        ...
     </div>
+
     <div class="answer-add">
         <a href="#">Add another answer</a>
     </div>
@@ -41,8 +44,13 @@ The structure of a question is this:
 */
 
 var Quiztronic = {
+    // THIS COUNTER IS USED TO GIVE A UNIQUE NUMBER TO EACH GROUP OF
+    // ANSWERS; FOR RADIO BOXES AND CHECKBOXES.
     incrementalCounter: 1,
 
+    // ==================================================
+    // CREATE FORMS
+    // ==================================================
     createForm: function (type) {
         var opts = {
             text: 'Describe una pregunta de opción múltiple',
@@ -85,22 +93,48 @@ var Quiztronic = {
         return this.createQuestion(opts);
     },
 
-    // TODO: Not used.
-    updateAddArea: function (droparea) {
-        // TODO: could optimize this by hiding/showing a single object.
-        if ($(droparea).children().length === 0) {
-            $(droparea).html('<h2>Arrastra tus preguntas aquí</h2>');
-        } else {
-            $(droparea).find('h2').remove();
-        }
+    createQuestion: function (opts) {
+        var self = this;
+
+        // BUILD THE QUESTION INPUT CONTROL.
+        var questionContainer = $('<div class="dummy-question"></div>');
+        var question = this.makeQuestionInput(
+                            questionContainer, opts.text, opts.control);
+
+        // AND THE QUESTION'S ANSWERS.
+        var answersContainer = $('<div class="answers"></div>');
+        var group = this.incrementalCounter++;
+
+        questionContainer.append(answersContainer);
+
+        $.each(opts.answers, function (index, answer) {
+            $(answersContainer).append(
+                self.makeAnswerInput({
+                    classname: answer.control,
+                    value: answer.text,
+                    group: group,
+                    selected: answer.selected }));
+        });
+
+        // THE LINK TO ADD ANOTHER ANSWER TO THE SET.
+        $(questionContainer).append(
+            this.answerAddHelper(
+                opts.control,
+                'Describe otra posible respuesta.',
+                answersContainer,
+                group));
+
+        return questionContainer;
     },
 
-    // ANSWERS AND WRAPPERS
+    // ==================================================
+    // MAKE ANSWERS
+    // ==================================================
     makeAnswerInput: function (options) {
-        // Set defaults for options.
+        // SET DEFAULTS FOR OPTIONS.
         var opts = options || {},
             classname = opts.classname || 'radio-choice',
-            value = opts.value || 'Describe a possible answer.',
+            value = opts.value || 'Describe otra posible respuesta.',
             toolbar = (opts.toolbar === undefined) ? true : opts.toolbar,
             remove = (classname !== 'true-false') ? true : false,
             group = opts.group || 0,
@@ -112,6 +146,7 @@ var Quiztronic = {
             answerWrapper = $('<div class="input"></div>'),
             selectionWrapper = $('<div class="selection"></div>');
 
+        // THE INPUT CONTROL THAT DESCRIBES THE ANSWER (THE TEXT).
         if (classname === 'textarea') {
             answer = $('<textarea></textarea>').val(value).addClass(classname).attr('readonly', 'readonly');
             toolbar = false;
@@ -120,6 +155,8 @@ var Quiztronic = {
             answerLine.addClass('idle');
         }
 
+        // FOR SETS OF RADIO BOXES AND CHECKBOXES, WE NEED TO LET THE USER
+        // SELECT THE CORRECT ANSWERS. HERE WE BUILD THE SELECTION BOX.
         if (classname === 'radio-choice' || classname === 'true-false') {
             selectCtrl = $('<input type="radio" value="yes" />').attr('name', 'group'+group);
             if (selected) {
@@ -137,12 +174,15 @@ var Quiztronic = {
             answerLine.append(selectionWrapper);
         }
 
+        // NOW WRAP THE INPUT AND ATTACH THE TOOLBAR.
         answerWrapper.append(answer);
         answerLine.append(answerWrapper);
         if (toolbar) {
             answerLine.append(this.makeAnswerToolbar(answerLine, remove));
         }
 
+        // ONLY THE ANSWERS OF TYPE 'TEXTAREA' ARE NOT EDITABLE, FOR THE
+        // REST WE ATTACH THE MOUSE OVER EFFECTS.
         if (classname !== 'textarea') {
             $(answerLine).hover(function() {
                 if ($(this).hasClass('idle')) {
@@ -174,8 +214,10 @@ var Quiztronic = {
     },
 
     answerAddHelper: function (classname, value, target, group) {
-        var that = this, icon, addLink;
+        var self = this, icon, addLink;
 
+        // ONLY THE SETS OF ONE OR MULTIPLE CHOICES (RADIO & CHECKBOXES)
+        // HAVE A LINK TO ADD ONE MORE POSSIBLE ANSWER.
         if (classname === 'radio-choice' || classname === 'checkbox') {
             icon = $('<img src="/static/icons/add.png" height="16" width="16" />');
             addLink = $('<a href="#"></a>');
@@ -184,7 +226,7 @@ var Quiztronic = {
 
             $(addLink).click(function (e) {
                 e.preventDefault();
-                $(target).append(that.makeAnswerInput({
+                $(target).append(self.makeAnswerInput({
                     classname: classname,
                     value: value,
                     group: group
@@ -194,14 +236,10 @@ var Quiztronic = {
             return $('<div class="answer-add"></div>').append(addLink);
         }
 
+        // FOR QUESTIONS WITH FREE-TEXT OR FRUE/FALSE ANSWERS, WHICH CAN'T
+        // HAVE AN "ADD ANOTHER" LINK, WE ADD AN EMPTY <DIV> TO MAINTAIN THE
+        // SAME LAYOUT AS OTHER TYPE OF QUESTIONS.
         return $('<div class="answer-add">&nbsp;</div>');
-    },
-
-    makeAnswersContainer: function (container) {
-        var div = $('<div class="answers"></div>');
-        container.append(div);
-
-        return div;
     },
 
     makeAnswerToolbar: function (container, removep) {
@@ -216,29 +254,35 @@ var Quiztronic = {
         return div;
     },
 
-    // QUESTION INPUT AND WRAPPERS
+    // ==================================================
+    // MAKE QUESTIONS
+    // ==================================================
     makeQuestionInput: function (container, text, classname) {
         var questionDiv = $('<div class="question idle"></div>');
         var inputDiv = $('<div class="input"></div>');
         var input = $('<input type="text" />').val(text).addClass(classname);
-        var toolbar = this.makeQuestionToolbar(container);
+
+        var toolbar = $('<div class="toolbar"></div>');
+        toolbar.append(this.makeUpLink(container, 'Subir'));
+        toolbar.append(this.makeDownLink(container, 'Bajar'));
+        toolbar.append(this.makeRemoveLink(container, 'Quitar'));
 
         container.append(questionDiv);
         questionDiv.append(inputDiv);
         questionDiv.append(toolbar);
         inputDiv.append(input);
 
-		$(questionDiv).hover(function() {
+        $(questionDiv).hover(function() {
             if ($(this).hasClass('idle')) {
                 $(this).addClass('highlight');
                 $(this).removeClass('idle');
             }
-		}, function() {
+        }, function() {
             if ($(this).hasClass('highlight')) {
                 $(this).removeClass('highlight');
                 $(this).addClass('idle');
             }
-		});
+        });
 
         $(input).focus(function () {
             $(this).
@@ -256,17 +300,11 @@ var Quiztronic = {
         return questionDiv;
     },
 
-    makeQuestionToolbar: function (container) {
-        var div = $('<div class="toolbar"></div>');
-        div.append(this.makeUpLink(container, 'Subir'));
-        div.append(this.makeDownLink(container, 'Bajar'));
-        div.append(this.makeRemoveLink(container, 'Quitar'));
-
-        return div;
-    },
-
+    // ==================================================
+    // BUTTONS FOR THE ANSWERS & QUESTIONS TOOLBARS
+    // ==================================================
     makeUpLink: function (container, label) {
-        var link = $('<a href="#"></a>'), self = this;
+        var link = $('<a href="#"></a>');
         var icon = $('<img src="/static/icons/arrow_up.png" height="16" width="16" />');
 
         label = typeof label === 'string' ? label : "";
@@ -293,7 +331,7 @@ var Quiztronic = {
     },
 
     makeDownLink: function (container, label) {
-        var link = $('<a href="#"></a>'), self = this;
+        var link = $('<a href="#"></a>');
         var icon = $('<img src="/static/icons/arrow_down.png" height="16" width="16" />');
 
         label = typeof label === 'string' ? label : "";
@@ -320,9 +358,10 @@ var Quiztronic = {
     },
 
     makeRemoveLink: function (container, label) {
-        var removeLink = $('<a href="#"></a>'), self = this;
+        var removeLink = $('<a href="#"></a>');
         var icon = $('<img src="/static/icons/delete.png" height="16" width="16" />');
-        //label = typeof label === 'string' ? label : "Quitar";
+
+        label = typeof label === 'string' ? label : "";
 
         if (container) {
             $(removeLink).append(icon);
@@ -332,43 +371,15 @@ var Quiztronic = {
             $(removeLink).click(function (e) {
                 e.preventDefault();
                 $(container).fadeOut();
-                //var droparea = $(container).parent();
-                //self.updateAddArea(droparea);
             });
             return removeLink;
         }
         return null;
     },
 
-    // CREATE FORMS
-    createQuestion: function (json) {
-        var that = this;
-        var questionContainer = $('<div class="dummy-question"></div>');
-        var question = this.makeQuestionInput(
-                            questionContainer, json.text, json.control);
-        var answersContainer = this.makeAnswersContainer(questionContainer);
-        var group = this.incrementalCounter++;
-
-        $.each(json.answers, function (index, json) {
-            $(answersContainer).append(
-                that.makeAnswerInput({
-                    classname: json.control,
-                    value: json.text,
-                    group: group,
-                    selected: json.selected }));
-        });
-
-        $(questionContainer).append(
-            this.answerAddHelper(
-                json.control,
-                'Describe otra posible respuesta.',
-                answersContainer,
-                group));
-
-        return questionContainer;
-    },
-
+    // ==================================================
     // COLLECT FORMS
+    // ==================================================
     collectQuestionForms: function (container) {
         var questions = [],
             self = this;
@@ -419,6 +430,9 @@ $(document).ready(function () {
     var formId = $('#id_id').val();
     var addArea = $('#questions-addarea');
 
+    // ==================================================
+    // SETUP THE BUTTONS TO CREATE QUESTIONS
+    // ==================================================
     $('div.buttons a').click(function () {
         var form = Quiztronic.createForm($(this).attr('id'));
         if (form) {
