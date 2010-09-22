@@ -36,9 +36,11 @@
       (:section :id "questions"
         (:h1 "Paso 1. Diseña tu cuestionario")
         (:div :id "form-title"
-              (text-input "Asigna un título a la evaluación:" "title"))
+              (text-input "Asigna un título a la evaluación:" "title"
+                          :default-value (form-title form)))
         (:div :id "form-notes"
-              (text-area "Indica las instrucciones (opcional):" "notes"))
+              (text-area "Indica las instrucciones (opcional):" "notes"
+                         :default-value (form-notes form)))
         (:div :id "questions-addarea"))
       (:section :id "questions-selection"
         (:h3 "Haz click en un botón para agregar una pregunta.")
@@ -57,6 +59,18 @@
                   "Texto libre")))
       (:section :id "questions-submit" (submit-button "Enviar")))))
 
+(define-json-fn design/backend-get-form-questions
+  (let ((form-obj (or (data/get-form (parameter "id")) (error ""))))
+    (htm
+      (str
+        (clouchdb:document-to-json
+          (mapcar
+            (lambda (alist)
+              (acons :|answers|
+                     (data/get-answers-by-question
+                       (cdr (assoc :|_id| alist)) :raw-alist t)
+                     alist))
+            (data/get-questions-by-form (form-id form-obj) :raw-alist t)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; SAVE FORM DESIGN.

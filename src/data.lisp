@@ -55,7 +55,7 @@ This macro saves some typing:
   (error "Not implemented"))
 
 
-(defun data/get-questions-by-form (form-id)
+(defun data/get-questions-by-form (form-id &key raw-alist)
   ;; The reason we are doing nreverse below is that the function
   ;; clouchdb:query-document reverses the results it receives
   ;; after matching them against the query. For instance, if the
@@ -69,7 +69,7 @@ This macro saves some typing:
   ;;
   ;; Of course we could get the order we want by inverting the order
   ;; in the invoke-view call, but it feels kludgy.
-  (mapcar #'data/build-question-from-alist
+  (mapcar (if raw-alist #'identity #'data/build-question-from-alist)
           (nreverse
             (clouchdb:query-document
               `(:|rows| :|id| ,#'clouchdb:get-document)
@@ -78,8 +78,8 @@ This macro saves some typing:
                                     :end-key (list form-id
                                                    (make-hash-table)))))))
 
-(defun data/get-answers-by-question (question-id)
-  (mapcar (lambda (alist) (data/build-answer-from-alist alist))
+(defun data/get-answers-by-question (question-id &key raw-alist)
+  (mapcar (if raw-alist #'identity #'data/build-answer-from-alist)
           (nreverse
             (clouchdb:query-document
               `(:|rows| :|id| ,#'clouchdb:get-document)

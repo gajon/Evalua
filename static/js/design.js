@@ -73,18 +73,37 @@ var Quiztronic = {
             value = opts.value || 'Describe a possible answer.',
             toolbar = (opts.toolbar === undefined) ? true : opts.toolbar,
             remove = (opts.remove === undefined) ? true : opts.remove,
-            group = opts.group || 0;
+            group = opts.group || 0,
+            selected = opts.selected || false;
 
-        var answerLine = $('<div class="answer-line idle"></div>'),
+        var selectCtrl = null,
+            answer = null,
+            answerLine = $('<div class="answer-line"></div>'),
             answerWrapper = $('<div class="input"></div>'),
-            answer = $('<input type="text"/>').val(value).addClass(classname),
             selectionWrapper = $('<div class="selection"></div>');
 
+        if (classname === 'textarea') {
+            answer = $('<textarea></textarea>').val(value).addClass(classname).attr('readonly', 'readonly');
+            toolbar = false;
+        } else {
+            answer = $('<input type="text"/>').val(value).addClass(classname);
+            answerLine.addClass('idle');
+        }
+
         if (classname === 'radio-choice' || classname === 'true-false') {
-            selectionWrapper.append($('<input type="radio" value="yes" />').attr('name', 'group'+group));
+            selectCtrl = $('<input type="radio" value="yes" />').attr('name', 'group'+group);
+            if (selected) {
+                selectCtrl.attr('checked', 'checked');
+            }
+            selectionWrapper.append(selectCtrl);
             answerLine.append(selectionWrapper);
+
         } else if (classname === 'checkbox') {
-            selectionWrapper.append($('<input type="checkbox" value="yes" />'));
+            selectCtrl = $('<input type="checkbox" value="yes" />');
+            if (selected) {
+                selectCtrl.attr('checked', 'checked');
+            }
+            selectionWrapper.append(selectCtrl);
             answerLine.append(selectionWrapper);
         }
 
@@ -94,51 +113,58 @@ var Quiztronic = {
             answerLine.append(this.makeAnswerToolbar(answerLine, remove));
         }
 
-		$(answerLine).hover(function() {
-            if ($(this).hasClass('idle')) {
-                $(this).addClass('highlight');
-                $(this).removeClass('idle');
-            }
-		}, function() {
-            if ($(this).hasClass('highlight')) {
-                $(this).removeClass('highlight');
-                $(this).addClass('idle');
-            }
-		});
+        if (classname !== 'textarea') {
+            $(answerLine).hover(function() {
+                if ($(this).hasClass('idle')) {
+                    $(this).addClass('highlight');
+                    $(this).removeClass('idle');
+                }
+            }, function() {
+                if ($(this).hasClass('highlight')) {
+                    $(this).removeClass('highlight');
+                    $(this).addClass('idle');
+                }
+            });
 
-        $(answer).focus(function () {
-            $(this).
-                parent().
-                parent().
-                removeClass('idle').
-                removeClass('highlight');
-            this.select();
-        });
+            $(answer).focus(function () {
+                $(this).
+                    parent().
+                    parent().
+                    removeClass('idle').
+                    removeClass('highlight');
+                this.select();
+            });
 
-        $(answer).blur(function () {
-            $(this).parent().parent().addClass('idle');
-        });
+            $(answer).blur(function () {
+                $(this).parent().parent().addClass('idle');
+            });
+        }
 
         return answerLine;
     },
 
     answerAddHelper: function (classname, value, target, group) {
-        var that = this,
-            icon = $('<img src="/static/icons/add.png" height="16" width="16" />'),
+        var that = this, icon, addLink;
+
+        if (classname === 'radio-choice' || classname === 'checkbox') {
+            icon = $('<img src="/static/icons/add.png" height="16" width="16" />');
             addLink = $('<a href="#"></a>');
 
-        addLink.append(icon).append('Agregar otra respuesta');
+            addLink.append(icon).append('Agregar otra respuesta');
 
-        $(addLink).click(function (e) {
-            e.preventDefault();
-            $(target).append(that.makeAnswerInput({
-                classname: classname,
-                value: value,
-                group: group
-            }));
-        });
+            $(addLink).click(function (e) {
+                e.preventDefault();
+                $(target).append(that.makeAnswerInput({
+                    classname: classname,
+                    value: value,
+                    group: group
+                }));
+            });
 
-        return $('<div class="answer-add"></div>').append(addLink);
+            return $('<div class="answer-add"></div>').append(addLink);
+        }
+
+        return $('<div class="answer-add">&nbsp;</div>');
     },
 
     makeAnswersContainer: function (container) {
@@ -285,6 +311,33 @@ var Quiztronic = {
     },
 
     // CREATE FORMS
+    createQuestion: function (json) {
+        var that = this;
+        var questionContainer = $('<div class="dummy-question"></div>');
+        var question = this.makeQuestionInput(
+                            questionContainer, json.text, json.control);
+        var answersContainer = this.makeAnswersContainer(questionContainer);
+        var group = this.incrementalCounter++;
+
+        $.each(json.answers, function (index, json) {
+            $(answersContainer).append(
+                that.makeAnswerInput({
+                    classname: json.control,
+                    value: json.text,
+                    group: group,
+                    selected: json.selected }));
+        });
+
+        $(questionContainer).append(
+            this.answerAddHelper(
+                json.control,
+                'Describe otra posible respuesta.',
+                answersContainer,
+                group));
+
+        return questionContainer;
+    },
+
     createRadioChoiceForm: function () {
         var questionContainer = $('<div class="dummy-question"></div>');
         var question = this.makeQuestionInput(
@@ -408,6 +461,7 @@ var Quiztronic = {
 
 
 $(document).ready(function () {
+    var formId = $('#id_id').val();
     var addArea = $('#questions-addarea');
 
     $('div.buttons a').click(function () {
@@ -418,17 +472,19 @@ $(document).ready(function () {
     });
 
 
+    // ==================================================
+    // SUBMIT THE EDITED FORM
+    // ==================================================
     $('#questions-submit #id_submit').click(function () {
-        var formId = $('#id_id').val(),
-            formTitle = $('#id_title').val(),
+        var formTitle = $('#id_title').val(),
             formNotes = $('#id_notes').val(),
             questions = Quiztronic.collectQuestionForms(addArea);
 
         $.post('/design/backend-save-form/',
             {
-            "id": formId,
-            "title": formTitle,
-            "notes": formNotes,
+            id: formId,
+            title: formTitle,
+            notes: formNotes,
             questions: JSON.stringify(questions),
             },
             function (res) {
@@ -465,6 +521,23 @@ $(document).ready(function () {
             },
             'json');
     });
+
+
+    // ==================================================
+    // LOAD THE FORM'S DATA AND QUESTIONS
+    // ==================================================
+    $.getJSON('/design/backend-get-form-questions',
+        { id: formId },
+        function (json) {
+            if (json && json.length && json.length > 0) {
+                $.each(json, function (index, jsonQuestion) {
+                    var question = Quiztronic.createQuestion(jsonQuestion);
+                    if (question) {
+                        $(addArea).append(question);
+                    }
+                });
+            }
+        });
 });
 
 // vim: set sw=4 ts=4 et:
