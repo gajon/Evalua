@@ -44,15 +44,45 @@ var Quiztronic = {
     incrementalCounter: 1,
 
     createForm: function (type) {
+        var opts = {
+            text: 'Describe una pregunta de opción múltiple',
+            control: 'radio-choice',
+            answers: null
+        };
+
         if (type === 'radio-choice') {
-            return this.createRadioChoiceForm();
+            opts.answers = [
+                {control:'radio-choice', text:'Describe una posible respuesta.'},
+                {control:'radio-choice', text:'Describe otra posible respuesta.'},
+                {control:'radio-choice', text:'Describe otra posible respuesta.'}
+            ];
+
         } else if (type === 'true-false') {
-            return this.createTrueFalseForm();
+            opts.text = 'Describe una pregunta de falso-verdadero';
+            opts.control = 'true-false';
+            opts.answers = [
+                {control:'true-false', text:'Verdadero'},
+                {control:'true-false', text:'Falso'}
+            ];
+
         } else if (type === 'checkboxes') {
-            return this.createCheckboxesForm();
+            opts.text = 'Describe una pregunta de selección múltiple';
+            opts.control = 'checkbox';
+            opts.answers = [
+                {control:'checkbox', text:'Describe una de las posibles respuestas.'},
+                {control:'checkbox', text:'Describe otra de las posibles respuestas.'},
+                {control:'checkbox', text:'Describe otra de las posibles respuestas.'}
+            ];
+
         } else if (type === 'textarea') {
-            return this.createTextAreaForm();
+            opts.text = 'Describe una pregunta de texto libre';
+            opts.control = 'textarea';
+            opts.answers = [
+                {control:'textarea', text:'Texto libre...'}
+            ];
         }
+
+        return this.createQuestion(opts);
     },
 
     // TODO: Not used.
@@ -334,81 +364,6 @@ var Quiztronic = {
                 'Describe otra posible respuesta.',
                 answersContainer,
                 group));
-
-        return questionContainer;
-    },
-
-    createRadioChoiceForm: function () {
-        var questionContainer = $('<div class="dummy-question"></div>');
-        var question = this.makeQuestionInput(
-                            questionContainer,
-                            'Describe una pregunta de opción múltiple',
-                            'radio-choice');
-        var answersContainer = this.makeAnswersContainer(questionContainer);
-        var group = this.incrementalCounter++;
-
-        $(answersContainer).append(this.makeAnswerInput({ value: 'Describe una posible respuesta.', group: group }));
-        $(answersContainer).append(this.makeAnswerInput({ value: 'Describe otra posible respuesta.', group: group }));
-        $(answersContainer).append(this.makeAnswerInput({ value: 'Describe otra posible respuesta.', group: group }));
-        $(questionContainer).append(
-            this.answerAddHelper(
-                'radio-choice',
-                'Describe otra posible respuesta.',
-                answersContainer,
-                group));
-
-        return questionContainer;
-    },
-
-    createTrueFalseForm: function () {
-        var questionContainer = $('<div class="dummy-question"></div>');
-        var question = this.makeQuestionInput(
-                            questionContainer,
-                            'Describe una pregunta de falso-verdadero',
-                            'true-false');
-        var answersContainer = this.makeAnswersContainer(questionContainer);
-
-        $(answersContainer).append(this.makeAnswerInput({ classname: 'true-false', value: 'Verdadero' }));
-        $(answersContainer).append(this.makeAnswerInput({ classname: 'true-false', value: 'Falso' }));
-
-        $(answersContainer).append($('<div class="answer-add">&nbsp;</div>'));
-        return questionContainer;
-    },
-
-    createCheckboxesForm: function () {
-        var questionContainer = $('<div class="dummy-question"></div>');
-        var question = this.makeQuestionInput(
-                            questionContainer,
-                            'Describe una pregunta de selección múltiple',
-                            'checkbox');
-        var answersContainer = this.makeAnswersContainer(questionContainer);
-
-        $(answersContainer).append(this.makeAnswerInput({ classname: 'checkbox', value: 'Describe una de las posibles respuestas.' }));
-        $(answersContainer).append(this.makeAnswerInput({ classname: 'checkbox', value: 'Describe otra de las posibles respuestas.' }));
-        $(answersContainer).append(this.makeAnswerInput({ classname: 'checkbox', value: 'Describe otra de las posibles respuestas.' }));
-
-        $(questionContainer).append(
-            this.answerAddHelper(
-                'checkbox',
-                'Describe otra de las posibles respuestas.',
-                answersContainer));
-
-        return questionContainer;
-    },
-
-    createTextAreaForm: function () {
-        var questionContainer = $('<div class="dummy-question"></div>');
-        var question = this.makeQuestionInput(
-                            questionContainer,
-                            'Describe una pregunta de texto libre',
-                            'textarea');
-        var answersContainer = this.makeAnswersContainer(questionContainer);
-        var answerLine = $('<div class="answer-line"></div>');
-        var answer = $('<div class="input"><textarea class="textarea" readonly="readonly">Texto libre...</textarea></div>');
-
-        $(answerLine).append(answer);
-        $(answersContainer).append(answerLine);
-        $(answersContainer).append($('<div class="answer-add">&nbsp;</div>'));
 
         return questionContainer;
     },
