@@ -72,7 +72,7 @@ var Quiztronic = {
             classname = opts.classname || 'radio-choice',
             value = opts.value || 'Describe a possible answer.',
             toolbar = (opts.toolbar === undefined) ? true : opts.toolbar,
-            remove = (opts.remove === undefined) ? true : opts.remove,
+            remove = (classname !== 'true-false') ? true : false,
             group = opts.group || 0,
             selected = opts.selected || false;
 
@@ -368,8 +368,8 @@ var Quiztronic = {
                             'true-false');
         var answersContainer = this.makeAnswersContainer(questionContainer);
 
-        $(answersContainer).append(this.makeAnswerInput({ classname: 'true-false', value: 'Verdadero', remove: false }));
-        $(answersContainer).append(this.makeAnswerInput({ classname: 'true-false', value: 'Falso', remove: false }));
+        $(answersContainer).append(this.makeAnswerInput({ classname: 'true-false', value: 'Verdadero' }));
+        $(answersContainer).append(this.makeAnswerInput({ classname: 'true-false', value: 'Falso' }));
 
         $(answersContainer).append($('<div class="answer-add">&nbsp;</div>'));
         return questionContainer;
