@@ -18,14 +18,20 @@ The structure of a question is this:
 
 <div class="dummy-question">
     <div class="question">
-        <div class="input"><input class="type-of-question" type="text"/></div>
+        <div class="input">
+            <input class="type-of-question" type="text"/>
+            <input type="hidden" value="questionid" />
+        </div>
         <div class="toolbar"><a ...><a ...></div>
     </div>
 
     <div class="answers">
         <div class="answer-line">
             <div class="selection"><input /></div>
-            <div class="input"><input class="type-of-question" type="type"/></div>
+            <div class="input">
+                <input class="type-of-question" type="type"/>
+                <input type="hidden" value="answerid" />
+            </div>
             <div class="toolbar">
                 <a><img><span>Text</span></a>
                 <a><img><span>Text</span></a>
@@ -98,8 +104,7 @@ var Quiztronic = {
 
         // BUILD THE QUESTION INPUT CONTROL.
         var questionContainer = $('<div class="dummy-question"></div>');
-        var question = this.makeQuestionInput(
-                            questionContainer, opts.text, opts.control);
+        var question = this.makeQuestionInput(questionContainer, opts);
 
         // AND THE QUESTION'S ANSWERS.
         var answersContainer = $('<div class="answers"></div>');
@@ -113,7 +118,8 @@ var Quiztronic = {
                     classname: answer.control,
                     value: answer.text,
                     group: group,
-                    selected: answer.selected }));
+                    selected: answer.selected,
+                    _id: answer._id }));
         });
 
         // THE LINK TO ADD ANOTHER ANSWER TO THE SET.
@@ -179,6 +185,11 @@ var Quiztronic = {
         answerLine.append(answerWrapper);
         if (toolbar) {
             answerLine.append(this.makeAnswerToolbar(answerLine, remove));
+        }
+
+        // AND THE _ID OF AN EXISITING ANSWER.
+        if (options._id) {
+            answerWrapper.append($('<input type="hidden" />').val(options._id));
         }
 
         // ONLY THE ANSWERS OF TYPE 'TEXTAREA' ARE NOT EDITABLE, FOR THE
@@ -257,10 +268,10 @@ var Quiztronic = {
     // ==================================================
     // MAKE QUESTIONS
     // ==================================================
-    makeQuestionInput: function (container, text, classname) {
+    makeQuestionInput: function (container, opts) {
         var questionDiv = $('<div class="question idle"></div>');
         var inputDiv = $('<div class="input"></div>');
-        var input = $('<input type="text" />').val(text).addClass(classname);
+        var input = $('<input type="text" />').val(opts.text).addClass(opts.control);
 
         var toolbar = $('<div class="toolbar"></div>');
         toolbar.append(this.makeUpLink(container, 'Subir'));
@@ -271,6 +282,10 @@ var Quiztronic = {
         questionDiv.append(inputDiv);
         questionDiv.append(toolbar);
         inputDiv.append(input);
+
+        if (opts._id) {
+            inputDiv.append($('<input type="hidden" />').val(opts._id));
+        }
 
         $(questionDiv).hover(function() {
             if ($(this).hasClass('idle')) {
@@ -392,13 +407,18 @@ var Quiztronic = {
     },
 
     collectSingleQuestion: function (container) {
-        var input = $(container).find('div.question input'); 
-        var q = {
-            control: input.attr('class'),
-            text: input.val(),
+        // FIRST THE QUESTION ITSELF ...
+        var questionText = $(container).find('div.question input[type=text]'); 
+        var questionId = $(container).find('div.question input[type=hidden]');
+
+        var question = {
+            control: questionText.attr('class'),
+            text: questionText.val(),
+            _id: (questionId.length && questionId.length !== 0) ? questionId.val() : null,
             answers: []
         };
 
+        // ... AND NOW THE ANSWERS OF THIS QUESTION.
         $(container).find('div.answer-line').each(function () {
             var selectedC = $(this).find('.selection').find('input');
             var selected = false;
@@ -407,21 +427,23 @@ var Quiztronic = {
                 selected = true;
             }
 
-            var control = $(this).find('.input').find('input');
-            if (control.length === 0) {
-                control = $(this).find('textarea');
-            }
+            var answerText = (question.control === 'textarea') ?
+                    $(this).find('div.input textarea') :
+                    $(this).find('div.input input[type=text]');
 
-            if (control.length !== 0) {
-                q.answers.push({
-                    control: $(control).attr('class'),
-                    text: $(control).val(),
+            var aid = $(this).find('.input').find('input[type=hidden]');
+
+            if (answerText.length && answerText.length !== 0) {
+                question.answers.push({
+                    control: $(answerText).attr('class'),
+                    text: $(answerText).val(),
+                    _id: (aid.length && aid.length !== 0) ? aid.val() : null,
                     selected: selected
                 });
             }
         });
 
-        return q;
+        return question;
     }
 };
 

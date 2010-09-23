@@ -243,6 +243,19 @@ This macro saves some typing:
           questions
           (repeatedly (form-id form-obj)))))
 
+(defun data/delete-form-questions (form-obj)
+  (let ((questions (data/get-questions-by-form (form-id form-obj) :raw-alist t)))
+    ;; First delete the answers.
+    (dolist (question questions)
+      (clouchdb:bulk-document-update
+        (mapcar #'clouchdb:as-deleted-document
+                (data/get-answers-by-question (%lowassoc _id question)
+                                              :raw-alist t))))
+    ;; Now delete the questions.
+    (clouchdb:bulk-document-update
+      (mapcar #'clouchdb:as-deleted-document questions))))
+
+
 (defun data/add-submitted-answer (question-id answer-id value now)
   ;; The answer-id is usually a valid _id referencing a document of type
   ;; 'answer'; however, it could be a free text if the question contained a

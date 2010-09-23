@@ -31,7 +31,7 @@
                     :css-files ("design-styles.css?v=20100910")
                     :js-files ("jquery-1.4.2.min.js"
                                "json2.min.js"
-                               "design.js?v=20100921"))
+                               "design.js?v=20100922"))
       (hidden-input "id" :default-value (form-id form))
       (:section :id "questions"
         (:h1 "Paso 1. Diseña tu cuestionario")
@@ -72,6 +72,20 @@
                      alist))
             (data/get-questions-by-form (form-id form-obj) :raw-alist t)))))))
 
+;(define-json-fn design/backend-create-fresh-question
+  ;(when (eql :post (request-method*))
+    ;(handler-case
+      ;(let* ((form-obj (or (data/get-form (parameter "id")) (error "")))
+             ;(q-type (or (parameter "control") (error "")))
+             ;(fresh-q (data/create-fresh-question (form-id form-obj) q-type)))
+        ;(htm (str (clouchdb:document-to-json fresh-q))))
+      ;;;
+      ;;; TODO: make up your mind about error handling.
+      ;(error (c)
+             ;(htm (str (clouchdb:document-to-json
+                         ;`((:|status| . "error")
+                           ;(:|error| . ,(format nil "~a" c))))))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; SAVE FORM DESIGN.
 
@@ -90,6 +104,10 @@
       (setf (form-title form-obj) (or (trim-or-nil (post-parameter "title"))
                                       (error "title"))
             (form-notes form-obj) (trim-or-nil (post-parameter "notes")))
+      ;;
+      ;; TODO: This isn't right, but for the moment it will be.
+      ;;
+      (data/delete-form-questions form-obj)
       ;; And save the form along with its questions.
       ;; The questions and answers must be numerated so that we can display
       ;; them in the proper order.
