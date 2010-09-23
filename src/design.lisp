@@ -104,10 +104,6 @@
       (setf (form-title form-obj) (or (trim-or-nil (post-parameter "title"))
                                       (error "title"))
             (form-notes form-obj) (trim-or-nil (post-parameter "notes")))
-      ;;
-      ;; TODO: This isn't right, but for the moment it will be.
-      ;;
-      (data/delete-form-questions form-obj)
       ;; And save the form along with its questions.
       ;; The questions and answers must be numerated so that we can display
       ;; them in the proper order.
@@ -136,35 +132,36 @@
     (labels ((numerate-answer (alist-answer)
                 (acons :|answer-number| (incf answer-number) alist-answer))
              (numerate-question (alist-q)
-                (pairlis (list :|answers| :|question-number| :|control| :|text|)
+                (pairlis (list :|answers| :|question-number| :|control| :|text| :|_id|)
                          (list (mapcar #'numerate-answer
                                        (cdr (assoc :|answers| alist-q)))
                                (incf question-number)
                                (cdr (assoc :|control| alist-q))
-                               (cdr (assoc :|text| alist-q))))))
+                               (cdr (assoc :|text| alist-q))
+                               (cdr (assoc :|_id| alist-q))))))
       (mapcar #'numerate-question data))))
 
-;(let ((decoded-data1 (clouchdb:json-to-document
-                       ;#"[{"text":"Pregunta", "control":"radio-choice",
-                           ;"answers":[{"control":"radio-choice","text":"Input a possible answer."},
-                                      ;{"control":"radio-choice","text":"Opcion 2"},
-                                      ;{"control":"radio-choice","text":"Opcion 3"}]}]"#))
-      ;(decoded-data2 (clouchdb:json-to-document
-                       ;#"[{"text":"Opcion multiple", "control":"radio-choice",
-                           ;"answers":[{"control":"radio-choice","text":"Input a possible answer."},
-                                      ;{"control":"radio-choice","text":"Opcion 2"},
-                                      ;{"control":"radio-choice","text":"Opcion 3"}]},
-                          ;{"text":"Falso - Verdadero", "control":"true-false",
-                           ;"answers":[{"control":"true-false","text":"Verdadero"},
-                                      ;{"control":"true-false","text":"Falso"}]},
-                          ;{"text":"Seleccion multiple", "control":"checkbox",
-                           ;"answers":[{"control":"checkbox","text":"Seleccion 1"},
-                                      ;{"control":"checkbox","text":"Seleccion 2"},
-                                      ;{"control":"checkbox","text":"Seleccion 3"}]},
-                          ;{"text":"Texto libre", "control":"textarea",
-                           ;"answers":[{"control":"textarea","text":""}]}]"#)))
-  ;(declare (ignorable decoded-data1 decoded-data2))
-  ;(design/numerate-questions-and-answers decoded-data2))
+#| (let ((decoded-data1 (clouchdb:json-to-document
+                       #"[{"text":"Pregunta", "control":"radio-choice",
+                           "answers":[{"control":"radio-choice","text":"Input a possible answer."},
+                                      {"control":"radio-choice","text":"Opcion 2"},
+                                      {"control":"radio-choice","text":"Opcion 3"}]}]"#))
+      (decoded-data2 (clouchdb:json-to-document
+                       #"[{"text":"Opcion multiple", "control":"radio-choice", "_id": "qid123",
+                           "answers":[{"control":"radio-choice","_id":"aid1","selected":false,"text":"Possible answer."},
+                                      {"control":"radio-choice","_id":"aid2","selected":true,"text":"Opcion 2"},
+                                      {"control":"radio-choice","_id":"aid3","selected":false,"text":"Opcion 3"}]},
+                          {"text":"Falso - Verdadero", "control":"true-false","_id":"qid456",
+                           "answers":[{"control":"true-false","_id":"aid4","selected":true,"text":"Verdadero"},
+                                      {"control":"true-false","_id":"aid5","selected":false,"text":"Falso"}]},
+                          {"text":"Seleccion multiple", "control":"checkbox","_id":"qid789",
+                           "answers":[{"control":"checkbox","_id":"aid6","selected":true,"text":"Seleccion 1"},
+                                      {"control":"checkbox","_id":"aid7","selected":true,"text":"Seleccion 2"},
+                                      {"control":"checkbox","_id":"aid8","selected":false,"text":"Seleccion 3"}]},
+                          {"text":"Texto libre", "control":"textarea","_id":null,
+                           "answers":[{"control":"textarea","_id":null,"text":""}]}]"#)))
+  (declare (ignorable decoded-data1 decoded-data2))
+  (design/numerate-questions-and-answers decoded-data2)) |#
 
 
 (define-url-fn design/edit-form-options

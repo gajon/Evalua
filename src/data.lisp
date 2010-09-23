@@ -218,42 +218,63 @@ This macro saves some typing:
 (defun data/save-form-questions (form-obj questions)
   ;; The questions link back to the form using the form's id, and similarly
   ;; the answers link back to each question using the question's id.
+  ;;
+  ;; When a question or answer have a non-null _id fields, it means that
+  ;; it's an existing document and we should just update it.
+  ;; This is taken care of by data%save-question and data%save-answer.
   (labels ((save-question (alist form-id)
-             (let ((q (clouchdb:create-document
-                        `((:|type| . "question")
-                          (:|sort| . ,(%lowassoc question-number alist))
-                          (:|control| . ,(%lowassoc control alist))
-                          (:|text| . ,(%lowassoc text alist))
-                          (:|form| . ,form-id)))))
+             (let ((saved (data%save-question alist form-id)))
                ;; TODO: error handling?
-               (when (%lowassoc id q)
-                 (mapc #'save-answer
+               (when (%lowassoc id saved)
+                 (mapc #'data%save-answer
                        (%lowassoc answers alist)
-                       (repeatedly (%lowassoc id q))))))
-           (save-answer (alist question-id)
-             (clouchdb:create-document
-               `((:|type| . "answer")
-                 (:|sort| . ,(%lowassoc answer-number alist))
-                 (:|control| . ,(%lowassoc control alist))
-                 ;; TODO: add this field only when needed?
-                 (:|selected| . ,(%lowassoc selected alist))
-                 (:|text| . ,(%lowassoc text alist))
-                 (:|question| . ,question-id)))))
+                       (repeatedly (%lowassoc id saved)))))))
     (mapc #'save-question
           questions
           (repeatedly (form-id form-obj)))))
 
-(defun data/delete-form-questions (form-obj)
-  (let ((questions (data/get-questions-by-form (form-id form-obj) :raw-alist t)))
-    ;; First delete the answers.
-    (dolist (question questions)
-      (clouchdb:bulk-document-update
-        (mapcar #'clouchdb:as-deleted-document
-                (data/get-answers-by-question (%lowassoc _id question)
-                                              :raw-alist t))))
-    ;; Now delete the questions.
-    (clouchdb:bulk-document-update
-      (mapcar #'clouchdb:as-deleted-document questions))))
+(defun data%save-question (alist form-id)
+  (let* ((qid (%lowassoc _id alist))
+         (rev (when qid
+                (%lowassoc _rev (clouchdb:get-document qid :if-missing :ignore))))
+         (question `(,@(when qid `((:|_id| . ,qid)))
+                     ,@(when rev `((:|_rev| . ,rev)))
+                     (:|type| .    "question")
+                     (:|sort| .    ,(%lowassoc question-number alist))
+                     (:|control| . ,(%lowassoc control alist))
+                     (:|text| .    ,(%lowassoc text alist))
+                     (:|form| .    ,form-id))))
+    (if (and qid rev)
+      (clouchdb:put-document question)
+      (clouchdb:post-document question))))
+
+(defun data%save-answer (alist question-id)
+  (let* ((aid (%lowassoc _id alist))
+         (rev (when aid
+                (%lowassoc _rev (clouchdb:get-document aid :if-missing :ignore))))
+         (answer `(,@(when aid `((:|_id| . ,aid)))
+                   ,@(when rev `((:|_rev| . ,rev)))
+                   (:|type| .     "answer")
+                   (:|sort| .     ,(%lowassoc answer-number alist))
+                   (:|control| .  ,(%lowassoc control alist))
+                   (:|selected| . ,(%lowassoc selected alist))
+                   (:|text| .     ,(%lowassoc text alist))
+                   (:|question| . ,question-id))))
+    (if (and aid rev)
+      (clouchdb:put-document answer)
+      (clouchdb:post-document answer))))
+
+;(defun data/delete-form-questions (form-obj)
+  ;(let ((questions (data/get-questions-by-form (form-id form-obj) :raw-alist t)))
+    ;;; First delete the answers.
+    ;(dolist (question questions)
+      ;(clouchdb:bulk-document-update
+        ;(mapcar #'clouchdb:as-deleted-document
+                ;(data/get-answers-by-question (%lowassoc _id question)
+                                              ;:raw-alist t))))
+    ;;; Now delete the questions.
+    ;(clouchdb:bulk-document-update
+      ;(mapcar #'clouchdb:as-deleted-document questions))))
 
 
 (defun data/add-submitted-answer (question-id answer-id value now)

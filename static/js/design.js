@@ -112,15 +112,17 @@ var Quiztronic = {
 
         questionContainer.append(answersContainer);
 
-        $.each(opts.answers, function (index, answer) {
-            $(answersContainer).append(
-                self.makeAnswerInput({
-                    classname: answer.control,
-                    value: answer.text,
-                    group: group,
-                    selected: answer.selected,
-                    _id: answer._id }));
-        });
+        if (opts.answers) {
+            $.each(opts.answers, function (index, answer) {
+                $(answersContainer).append(
+                    self.makeAnswerInput({
+                        classname: answer.control,
+                        value: answer.text,
+                        group: group,
+                        selected: answer.selected,
+                        _id: answer._id }));
+            });
+        }
 
         // THE LINK TO ADD ANOTHER ANSWER TO THE SET.
         $(questionContainer).append(
