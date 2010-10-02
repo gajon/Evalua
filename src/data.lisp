@@ -1,8 +1,5 @@
 (in-package #:evalua)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; DATA RETRIEVAL
-
 (defmacro %lowassoc (field-name obj)
   "We want to use lowercase field names on the database(CouchDB) which means
 that we need symbols like :|foo| when accessing values from the alists we get
@@ -22,10 +19,18 @@ This macro saves some typing:
             ,obj))))
 
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; DOCUMENT RETRIEVAL
+
+;;;
+;;; Forms
+;;;
+
 (defun data/get-form (id)
   (handler-case
-    (let ((alist (clouchdb:get-document id)))
-      (data/build-form-from-alist alist))
+    (data/build-form-from-alist (clouchdb:get-document id))
     (error () nil)))
 
 (defun data/get-form-by-public-id (public-id)
@@ -54,6 +59,9 @@ This macro saves some typing:
   (declare (ignore user date))
   (error "Not implemented"))
 
+;;;
+;;; Questions
+;;;
 
 (defun data/get-questions-by-form (form-id &key raw-alist)
   ;; The reason we are doing nreverse below is that the function
@@ -88,6 +96,9 @@ This macro saves some typing:
                                     :end-key (list question-id
                                                    (make-hash-table)))))))
 
+;;;
+;;; Users
+;;;
 
 (defun data/get-user (username)
   (handler-case (data/build-user-from-alist (clouchdb:get-document username))
@@ -100,6 +111,9 @@ This macro saves some typing:
       (string= digest (%lowassoc password alist)))
     (error () nil)))
 
+;;;
+;;; Util functions to build objects from alists returned by clouchdb
+;;;
 
 (defun data/build-form-from-alist (alist)
   (make-instance 'form
@@ -146,8 +160,10 @@ This macro saves some typing:
                  :time-zone       (%lowassoc 'time-zone alist)))
 
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; DATA STORAGE
+;;; DOCUMENT STORAGE
 
 (defun data/create-fresh-form (form-obj)
   (flet ((%create-form (form-obj)
@@ -185,6 +201,7 @@ This macro saves some typing:
         (declare (ignore c))
         ;; Try once more.. this should be rare, the random number should
         ;; be sufficiently big so that collisions are rare.
+        ;; TODO: this is stupid, find an available ID first.
         (ignore-errors
           (%create-form form-obj))))))
 
@@ -264,8 +281,41 @@ This macro saves some typing:
       (clouchdb:put-document answer)
       (clouchdb:post-document answer))))
 
-(defun data/delete-form-questions (form-obj)
-  (let* ((fid (if (eq (type-of form-obj) 'form) (form-id form-obj) form-obj))
+(defun data/create-user (user-obj)
+  ;; TODO: Aren't this and data/save-user almost the same?
+  (let ((saved? (clouchdb:create-document
+               `((:|type| . "user")
+                 (:|full-name| .       ,(user-full-name user-obj))
+                 (:|email| .           ,(user-email user-obj))
+                 (:|time-zone| .       ,(user-time-zone user-obj))
+                 (:|password-digest| . ,(user-password-digest user-obj)))
+               :id (user-username user-obj))))
+    (when saved?
+      (setf (user-rev user-obj) (%lowassoc rev saved?))
+      user-obj)))
+
+(defun data/save-user (user-obj)
+  (let ((saved? (clouchdb:put-document
+                  `((:|_id| .             ,(user-username user-obj))
+                    (:|_rev| .            ,(user-rev user-obj))
+                    (:|type| .            "user")
+                    (:|full-name| .       ,(user-full-name user-obj))
+                    (:|email| .           ,(user-email user-obj))
+                    (:|time-zone| .       ,(user-time-zone user-obj))
+                    (:|password-digest| . ,(user-password-digest user-obj))))))
+    (when (%lowassoc ok saved?)
+      ;; Update the _rev info, just in case.
+      (setf (user-rev user-obj) (%lowassoc rev saved?))
+      user-obj)))
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; DOCUMENT DELETION
+
+(defun data/delete-form-questions (form)
+  (let* ((fid (if (eq (type-of form) 'form) (form-id form) form))
          (questions (data/get-questions-by-form fid :raw-alist t)))
     (dolist (question questions)
       (data/delete-question-answers (%lowassoc _id question)))
@@ -296,6 +346,21 @@ This macro saves some typing:
     (when (and doc (string= qid (%lowassoc question doc)))
       (clouchdb:delete-document aid :if-missing :ignore))))
 
+(defun data/delete-form-parts (ids)
+  (dolist (id ids)
+    (awhen (clouchdb:get-document id :if-missing :ignore)
+      (let ((type (%lowassoc type it)))
+        (cond ((string= type "question")
+               (data/delete-form-question (%lowassoc form it) id))
+              ((string= type "answer")
+               (data/delete-question-answer (%lowassoc question it) id))))))
+  t)
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; SUBMITTED ANSWERS
 
 (defun data/add-submitted-answer (question-id answer-id value now)
   ;; The answer-id is usually a valid _id referencing a document of type
@@ -309,6 +374,11 @@ This macro saves some typing:
       (:|question| . ,question-id))))
 
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; WAIT REGISTRY
+
 (defun data/add-wait-registry (email date user-agent remote-addr)
   (clouchdb:create-document
     `((:|type| . "wait-registry")
@@ -318,43 +388,7 @@ This macro saves some typing:
       (:|date| . ,(format-iso8601-date date)))))
 
 
-(defun data/create-user (user-obj)
-  ;; TODO: Aren't this and data/save-user almost the same?
-  (let ((saved? (clouchdb:create-document
-               `((:|type| . "user")
-                 (:|full-name| .       ,(user-full-name user-obj))
-                 (:|email| .           ,(user-email user-obj))
-                 (:|time-zone| .       ,(user-time-zone user-obj))
-                 (:|password-digest| . ,(user-password-digest user-obj)))
-               :id (user-username user-obj))))
-    (when saved?
-      (setf (user-rev user-obj) (%lowassoc rev saved?))
-      user-obj)))
 
-(defun data/save-user (user-obj)
-  (let ((saved? (clouchdb:put-document
-                  `((:|_id| .             ,(user-username user-obj))
-                    (:|_rev| .            ,(user-rev user-obj))
-                    (:|type| .            "user")
-                    (:|full-name| .       ,(user-full-name user-obj))
-                    (:|email| .           ,(user-email user-obj))
-                    (:|time-zone| .       ,(user-time-zone user-obj))
-                    (:|password-digest| . ,(user-password-digest user-obj))))))
-    (when (%lowassoc ok saved?)
-      ;; Update the _rev info, just in case.
-      (setf (user-rev user-obj) (%lowassoc rev saved?))
-      user-obj)))
-
-
-(defun data/delete-form-parts (ids)
-  (dolist (id ids)
-    (awhen (clouchdb:get-document id :if-missing :ignore)
-      (let ((type (%lowassoc type it)))
-        (cond ((string= type "question")
-               (data/delete-form-question (%lowassoc form it) id))
-              ((string= type "answer")
-               (data/delete-question-answer (%lowassoc question it) id))))))
-  t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; UTILITIES TO SETUP THE COUCHDB DATABASE, MAINLY THE
