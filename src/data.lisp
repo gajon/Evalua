@@ -264,17 +264,37 @@ This macro saves some typing:
       (clouchdb:put-document answer)
       (clouchdb:post-document answer))))
 
-;(defun data/delete-form-questions (form-obj)
-  ;(let ((questions (data/get-questions-by-form (form-id form-obj) :raw-alist t)))
-    ;;; First delete the answers.
-    ;(dolist (question questions)
-      ;(clouchdb:bulk-document-update
-        ;(mapcar #'clouchdb:as-deleted-document
-                ;(data/get-answers-by-question (%lowassoc _id question)
-                                              ;:raw-alist t))))
-    ;;; Now delete the questions.
-    ;(clouchdb:bulk-document-update
-      ;(mapcar #'clouchdb:as-deleted-document questions))))
+(defun data/delete-form-questions (form-obj)
+  (let* ((fid (if (eq (type-of form-obj) 'form) (form-id form-obj) form-obj))
+         (questions (data/get-questions-by-form fid :raw-alist t)))
+    (dolist (question questions)
+      (data/delete-question-answers (%lowassoc _id question)))
+    (clouchdb:bulk-document-update
+      (mapcar #'clouchdb:as-deleted-document questions))))
+
+(defun data/delete-form-question (form question)
+  (let* ((fid (if (eq (type-of form) 'form) (form-id form) form))
+         (qid (if (eq (type-of question) 'question)
+                (question-id question) question))
+         (doc (clouchdb:get-document qid :if-missing :ignore)))
+    (when (and doc (string= fid (%lowassoc form doc)))
+      (data/delete-question-answers qid)
+      (clouchdb:delete-document qid :if-missing :ignore))))
+
+(defun data/delete-question-answers (question)
+  (let* ((qid (if (eq (type-of question) 'question)
+                (question-id question) question)))
+    (clouchdb:bulk-document-update
+      (mapcar #'clouchdb:as-deleted-document
+              (data/get-answers-by-question qid :raw-alist t)))))
+
+(defun data/delete-question-answer (question answer)
+  (let* ((qid (if (eq (type-of question) 'question)
+                (question-id question) question))
+         (aid (if (eq (type-of answer) 'answer) (answer-id answer) answer))
+         (doc (clouchdb:get-document aid :if-missing :ignore)))
+    (when (and doc (string= qid (%lowassoc question doc)))
+      (clouchdb:delete-document aid :if-missing :ignore))))
 
 
 (defun data/add-submitted-answer (question-id answer-id value now)
@@ -324,6 +344,17 @@ This macro saves some typing:
       ;; Update the _rev info, just in case.
       (setf (user-rev user-obj) (%lowassoc rev saved?))
       user-obj)))
+
+
+(defun data/delete-form-parts (ids)
+  (dolist (id ids)
+    (awhen (clouchdb:get-document id :if-missing :ignore)
+      (let ((type (%lowassoc type it)))
+        (cond ((string= type "question")
+               (data/delete-form-question (%lowassoc form it) id))
+              ((string= type "answer")
+               (data/delete-question-answer (%lowassoc question it) id))))))
+  t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; UTILITIES TO SETUP THE COUCHDB DATABASE, MAINLY THE

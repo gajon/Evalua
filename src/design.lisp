@@ -31,7 +31,7 @@
                     :css-files ("design-styles.css?v=20100910")
                     :js-files ("jquery-1.4.2.min.js"
                                "json2.min.js"
-                               "design.js?v=20100922"))
+                               "design.js?v=20100923"))
       (hidden-input "id" :default-value (form-id form))
       (:section :id "questions"
         (:h1 "Paso 1. Diseña tu cuestionario")
@@ -97,9 +97,11 @@
   ;; while processing this request.
   (handler-case
     (let ((form-obj (or (data/get-form (parameter "id")) (redirect "/")))
-          (decoded-data (or (clouchdb:json-to-document
-                              (trim-or-nil (post-parameter "questions")))
-                            (error "empty-questions"))))
+          (questions-data (or (clouchdb:json-to-document
+                                (trim-or-nil (post-parameter "questions")))
+                              (error "empty-questions")))
+          (to-delete (clouchdb:json-to-document
+                       (trim-or-nil (post-parameter "todelete")))))
       ;; Set the title and notes.
       (setf (form-title form-obj) (or (trim-or-nil (post-parameter "title"))
                                       (error "title"))
@@ -108,9 +110,10 @@
       ;; The questions and answers must be numerated so that we can display
       ;; them in the proper order.
       (if (and (data/save-form form-obj)
+               (data/delete-form-parts to-delete)
                (data/save-form-questions
                  form-obj
-                 (design/numerate-questions-and-answers decoded-data)))
+                 (design/numerate-questions-and-answers questions-data)))
         (htm (str (clouchdb:document-to-json
                     `((:|status| . "ok")
                       (:|id| . ,(form-id form-obj))))))

@@ -54,6 +54,10 @@ var Quiztronic = {
     // ANSWERS; FOR RADIO BOXES AND CHECKBOXES.
     incrementalCounter: 1,
 
+    // WE COLLECT THE IDS OF QUESTIONS AND ANSWERS THAT ARE TO BE DELETED
+    // WHEN WE SEND THE FORM.
+    idsToDelete: [],
+
     // ==================================================
     // CREATE FORMS
     // ==================================================
@@ -375,6 +379,7 @@ var Quiztronic = {
     },
 
     makeRemoveLink: function (container, label) {
+        var self = this;
         var removeLink = $('<a href="#"></a>');
         var icon = $('<img src="/static/icons/delete.png" height="16" width="16" />');
 
@@ -385,9 +390,17 @@ var Quiztronic = {
             if (label) {
                 $(removeLink).append($('<span></span>').append(label));
             }
+
             $(removeLink).click(function (e) {
+                var id = $(container).find('div.input input[type=hidden]');
                 e.preventDefault();
-                $(container).fadeOut();
+
+                $(container).fadeOut(400, function () {
+                    if (id && id.length && id.length > 0) {
+                        self.idsToDelete.push(id.val());
+                    }
+                    $(container).remove();
+                });
             });
             return removeLink;
         }
@@ -479,6 +492,7 @@ $(document).ready(function () {
             title: formTitle,
             notes: formNotes,
             questions: JSON.stringify(questions),
+            todelete: JSON.stringify(Quiztronic.idsToDelete)
             },
             function (res) {
                 var errorMsg,
