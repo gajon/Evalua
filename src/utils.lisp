@@ -92,6 +92,7 @@ BE CAREFUL."
 ;;; CAUTION, We expect to capture the free variable `the-user`.
 (defmacro standard-page ((&key (title "")
                                (show-banner t)
+                               (show-options t)
                                (show-footer t)
                                (include-analytics-p t)
                                css-files js-files)
@@ -128,11 +129,14 @@ BE CAREFUL."
                  (:div :class "logo"
                        (:a :href "/" (:span "Evalua.mx")))
                  (:div :class "options"
-                       ;(:ul
-                         ;(:li (:a :href "/login" "Iniciar sesión"))
-                         ;(:li (:a :href "/prices" "Precios"))
-                         ;(:li (:a :href "/contacto" "Contacto"))))))
-                         )))
+                   ,(when show-options
+                      `(:ul
+                         (:li (:div :class "search"
+                                (:input :type "text" :name "search")))
+                         (:li (:a :href "/dashboard" "Tablero"))
+                         (:li (:a :href "/account" "Mi cuenta"))
+                         (:li (:a :href "/settings" "Opciones"))
+                         (:li (:a :href "/logout" "Salir")))))))
            (:section :id "content"
              ,@body)
            ,(when show-footer

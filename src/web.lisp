@@ -53,7 +53,8 @@
   ;;
   ;;
   (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear evaluaciones en línea."
-                  :css-files ("index.css"))
+                  :css-files ("index.css")
+                  :show-options nil)
     ;;
     ;; Middle Section, main benefits.
     ;;
@@ -127,7 +128,8 @@
       (data/add-wait-registry email now (user-agent) (real-remote-addr))
       (redirect "/wait-registry")))
   (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear evaluaciones en línea."
-                  :css-files ("index.css"))
+                  :css-files ("index.css")
+                  :show-options nil)
     (:section :id "wait-registry"
       (:h1 "Gracias por tu interés.")
       (:p "Nosotros te avisaremos por correo electrónico tan pronto el
