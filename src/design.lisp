@@ -28,7 +28,7 @@
   ;; done by the function `backend-save-form` below.
   (let ((form (or (data/get-form (parameter "id")) (redirect "/"))))
     (standard-page (:title "Paso 1. Diseña tu cuestionario."
-                    :css-files ("design-styles.css?v=20100910")
+                    :css-files ("design-styles.css?v=20101004")
                     :js-files ("jquery-1.4.2.min.js"
                                "json2.min.js"
                                "design.js?v=20100923"))
@@ -175,7 +175,7 @@
       (redirect (format nil "/design/form-info?id=~a" (form-id form))))
     ;;
     (standard-page (:title "Paso 2. Configura las opciones."
-                    :css-files ("design-styles.css"))
+                    :css-files ("design-styles.css?v=20101004"))
       (:form :method "post" :action "."
         (hidden-input "id" :default-value (form-id form))
         (:section :id "options"
@@ -224,7 +224,7 @@
                              (host)
                              (form-public-id form))))
     (standard-page (:title "Paso 3. Envía tu cuestionario."
-                    :css-files ("design-styles.css"))
+                    :css-files ("design-styles.css?v=20101004"))
       (:section :id "form-info"
         (:h1 "Paso 3. Envía tu cuestionario")
         (:div (:p "La liga para accesar a tu cuestionario es la siguiente:"))

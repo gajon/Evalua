@@ -109,6 +109,10 @@ BE CAREFUL."
                 :rel "stylesheet"
                 :media "screen, projection"
                 :href "/static/css/html5reset-1.4.1.css")
+         (:link :type "text/css"
+                :rel "stylesheet"
+                :media "screen, projection"
+                :href "/static/css/common.css?v=20101004")
          ,@(mapcar (lambda (file)
                      `(:link :type "text/css" :rel "stylesheet"
                              :media "screen, projection"

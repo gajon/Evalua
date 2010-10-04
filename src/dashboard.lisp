@@ -4,7 +4,7 @@
   (let ((active-forms (data/get-active-forms the-user))
         (inactive-forms (data/get-inactive-forms the-user)))
     (standard-page (:title "Dashboard"
-                    :css-files ("dashboard.css?v=20100914"
+                    :css-files ("dashboard.css?v=20101004"
                                 "tablesorter/blue/style.css")
                     :js-files ("jquery-1.4.2.min.js"
                                "jquery.tablesorter.min.js"
