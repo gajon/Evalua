@@ -363,9 +363,8 @@ This macro saves some typing:
 ;;; SUBMITTED ANSWERS
 
 (defun data/add-submitted-answer (question-id answer-id value now)
-  ;; The answer-id is usually a valid _id referencing a document of type
-  ;; 'answer'; however, it could be a free text if the question contained a
-  ;; textarea box. TODO: I don't like this design choice.
+  ;; When the question contained a text area or some kind of input from the
+  ;; user, that input will come in the VALUE argument.
   (clouchdb:create-document
     `((:|type| . "submitted-answer")
       (:|answer| . ,answer-id)

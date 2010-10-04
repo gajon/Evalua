@@ -304,22 +304,30 @@ ANALYTICS
   (button label name :disabled disabled :submit-p t :inputclass inputclass
           :escape-label escape-label))
 
-(defun radio-choice (label name value &key disabled
-                           labelclass inputclass)
+(defun checkbox-choice (label name value &key disabled
+                              labelclass inputclass (type "checkbox"))
   (let* ((name (escape-string name))
          (label (escape-string label))
          (id (format nil "id_~a" (gensym name)))
-         (value (or (escape-string (post-parameter name))
-                    (escape-string value))))
+         (disabled (and disabled "disabled"))
+         (value (escape-string value))
+         (checked (when (find value (post-parameters*)
+                              :key #'cdr :test #'string=)
+                    "checked")))
     (with-html-output (*standard-output*)
-      (:input :type "radio"
+      (:input :type type
               :id id
               :value value
               :name name
               :class inputclass
+              :checked checked
               :disabled disabled)
       (when label
         (htm (:label :for id :class labelclass (str label)))))))
+
+(defun radio-choice (label name value &key disabled labelclass inputclass)
+  (checkbox-choice label name value :disabled disabled :labelclass labelclass
+                   :inputclass inputclass :type "radio"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -483,8 +491,8 @@ the input string is NIL as well."
 (defun parse-int-or-force-value (str default &key (start 0) (end nil) (radix 10))
   "Parses an integer from the given string. The string could be NIL or
 contain garbage, in which case the function simply returns the default value
-given as the second parameter. The function accepts the same arguments as
-`parse-integer`, except for :junk-allowed which is always T. There is no
+given as the second parameter. The function accepts the same keyword arguments
+as `parse-integer`, except for :junk-allowed which is always T. There is no
 `pos` return value like in `parse-integer`."
   (or (and str (parse-integer str
                               :start start

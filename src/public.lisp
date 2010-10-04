@@ -4,12 +4,13 @@
 ;;; RENDER A PUBLIC FORM.
 
 (define-url-fn (public/a :prefix "a")
-  (let ((form (or (data/get-form-by-public-id (parameter "id"))
-                  (redirect "/"))))
+  (let* ((form (or (data/get-form-by-public-id (parameter "id"))
+                   (redirect "/")))
+         (questions (form-questions form)))
     ;;
     ;;
     (when (and (eql :post (request-method*))
-               (public/process-submitted-answers form))
+               (public/process-submitted-answers form questions))
       (redirect (format nil "/thankyou?id=~a" (form-public-id form))))
     ;;
     ;;
@@ -29,7 +30,7 @@
         ;;
         (:section :id "questions"
           (show-all-messages)
-          (dolist (question (form-questions form))
+          (dolist (question questions)
             (htm (:div :class "question"
                    (:h2 (esc (format nil "~d. ~a"
                                      (question-sort question)
@@ -51,26 +52,13 @@
     (:div :class "answer"
       (cond ((or (string= (answer-control answer) "radio-choice")
                  (string= (answer-control answer) "true-false"))
-             (htm (:input :type "radio"
-                          :name (escape-string (question-id question))
-                          :id (escape-string
-                                (format nil "id_~a" (answer-sort answer)))
-                          :value (escape-string (answer-id answer)))
-                  (:label :for (escape-string
-                                 (format nil "id_~a"
-                                         (answer-sort answer)))
-                          (esc (answer-text answer)))))
+             (radio-choice (answer-text answer) (question-id question)
+                           (answer-id answer)))
             ;;
             ;;
             ((string= (answer-control answer) "checkbox")
-             (htm (:input :type "checkbox"
-                          :name (escape-string (question-id question))
-                          :id (escape-string
-                                (format nil "id_~a" (answer-sort answer)))
-                          :value (escape-string (answer-id answer)))
-                  (:label :for (escape-string
-                                 (format nil "id_~a" (answer-sort answer)))
-                          (esc (answer-text answer)))))
+             (checkbox-choice (answer-text answer) (question-id question)
+                              (answer-id answer)))
             ;;
             ;;
             ((string= (answer-control answer) "textarea")
@@ -80,9 +68,12 @@
                                       (escape-string (answer-id answer))))
              (text-area nil (escape-string (answer-id answer))))))))
 
-(defun public/process-submitted-answers (form)
-  (let ((questions (form-questions form))
-        (ht (make-hash-table :test 'equal)))
+(defun public/process-submitted-answers (form questions)
+  "Traverses the list of questions, validating that each one of them has a
+valid answer sent in the POST data. If all of them are valid, they are saved
+in the database; otherwise each invalid question is marked and this function
+returns NIL."
+  (let ((ht (make-hash-table :test 'equal)))
     ;; We collect all the POST values sent into a hash table. The keys are
     ;; the _id's of the questions and the values are the _id's of the
     ;; answers. When the answer is a text input type, the value is the _id
@@ -134,12 +125,12 @@
                      (return-from public/validate-question nil))))))))
   t)
 
-(defun public/save-submitted-answers (questions ht time-zone)
+(defun public/save-submitted-answers (questions ht &optional (time-zone 6))
   ;; We use the time-zone recorded in the form, which is the time-zone of
   ;; the user who designed and created the form. That user is the one who
   ;; will see any dates, therefore we'd like to show them in his/her
   ;; time-zone.
-  (let ((now (make-date (get-universal-time) (or time-zone 6))))
+  (let ((now (make-date (get-universal-time) time-zone)))
     (loop for question in questions
           for qid = (question-id question)
           for answers = (gethash qid ht)
