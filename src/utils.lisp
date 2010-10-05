@@ -319,8 +319,10 @@ ANALYTICS
          (id (format nil "id_~a" (gensym name)))
          (disabled (and disabled "disabled"))
          (value (escape-string value))
-         (checked (when (find value (post-parameters*)
-                              :key #'cdr :test #'string=)
+         (checked (when (find-if (lambda (x) (and (consp x)
+                                                  (string= (car x) name)
+                                                  (string= (cdr x) value)))
+                                 (post-parameters*))
                     "checked")))
     (with-html-output (*standard-output*)
       (:input :type type
