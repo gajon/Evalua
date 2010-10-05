@@ -256,7 +256,7 @@ var Quiztronic = {
         // FOR QUESTIONS WITH FREE-TEXT OR FRUE/FALSE ANSWERS, WHICH CAN'T
         // HAVE AN "ADD ANOTHER" LINK, WE ADD AN EMPTY <DIV> TO MAINTAIN THE
         // SAME LAYOUT AS OTHER TYPE OF QUESTIONS.
-        return $('<div class="answer-add">&nbsp;</div>');
+        return $('<div class="answer-add"></div>');
     },
 
     makeAnswerToolbar: function (container, removep) {
