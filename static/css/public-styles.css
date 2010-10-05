@@ -34,27 +34,6 @@ small { font-size: 80% }
 	width: 800px;
 }
 
-/* Messages and Errors {{{1 */
-
-#errors li, #messages li, #success li {
-	list-style-type:none;
-}
-#errors, #messages, #success {
-	clear: both;
-	padding:.5em !important;
-	margin-bottom:1em;
-	border:2px solid #ddd;
-	font-size: 1.3em;
-	font-weight:bold;
-	text-shadow: 1px 1px 1px #000;
-}
-#messages {
-	text-shadow: 1px 1px 1px #ccc !important;
-}
-#errors {background:#f62626; color:#fff; border-color:#bd0e0e;}
-#messages {background:#fffcc4; border-color:#f5d34e;}
-#success {background:#3aa33a; color:#fff; border-color:#507d50;}
-
 
 /* Form title and notes {{{1 */
 
