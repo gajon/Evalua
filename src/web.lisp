@@ -12,7 +12,7 @@
   (kmrcl:seed-random-generator)
   (unless *evalua-acceptor-instance*
     (setf *evalua-acceptor-instance*
-          (make-instance 'hunchentoot:acceptor :port *server-port*))
+          (make-instance 'debuggable-acceptor :port *server-port*))
     (hunchentoot:start *evalua-acceptor-instance*)
     (format t "Webserver started on port ~A.~%" *server-port*)))
 

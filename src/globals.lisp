@@ -47,3 +47,17 @@
 ;;; We want HTML5 Doctype
 (setf cl-who:*prologue* "<!DOCTYPE html>")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defclass debuggable-acceptor (hunchentoot:acceptor)
+  ())
+
+(defmethod process-connection ((*acceptor* debuggable-acceptor) (socket t))
+  (declare (ignore socket))
+  (handler-bind ((error #'invoke-debugger))
+    (call-next-method)))
+
+(defmethod acceptor-request-dispatcher ((*acceptor* debuggable-acceptor))
+  (let ((dispatcher (call-next-method)))
+    (lambda (request)
+      (handler-bind ((error #'invoke-debugger))
+        (funcall dispatcher request)))))
