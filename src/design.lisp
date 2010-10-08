@@ -31,10 +31,10 @@
                     :css-files ("design-styles.css?v=20101004")
                     :js-files ("jquery-1.4.2.min.js"
                                "json2.min.js"
-                               "design.js?v=20100923"))
+                               "design.js?v=20101007"))
       (hidden-input "id" :default-value (form-id form))
       (:section :id "questions"
-        (:h1 "Paso 1. Diseña tu cuestionario")
+        (:h1 "Diseña tu evaluación")
         (:div :id "form-basics"
           (:div :id "form-title"
             (text-input "Asigna un título a la evaluación:" "title"
@@ -73,24 +73,8 @@
                      alist))
             (data/get-questions-by-form (form-id form-obj) :raw-alist t)))))))
 
-;(define-json-fn design/backend-create-fresh-question
-  ;(when (eql :post (request-method*))
-    ;(handler-case
-      ;(let* ((form-obj (or (data/get-form (parameter "id")) (error "")))
-             ;(q-type (or (parameter "control") (error "")))
-             ;(fresh-q (data/create-fresh-question (form-id form-obj) q-type)))
-        ;(htm (str (clouchdb:document-to-json fresh-q))))
-      ;;;
-      ;;; TODO: make up your mind about error handling.
-      ;(error (c)
-             ;(htm (str (clouchdb:document-to-json
-                         ;`((:|status| . "error")
-                           ;(:|error| . ,(format nil "~a" c))))))))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; SAVE FORM DESIGN.
-
-;(define-condition design-error (error) ((element :initarg :element :reader design-error-element) (message :initarg :msg :reader design-error-message)) (:report (lambda (condition stream) (format stream "~a" (design-error-message condition)))))
 
 (define-json-fn design/backend-save-form
   (unless (eql :post (request-method*)) (redirect "/"))
@@ -136,13 +120,14 @@
     (labels ((numerate-answer (alist-answer)
                 (acons :|answer-number| (incf answer-number) alist-answer))
              (numerate-question (alist-q)
-                (pairlis (list :|answers| :|question-number| :|control| :|text| :|_id|)
-                         (list (mapcar #'numerate-answer
-                                       (cdr (assoc :|answers| alist-q)))
-                               (incf question-number)
-                               (cdr (assoc :|control| alist-q))
-                               (cdr (assoc :|text| alist-q))
-                               (cdr (assoc :|_id| alist-q))))))
+                (pairlis
+                  (list :|answers| :|question-number| :|control| :|text| :|_id|)
+                  (list (mapcar #'numerate-answer
+                                (cdr (assoc :|answers| alist-q)))
+                        (incf question-number)
+                        (cdr (assoc :|control| alist-q))
+                        (cdr (assoc :|text| alist-q))
+                        (cdr (assoc :|_id| alist-q))))))
       (mapcar #'numerate-question data))))
 
 #| (let ((decoded-data1 (clouchdb:json-to-document
@@ -168,56 +153,6 @@
   (design/numerate-questions-and-answers decoded-data2)) |#
 
 
-(define-url-fn design/edit-form-options
-  (let ((form (or (data/get-form (parameter "id")) (redirect "/"))))
-    ;;
-    (when (and (eql :post (request-method*))
-               (design/process-form-options form))
-      (redirect (format nil "/design/form-info?id=~a" (form-id form))))
-    ;;
-    (standard-page (:title "Paso 2. Configura las opciones."
-                    :css-files ("design-styles.css?v=20101004"))
-      (:form :method "post" :action "."
-        (hidden-input "id" :default-value (form-id form))
-        (:section :id "options"
-          (:h1 "Paso 2. Configura las opciones")
-          (:div :id "time" (text-input "Tiempo límite:" "timelimit"))
-          (:div :id "tries" (text-input "Intentos permitidos:" "tries"))
-          (:div :id "score"
-            (:label "¿Asignar calificación?:")
-            (radio-choice "Si" "score" "yes" :labelclass "radio")
-            (radio-choice "No" "score" "no" :labelclass "radio"))
-          (:div :id "comments"
-            (:label "¿Habilitar comentarios?:")
-            (radio-choice "Si" "comments" "yes" :labelclass "radio")
-            (radio-choice "No" "comments" "no" :labelclass "radio"))
-          (:div :id "email"
-            (text-input "Cuenta de correo a donde se enviarán los resultados:"
-                        "email")))
-        (:section :id "options-submit" :class "buttons"
-          (:a :class "negative" :href "#"
-              (:img :src "/static/icons/cancel.png")
-              "Cancelar")
-          ;; TODO: abstract this out.
-          (submit-button "<img src=\"/static/icons/accept.png\"/> Continuar"
-                         :inputclass "positive"
-                         :escape-label nil))))))
-
-(defun design/process-form-options (form-obj)
-  (let ((time-limit (trim-or-nil (post-parameter "timelimit")))
-        (tries (trim-or-nil (post-parameter "tries")))
-        (score-p (string= (trim-or-nil (post-parameter "score")) "yes"))
-        (comments-p (string= (trim-or-nil (post-parameter "comments")) "yes"))
-        (email (trim-or-nil (post-parameter "email"))))
-    (when (require-fields email)
-      (setf (form-time-limit form-obj) time-limit
-            (form-tries-limit form-obj) tries
-            (form-score-p form-obj) score-p
-            (form-comments-p form-obj) comments-p
-            (form-email-dest form-obj) email)
-      ;; Save it!
-      (setf form-obj (data/save-form form-obj)))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; FORM INFORMATION
@@ -230,6 +165,12 @@
          (public-url (format nil "http://~a:8081/a?id=~a"
                              (host)
                              (form-public-id form))))
+    ;;
+    (when (and (eql :post (request-method*))
+               ;; TODO: Distinguish action.
+               (design/process-form-options form))
+      (redirect (format nil "/design/form-info?id=~a" (form-id form))))
+    ;;
     (standard-page (:title (format nil "Evaluacion: ~a" title)
                     :css-files ("design-styles.css?v=20101007"))
       ;;
@@ -250,7 +191,8 @@
         (:div :class "links"
           (:ul
             (:li :class "edit"
-              (:a :href (escape-string (format nil "/design/edit-form?id=~a" id))
+              (:a :href (escape-string
+                          (format nil "/design/edit-form?id=~a" id))
                   "Modificar evaluación"))
             (:li :class "preview"
               (:a :href (escape-string
@@ -324,7 +266,15 @@
           (:div :class "button"
             (button "Descargar estadísticas" "download")))))))
 
-      ;(:section :id "form-info-submit" :class "buttons"
-        ;(submit-button "<img src=\"/static/icons/accept.png\"/> Finalizar"
-                       ;:inputclass "positive"
-                       ;:escape-label nil)))))
+
+(defun design/process-form-options (form-obj)
+  (let ((time-limit (trim-or-nil (post-parameter "timelimit")))
+        (tries (trim-or-nil (post-parameter "tries")))
+        (score-p (string= (trim-or-nil (post-parameter "score")) "yes"))
+        (comments-p (string= (trim-or-nil (post-parameter "comments")) "yes")))
+    (setf (form-time-limit form-obj) time-limit
+          (form-tries-limit form-obj) tries
+          (form-score-p form-obj) score-p
+          (form-comments-p form-obj) comments-p)
+    ;; Save it!
+    (setf form-obj (data/save-form form-obj))))

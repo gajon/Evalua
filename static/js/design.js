@@ -499,7 +499,7 @@ $(document).ready(function () {
                     position;
 
                 if (res && res.status && res.status === 'ok' && res.id) {
-                    location.pathname = '/design/edit-form-options/?id=' + res.id;
+                    location.pathname = '/design/form-info?id=' + res.id;
 
                 } else if (res && res.status && res.status === 'error' && res.error) {
 

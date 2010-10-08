@@ -51,7 +51,8 @@ BE CAREFUL."
                   ;; Enforce authentication when :auth t
                   ,(when auth
                      `(unless (and the-user
-                                   (string= (session-value 'authenticated) "yes"))
+                                   (string= (session-value 'authenticated)
+                                            "yes"))
                         (setf (session-value 'authenticated) nil)
                         (redirect "/")))
                   ;; Yay, we have a valid user, let's set the time zone.
@@ -74,7 +75,9 @@ BE CAREFUL."
 
 (defmacro define-json-fn (name-and-options &body body)
   `(define-url-fn ,name-and-options
-     (with-html-output-to-string (*standard-output* nil :prologue nil :indent nil)
+     (with-html-output-to-string (*standard-output* nil
+                                                    :prologue nil
+                                                    :indent nil)
        ;; We must return a json object.
        (setf (content-type*) "application/json")
        ,@body)))
@@ -498,7 +501,8 @@ the input string is NIL as well."
       (when (> (length trimmed) 0)
         trimmed))))
 
-(defun parse-int-or-force-value (str default &key (start 0) (end nil) (radix 10))
+(defun parse-int-or-force-value (str default &key (start 0) (end nil)
+                                                  (radix 10))
   "Parses an integer from the given string. The string could be NIL or
 contain garbage, in which case the function simply returns the default value
 given as the second parameter. The function accepts the same keyword arguments

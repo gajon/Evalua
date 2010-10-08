@@ -63,8 +63,10 @@
         (:h1 "La manera más fácil y rápida de crear evaluaciones en línea.")
         (:hr)
         (:ul
-          (:li "Evalúa y refuerza los procesos de ingreso y capacitación laboral.")
-          (:li "Aplica encuestas de satisfacción y mejora a empleados y clientes de tu empresa.")
+          (:li "Evalúa y refuerza los procesos de ingreso y
+               capacitación laboral.")
+          (:li "Aplica encuestas de satisfacción y mejora a empleados y
+               clientes de tu empresa.")
           (:li "Aplica exámenes y ejercicios de práctica a tus alumnos.")))
       (:div :class "right"
         (:img :src "/static/img/screenshot.png" :alt "screenshot"))
@@ -77,7 +79,8 @@
         (hidden-input "timezone")
         (text-input "Envíame un email cuando el producto esté listo:" "email")
         (submit-button "Enviar"))
-      (:div :class "clear")) ;(:a :href "/design/create-new-form" (:span "Crea una evaluación"))
+      (:div :class "clear"))
+    ;(:a :href "/design/create-new-form" (:span "Crea una evaluación"))
     ;;
     ;; More benefits and list of features.
     ;;
@@ -87,7 +90,8 @@
       (:div :class "firstcolumn"
         (:ul
           (:li "Diseña tu evaluación, creando preguntas y sus respuestas.")
-          (:li "Es muy sencillo de utilizar, no necesitas conocimientos técnicos.")
+          (:li "Es muy sencillo de utilizar, no necesitas conocimientos
+               técnicos.")
           (:li "No es necesario instalar ningún software.")
           (:li "Se adapta a tus necesidades: número y tipo de preguntas,
                intentos permitidos, tiempo límite, etc.")))
@@ -137,5 +141,3 @@
       (:p "Te queremos recordar que tu dirección de correo electrónico es
           completamente confidencial y no será compartida con nadie, ni será
           utilizada para mandarte correo no deseado."))))
-
-

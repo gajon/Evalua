@@ -206,8 +206,9 @@ This macro saves some typing:
           (%create-form form-obj))))))
 
 (defun data/save-form (form-obj)
-  (let* ((now (format-iso8601-date (make-date (get-universal-time)
-                                              (or (form-time-zone form-obj) 6))))
+  (let* ((now (format-iso8601-date
+                (make-date (get-universal-time)
+                           (or (form-time-zone form-obj) 6))))
          (saved? (clouchdb:put-document
                    `((:|_id| .         ,(form-id form-obj))
                      (:|_rev| .        ,(form-rev form-obj))
@@ -253,7 +254,8 @@ This macro saves some typing:
 (defun data%save-question (alist form-id)
   (let* ((qid (%lowassoc _id alist))
          (rev (when qid
-                (%lowassoc _rev (clouchdb:get-document qid :if-missing :ignore))))
+                (%lowassoc _rev (clouchdb:get-document qid
+                                                       :if-missing :ignore))))
          (question `(,@(when qid `((:|_id| . ,qid)))
                      ,@(when rev `((:|_rev| . ,rev)))
                      (:|type| .    "question")
@@ -268,7 +270,8 @@ This macro saves some typing:
 (defun data%save-answer (alist question-id)
   (let* ((aid (%lowassoc _id alist))
          (rev (when aid
-                (%lowassoc _rev (clouchdb:get-document aid :if-missing :ignore))))
+                (%lowassoc _rev (clouchdb:get-document aid
+                                                       :if-missing :ignore))))
          (answer `(,@(when aid `((:|_id| . ,aid)))
                    ,@(when rev `((:|_rev| . ,rev)))
                    (:|type| .     "answer")
