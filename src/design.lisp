@@ -278,3 +278,57 @@
           (form-comments-p form-obj) comments-p)
     ;; Save it!
     (setf form-obj (data/save-form form-obj))))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; FORM PREVIEW
+
+;;; TODO: We are repeating code with public/a
+(define-url-fn design/preview-form
+  (let* ((form (or (data/get-form (parameter "id"))
+                   (redirect "/")))
+         (questions (form-questions form)))
+    ;;
+    ;;
+    (standard-page (:title (form-title form)
+                    :show-banner nil
+                    :show-footer nil
+                    :css-files ("public-styles.css?v=20101008"))
+      ;;
+      ;; Title and notes.
+      ;;
+      (:section :id "form-title"
+        (:header (:h1 (esc (form-title form))))
+        (:div :id "form-notes" (esc (form-notes form))))
+      ;;
+      ;; Questions.
+      ;;
+      (:section :id "questions"
+        (:div :class "return-link"
+          (:a :href (escape-string
+                      (format nil "/design/form-info?id=~a" (form-id form)))
+              "Regresar a datos de la evaluación."))
+        (dolist (question questions)
+          (htm (:div :class "question"
+                 (:h2 (esc (format nil "~d. ~a"
+                                   (question-sort question)
+                                   (question-text question))))
+                 (unless (question-valid-p question)
+                   (htm (:span :class "invalid"
+                               "Por favor contesta la pregunta.")))
+                 (:div :class "answers"
+                   (dolist (answer (question-answers question))
+                     (public/display-answer answer question)))))))
+      ;;
+      ;; Submit button
+      ;;
+      (push-info-msg "Esta es una vista preliminar de la evaluación,
+                     no se puede mandar respuestas desde aquí.")
+      (:section :id "submit"
+        (submit-button "Enviar respuestas")
+        (show-all-messages)
+        (:div :class "return-link"
+          (:a :href (escape-string
+                      (format nil "/design/form-info?id=~a" (form-id form)))
+              "Regresar a datos de la evaluación."))))))
