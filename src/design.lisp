@@ -218,25 +218,113 @@
       ;; Save it!
       (setf form-obj (data/save-form form-obj)))))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; FORM INFORMATION
+
 (define-url-fn design/form-info
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
+         (id (form-id form))
+         (title (escape-string (form-title form)))
          (public-url (format nil "http://~a:8081/a?id=~a"
                              (host)
                              (form-public-id form))))
-    (standard-page (:title "Paso 3. Envía tu cuestionario."
-                    :css-files ("design-styles.css?v=20101004"))
-      (:section :id "form-info"
-        (:h1 "Paso 3. Envía tu cuestionario")
-        (:div (:p "La liga para accesar a tu cuestionario es la siguiente:"))
-        (:div :id "public-url" :class "text-center"
-          (:a :href (escape-string public-url)
-              :target "_blank"
-              (esc public-url)))
-        (:div (:p "Si deseas compartirla en con tus contactos y amigos, haz click en un botón de abajo:"))
-        (:div :id "share-buttons" :class "text-center"
-          (:img :src "/static/social-buttons.jpg")))
-      (:section :id "form-info-submit" :class "buttons"
-        (submit-button "<img src=\"/static/icons/accept.png\"/> Finalizar"
-                       :inputclass "positive"
-                       :escape-label nil)))))
+    (standard-page (:title (format nil "Evaluacion: ~a" title)
+                    :css-files ("design-styles.css?v=20101007"))
+      ;;
+      ;; Form title and links to modify/preview.
+      ;;
+      (:section :id "form-info-title"
+        (:div :class "title"
+          (:h1 "Evaluación: " (:span :class "title" (str title)))
+          (:p :class "dates"
+              (:em "Fecha de creación: ")
+              (:span :class "date"
+                (esc (format-date (parse-iso8601-date (form-date form)))))
+              (:em "Última modificación: ")
+              (:span :class "date"
+                (esc (format-date (parse-iso8601-date
+                                    (form-update-date form)))))
+              (:em :class "state-paused" "Pausada")))
+        (:div :class "links"
+          (:ul
+            (:li :class "edit"
+              (:a :href (escape-string (format nil "/design/edit-form?id=~a" id))
+                  "Modificar evaluación"))
+            (:li :class "preview"
+              (:a :href (escape-string
+                          (format nil "/design/preview-form?id=~a" id))
+                  "Vista preliminar")))))
+      ;;
+      ;; Pause/Run button & description, incl. link to form.
+      ;;
+      (:section :id "form-info-run-button"
+        (:p "La evaluación se encuentra en pausa, nadie podra contestar la
+            evaluación mientras se encuentre pausada.")
+        (:p "Puedes continuar editando la evaluación, agregando y modificando
+            preguntas y respuestas.")
+        (:p "Cuando hayas terminado de diseñar tu evaluación y desees comenzar
+            a recibir respuestas haz click en el siguiente botón:")
+        (:p :class "button"
+            (button "Comenzar evaluaciones" "start")))
+      ;;
+      ;; Form options box and statistics/download box.
+      ;;
+      (:section :id "form-info-options-and-stats"
+        (:div :id "form-info-options"
+          (:h2 "Opciones")
+          (:div :class "option" :id "form-option-time"
+            (:p (text-input "Tiempo límite:" "timelimit" :size 6)
+                (:small "hh:mm"))
+            (:p :class "help"
+                "Limita el tiempo disponible para completar la evaluación.
+                Si el evaluado no termina la evaluación en el tiempo
+                indicado las respuestas que haya dato hasta ese
+                momento se guardarán y ya no podrá continuar con el resto de
+                la evaluación."))
+          (:div :class "option" :id "form-option-tries"
+            (:p (text-input "Intentos permitidos:" "tries" :size 3))
+            (:p :class "help"
+                "El número de veces que un evaluado podrá participar en la
+                evaluación. En caso de que se le permita contestar la
+                evaluación mas de una vez los resultados enviados se
+                acumularán."))
+          (:div :class "option" :id "form-option-score"
+            (:p (:label "¿Asignar calificación?:")
+                (radio-choice "Si" "score" "yes" :labelclass "radio")
+                (radio-choice "No" "score" "no" :labelclass "radio"))
+            (:p :class "help"
+                "Si al diseñar la evaluación se indicaron cuáles eran las
+                respuestas correctas el sistema podrá evaluar
+                automáticamente las respuestas enviadas por los evaluados.
+                Si la evaluacion contiene preguntas de texto libre éstas
+                deberán ser revisadas manualmente para obtener la
+                calificación final."))
+          (:div :class "option" :id "form-option-comments"
+            (:p (:label "¿Habilitar comentarios?:")
+                (radio-choice "Si" "comments" "yes" :labelclass "radio")
+                (radio-choice "No" "comments" "no" :labelclass "radio"))
+            (:p :class "help"
+                "Al habilitar esta opción el evaluado podrá, después de
+                haber completado la evaluación, dejar comentarios para el
+                evaluador."))
+          (:div :class "button"
+            (button "Guardar opciones" "options")))
+        (:div :id "form-info-stats"
+          (:h2 "Estadísticas")
+          (:div :class "stats"
+            (:label "Evaluaciones completadas: ") "3")
+          (:div :class "stats"
+            (:label "Fecha inicio: ") "N/A")
+          (:div :class "stats"
+            (:label "Días corriendo la evaluación: ") "0")
+          (:p "Haz click en el siguiente botón para descargar la información
+          de las evaluaciones completadas. Puedes abrir este archivo en Excel:")
+          (:div :class "button"
+            (button "Descargar estadísticas" "download")))))))
+
+      ;(:section :id "form-info-submit" :class "buttons"
+        ;(submit-button "<img src=\"/static/icons/accept.png\"/> Finalizar"
+                       ;:inputclass "positive"
+                       ;:escape-label nil)))))

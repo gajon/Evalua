@@ -29,7 +29,7 @@ input, select { vertical-align: baseline; }
 
 /* Footer {{{1 */
 
-#footer    { padding: 50px 0; color: #333; font-size: 11px; text-align: center; }
+#footer    { clear: both; padding: 50px 0; color: #333; font-size: 11px; text-align: center; }
 #footer a  { color: #333; margin-right: 20px; }
 
 
