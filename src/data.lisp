@@ -37,7 +37,7 @@ This macro saves some typing:
   (let ((data
           (clouchdb:query-document
             `(:|rows| :|id| ,#'clouchdb:get-document)
-            (clouchdb:invoke-view "public-forms" "all-forms" :key public-id))))
+            (clouchdb:invoke-view "forms" "forms-by-pub-id" :key public-id))))
     (when data
       (data/build-form-from-alist (car data)))))
 
@@ -397,16 +397,6 @@ This macro saves some typing:
 ;;; DESIGN VIEWS.
 
 (defun %%create-design-documents ()
-  (clouchdb:create-ps-view "public-forms"
-    #>END
-    "all-forms": {
-      "map": "function (doc) {
-                if (doc.type && doc.type === 'form') {
-                  emit(doc['public-id'], null);
-                }
-              }"
-    }
-    END)
   (clouchdb:create-ps-view "forms"
     (clouchdb:ps-view ("active-forms")
       (defun map (doc)
@@ -423,6 +413,11 @@ This macro saves some typing:
         (with-slots (type user status) doc
           (if (and type user status (= type "form") (= status "fresh"))
             (emit user nil)))))
+    (clouchdb:ps-view ("forms-by-pub-id")
+      (defun map (doc)
+        (with-slots (type :public-id status) doc
+          (if (and type (= type "form") (= status "active"))
+            (emit :public-id nil)))))
     #>END
     "forms-by-date": {
       "map": "function (doc) {
@@ -441,49 +436,34 @@ This macro saves some typing:
     }
     END)
   (clouchdb:create-ps-view "questions"
-    #>END
-    "all-questions": {
-      "map": "function (doc) {
-                if (doc.type && doc.type === 'question') {
-                  emit(null, null);
-                }
-              }"
-    },
-    "questions-by-form": {
-      "map": "function (doc) {
-                if (doc.type && doc.type === 'question') {
-                  emit([doc.form, doc.sort, doc._id], null);
-                }
-              }"
-    }
-    END)
+    (clouchdb:ps-view ("all-questions")
+      (defun map (doc)
+        (with-slots (type) doc
+          (if (and type (= type "question"))
+            (emit nil nil)))))
+    (clouchdb:ps-view ("questions-by-form")
+      (defun map (doc)
+        (with-slots (type form sort _id) doc
+          (if (and type (= type "question"))
+            (emit (array form sort _id) nil))))))
   (clouchdb:create-ps-view "answers"
-    #>END
-    "all-answers": {
-      "map": "function (doc) {
-                if (doc.type && (doc.type === 'answer' || doc.type === 'sub-answer')) {
-                  emit(null, null);
-                }
-              }"
-    },
-    "answers-by-question": {
-      "map": "function (doc) {
-                if (doc.type && doc.type === 'answer') {
-                  emit([doc.question, doc.sort, doc._id], null);
-                }
-              }"
-    },
-    "submitted-answers": {
-      "map": "function (doc) {
-                if (doc.type && doc.type === 'submitted-answer') {
-                  emit(doc.question, null);
-                }
-              }"
-    }
-    END))
+    (clouchdb:ps-view ("all-answers")
+      (defun map (doc)
+        (with-slots (type) doc
+          (if (and type (or (= type "answer") (= type "sub-answer")))
+            (emit nil nil)))))
+    (clouchdb:ps-view ("answers-by-question")
+      (defun map (doc)
+        (with-slots (type question sort _id) doc
+          (if (and type (= type "answer"))
+            (emit (array question sort _id) nil)))))
+    (clouchdb:ps-view ("submitted-answers")
+      (defun map (doc)
+        (with-slots (type question) doc
+          (if (and type (= type "submitted-answer"))
+            (emit question nil)))))))
 
 (defun %%delete-design-documents ()
-  (clouchdb:delete-view "public-forms")
   (clouchdb:delete-view "forms")
   (clouchdb:delete-view "questions")
   (clouchdb:delete-view "answers"))
@@ -510,5 +490,13 @@ This macro saves some typing:
     (mapc #'delete-document
           (clouchdb:query-document
             '(:|rows| :|id|)
-            (clouchdb:invoke-view "public-forms" "all-forms"))))
+            (clouchdb:invoke-view "forms" "active-forms")))
+    (mapc #'delete-document
+          (clouchdb:query-document
+            '(:|rows| :|id|)
+            (clouchdb:invoke-view "forms" "inactive-forms")))
+    (mapc #'delete-document
+          (clouchdb:query-document
+            '(:|rows| :|id|)
+            (clouchdb:invoke-view "forms" "fresh-forms"))))
   (values))
