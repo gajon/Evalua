@@ -375,7 +375,7 @@
                                "Por favor contesta la pregunta.")))
                  (:div :class "answers"
                    (dolist (answer (question-answers question))
-                     (public/display-answer answer question)))))))
+                     (public%display-answer answer question)))))))
       ;;
       ;; Submit button
       ;;

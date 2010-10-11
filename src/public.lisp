@@ -10,7 +10,7 @@
     ;;
     ;;
     (when (and (eql :post (request-method*))
-               (public/process-submitted-answers form questions))
+               (public%process-submitted-answers form questions))
       (redirect (format nil "/thankyou?id=~a" (form-public-id form))))
     ;;
     ;;
@@ -40,14 +40,14 @@
                                  "Por favor contesta la pregunta.")))
                    (:div :class "answers"
                      (dolist (answer (question-answers question))
-                       (public/display-answer answer question)))))))
+                       (public%display-answer answer question)))))))
         ;;
         ;; Submit button
         ;;
         (:section :id "submit"
           (submit-button "Enviar respuestas"))))))
 
-(defun public/display-answer (answer question)
+(defun public%display-answer (answer question)
   (with-html-output (*standard-output*)
     (:div :class "answer"
       (cond ((or (string= (answer-control answer) "radio-choice")
@@ -68,7 +68,7 @@
                                       (escape-string (answer-id answer))))
              (text-area nil (escape-string (answer-id answer))))))))
 
-(defun public/process-submitted-answers (form questions)
+(defun public%process-submitted-answers (form questions)
   "Traverses the list of questions, validating that each one of them has a
 valid answer sent in the POST data. If all of them are valid, they are saved
 in the database; otherwise each invalid question is marked and this function
@@ -104,28 +104,28 @@ returns NIL."
     ;; and let the caller deal with it.
     (if (loop with success = t
               for question in questions
-              for valid = (public/validate-question question ht)
+              for valid = (public%validate-question question ht)
               unless valid do (setf (question-valid-p question) nil
                                     success nil)
               finally (return success))
-      (public/save-submitted-answers questions ht (form-time-zone form))
+      (public%save-submitted-answers questions ht (form-time-zone form))
       (push-error-msg "Por favor contesta todas las preguntas."))))
 
-(defun public/validate-question (question ht-submitted-answers)
+(defun public%validate-question (question ht-submitted-answers)
   (let ((answers (gethash (question-id question) ht-submitted-answers)))
     (unless answers
-      (return-from public/validate-question nil))
+      (return-from public%validate-question nil))
     (dolist (answer answers)
       (let ((answer (trim-or-nil answer)))
         (cond ((or (null answer) (< (length answer) 6))
-               (return-from public/validate-question nil))
+               (return-from public%validate-question nil))
               ((string= "wrap-" answer :end1 5 :end2 5)
                (let ((wrapped (gethash (subseq answer 5) ht-submitted-answers)))
                  (or (and wrapped (trim-or-nil (car wrapped)))
-                     (return-from public/validate-question nil))))))))
+                     (return-from public%validate-question nil))))))))
   t)
 
-(defun public/save-submitted-answers (questions ht &optional (time-zone 6))
+(defun public%save-submitted-answers (questions ht &optional (time-zone 6))
   ;; We use the time-zone recorded in the form, which is the time-zone of
   ;; the user who designed and created the form. That user is the one who
   ;; will see any dates, therefore we'd like to show them in his/her
