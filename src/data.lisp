@@ -111,6 +111,31 @@ This macro saves some typing:
       (string= digest (%lowassoc password alist)))
     (error () nil)))
 
+
+;;;
+;;; Submissions
+;;;
+
+(defun data/get-submissions-by-form (form)
+  (let ((form (if (eq (type-of form) 'form) (form-id form) form)))
+    (mapcar #'data/build-submission-from-alist
+            (clouchdb:query-document
+              `(:|rows| :|id| ,#'clouchdb:get-document)
+              (clouchdb:invoke-view "submissions" "submissions-by-form"
+                                    :reduce nil
+                                    :key form)))))
+
+(defun data/get-submissions-by-form-count (form)
+  (let* ((form (if (eq (type-of form) 'form) (form-id form) form))
+         (value
+           (clouchdb:query-document
+             '(:|rows| :|value|)
+             (clouchdb:invoke-view "submissions" "submissions-by-form"
+                                   :reduce t
+                                   :key form))))
+    (car value)))
+
+
 ;;;
 ;;; Util functions to build objects from alists returned by clouchdb
 ;;;
@@ -152,14 +177,23 @@ This macro saves some typing:
 
 (defun data/build-user-from-alist (alist)
   (make-instance 'user
-                 :rev             (%lowassoc '_rev alist)
-                 :full-name       (%lowassoc 'full-name alist)
-                 :username        (%lowassoc '_id alist)
-                 :password-digest (%lowassoc 'password alist)
-                 :email           (%lowassoc 'email alist)
-                 :time-zone       (%lowassoc 'time-zone alist)))
+                 :rev             (%lowassoc _rev alist)
+                 :full-name       (%lowassoc full-name alist)
+                 :username        (%lowassoc _id alist)
+                 :password-digest (%lowassoc password alist)
+                 :email           (%lowassoc email alist)
+                 :time-zone       (%lowassoc time-zone alist)))
 
 
+(defun data/build-submission-from-alist (alist)
+  (make-instance 'submission
+                 :id          (%lowassoc _id alist)
+                 :rev         (%lowassoc _rev alist)
+                 :form        (%lowassoc form alist)
+                 :start-date  (%lowassoc start-date alist)
+                 :finish-date (%lowassoc finish-date alist)
+                 :ip          (%lowassoc ip alist)
+                 :user-agent  (%lowassoc user-agent alist)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -365,7 +399,21 @@ This macro saves some typing:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; SUBMITTED ANSWERS
 
-(defun data/add-submitted-answer (question-id answer-id value now)
+(defun data/create-submission (sub)
+  (let ((doc (clouchdb:create-document
+               `((:|type| . "submission")
+                 (:|form| . ,(submission-form sub))
+                 (:|start-date| . ,(submission-start-date sub))
+                 (:|finish-date| . ,(submission-finish-date sub))
+                 (:|ip| . ,(submission-ip sub))
+                 (:|user-agent| . ,(submission-user-agent sub))))))
+    ;; TODO: Should we check (eql (%lowassoc ok doc) T)?
+    (when doc
+      (setf (submission-id sub) (%lowassoc id doc)
+            (submission-rev sub) (%lowassoc rev doc))
+      sub)))
+
+(defun data/add-submitted-answer (question-id answer-id value now sub-id)
   ;; When the question contained a text area or some kind of input from the
   ;; user, that input will come in the VALUE argument.
   (clouchdb:create-document
@@ -373,7 +421,8 @@ This macro saves some typing:
       (:|answer| . ,answer-id)
       ,@(when value `((:|value| . ,value)))
       (:|date| . ,(format-iso8601-date now))
-      (:|question| . ,question-id))))
+      (:|question| . ,question-id)
+      (:|submission| . ,sub-id))))
 
 
 
@@ -461,12 +510,21 @@ This macro saves some typing:
       (defun map (doc)
         (with-slots (type question) doc
           (if (and type (= type "submitted-answer"))
-            (emit question nil)))))))
+            (emit question nil))))))
+  (clouchdb:create-ps-view "submissions"
+    (clouchdb:ps-view ("submissions-by-form")
+      (defun map (doc)
+        (with-slots (type form) doc
+          (if (and type (= type "submission"))
+            (emit form 1))))
+      (defun reduce (keys values)
+        (sum values)))))
 
 (defun %%delete-design-documents ()
   (clouchdb:delete-view "forms")
   (clouchdb:delete-view "questions")
-  (clouchdb:delete-view "answers"))
+  (clouchdb:delete-view "answers")
+  (clouchdb:delete-view "submissions"))
 
 (defun %%recreate-design-documents ()
   (%%delete-design-documents)

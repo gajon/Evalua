@@ -108,7 +108,19 @@ returns NIL."
               unless valid do (setf (question-valid-p question) nil
                                     success nil)
               finally (return success))
-      (public%save-submitted-answers questions ht (form-time-zone form))
+      (let* ((time-zone (form-time-zone form))
+             ;; TODO
+             (start-date (make-date (get-universal-time) time-zone))
+             (finish-date (make-date (get-universal-time) time-zone))
+             (sub (data/create-submission
+                    (make-instance 'submission
+                                   :form (form-id form)
+                                   :start-date (format-iso8601-date start-date)
+                                   :finish-date (format-iso8601-date
+                                                  finish-date)
+                                   :ip (remote-addr*)
+                                   :user-agent (user-agent)))))
+        (public%save-submitted-answers sub questions ht time-zone))
       (push-error-msg "Por favor contesta todas las preguntas."))))
 
 (defun public%validate-question (question ht-submitted-answers)
@@ -125,11 +137,13 @@ returns NIL."
                      (return-from public%validate-question nil))))))))
   t)
 
-(defun public%save-submitted-answers (questions ht &optional (time-zone 6))
+(defun public%save-submitted-answers (sub questions ht &optional (time-zone 6))
   ;; We use the time-zone recorded in the form, which is the time-zone of
   ;; the user who designed and created the form. That user is the one who
   ;; will see any dates, therefore we'd like to show them in his/her
   ;; time-zone.
+  ;; TODO: How is this 'now' related to start-date and finish-date of the
+  ;; submission object?
   (let ((now (make-date (get-universal-time) time-zone)))
     (loop for question in questions
           for qid = (question-id question)
@@ -141,7 +155,8 @@ returns NIL."
                         (question-id question)
                         ansid
                         (and wrap? (car (gethash ansid ht)))
-                        now))))
+                        now
+                        (submission-id sub)))))
   t)
 
 

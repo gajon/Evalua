@@ -71,6 +71,17 @@
   (:documentation ""))
 
 
+(defclass submission ()
+  ((_id         :initarg :id          :accessor submission-id)
+   (_rev        :initarg :rev         :accessor submission-rev)
+   (form        :initarg :form        :accessor submission-form)
+   (start-date  :initarg :start-date  :accessor submission-start-date)
+   (finish-date :initarg :finish-date :accessor submission-finish-date)
+   (ip          :initarg :ip          :accessor submission-ip)
+   (user-agent  :initarg :user-agent  :accessor submission-user-agent))
+  (:documentation ""))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Methods to get a nice REPL display.
 

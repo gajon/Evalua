@@ -238,7 +238,10 @@
         (:div :id "form-info-stats"
           (:h2 "Estadísticas")
           (:div :class "stats"
-            (:label "Evaluaciones completadas: ") "3")
+            (:label "Evaluaciones completadas: ")
+            (str (aif (data/get-submissions-by-form-count form)
+                      it
+                      "N/A")))
           (:div :class "stats"
             (:label "Fecha inicio: ") "N/A")
           (:div :class "stats"
