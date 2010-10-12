@@ -6,8 +6,8 @@
          (fresh-form (data/create-fresh-form
                        (make-instance 'form
                                       :user (user-username the-user)
-                                      :date (format-iso8601-date now)
-                                      :update-date (format-iso8601-date now)
+                                      :date now
+                                      :update-date now
                                       :valid-date nil
                                       :title nil
                                       :notes nil
@@ -183,11 +183,10 @@
           (:p :class "dates"
               (:em "Fecha de creación: ")
               (:span :class "date"
-                (esc (format-date (parse-iso8601-date (form-date form)))))
+                (esc (format-date (form-date form))))
               (:em "Última modificación: ")
               (:span :class "date"
-                (esc (format-date (parse-iso8601-date
-                                    (form-update-date form)))))
+                (esc (format-date (form-update-date form))))
               (if (string= (form-status form) "active")
                 (htm (:em :class "state-running" "Corriendo"))
                 (htm (:em :class "state-paused" "Pausada")))))
@@ -313,6 +312,7 @@
   (flet ((validate-time-limit (time)
            (multiple-value-bind (start end start-positions end-positions)
                (#~m/^(\d{1,2}):(\d{1,2})$/ time)
+             (declare (ignore end))
              (when start
                (let ((hours (parse-integer time
                                            :start (svref start-positions 0)
@@ -422,11 +422,10 @@
          (:p :class "dates"
           (:em "Fecha de creación: ")
           (:span :class "date"
-           (esc (format-date (parse-iso8601-date (form-date form)))))
+           (esc (format-date (form-date form))))
           (:em "Última modificación: ")
           (:span :class "date"
-           (esc (format-date (parse-iso8601-date
-                              (form-update-date form)))))
+           (esc (format-date (form-update-date form))))
           ;; TODO: Verify this
           (:em :class "state-paused" "Pausada"))))
        ;;
@@ -471,11 +470,10 @@
          (:p :class "dates"
           (:em "Fecha de creación: ")
           (:span :class "date"
-           (esc (format-date (parse-iso8601-date (form-date form)))))
+           (esc (format-date (form-date form))))
           (:em "Última modificación: ")
           (:span :class "date"
-           (esc (format-date (parse-iso8601-date
-                              (form-update-date form)))))
+           (esc (format-date (form-update-date form))))
           ;; TODO: Verify this.
           (:em :class "state-running" "Corriendo"))))
        ;;

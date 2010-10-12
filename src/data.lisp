@@ -199,73 +199,71 @@ This macro saves some typing:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; DOCUMENT STORAGE
 
-(defun data/create-fresh-form (form-obj)
-  (flet ((%create-form (form-obj)
+(defun data/create-fresh-form (form)
+  (flet ((%create-form (form)
            (let* ((secret-id (kmrcl:random-string
                                :set :lower-alphanumeric :length 20))
                   (public-id (kmrcl:random-string
                                :set :lower-alphanumeric :length 10))
                   (doc (clouchdb:create-document
                          `((:|type| .        "form")
-                           (:|user| .        ,(form-user form-obj))
-                           (:|date| .        ,(form-date form-obj))
-                           (:|update-date| . ,(form-update-date form-obj))
-                           (:|valid-date| .  ,(form-valid-date form-obj))
+                           (:|user| .        ,(form-user form))
+                           (:|date| .        ,(slot-value form 'date))
+                           (:|update-date| . ,(slot-value form 'update-date))
+                           (:|valid-date| .  ,(slot-value form 'valid-date))
                            (:|public-id| .   ,public-id)
-                           (:|title| .       ,(form-title form-obj))
-                           (:|notes| .       ,(form-notes form-obj))
-                           (:|time-zone| .   ,(form-time-zone form-obj))
+                           (:|title| .       ,(form-title form))
+                           (:|notes| .       ,(form-notes form))
+                           (:|time-zone| .   ,(form-time-zone form))
                            (:|status| .      "fresh")
-                           (:|time-limit| .  ,(form-time-limit form-obj))
-                           (:|tries-limit| . ,(form-tries-limit form-obj))
-                           (:|score-p| .     ,(form-score-p form-obj))
-                           (:|comments-p| .  ,(form-comments-p form-obj))
-                           (:|email-dest| .  ,(form-email-dest form-obj)))
+                           (:|time-limit| .  ,(form-time-limit form))
+                           (:|tries-limit| . ,(form-tries-limit form))
+                           (:|score-p| .     ,(form-score-p form))
+                           (:|comments-p| .  ,(form-comments-p form))
+                           (:|email-dest| .  ,(form-email-dest form)))
                          :id secret-id)))
              ;; TODO: Should we check (eql (%lowassoc ok doc) T)?
              (when doc
-               (setf (form-id form-obj) secret-id
-                     (form-public-id form-obj) public-id
-                     (form-rev form-obj) (%lowassoc rev doc)
-                     (form-status form-obj) "fresh")
-               form-obj))))
+               (setf (form-id form) secret-id
+                     (form-public-id form) public-id
+                     (form-rev form) (%lowassoc rev doc)
+                     (form-status form) "fresh")
+               form))))
     (handler-case
-      (%create-form form-obj)
+      (%create-form form)
       (clouchdb:id-or-revision-conflict (c)
         (declare (ignore c))
         ;; Try once more.. this should be rare, the random number should
         ;; be sufficiently big so that collisions are rare.
         ;; TODO: this is stupid, find an available ID first.
         (ignore-errors
-          (%create-form form-obj))))))
+          (%create-form form))))))
 
-(defun data/save-form (form-obj)
-  (let* ((now (format-iso8601-date
-                (make-date (get-universal-time)
-                           (or (form-time-zone form-obj) 6))))
+(defun data/save-form (form)
+  (let* ((now (make-date (get-universal-time) (or (form-time-zone form) 6)))
          (saved? (clouchdb:put-document
-                   `((:|_id| .         ,(form-id form-obj))
-                     (:|_rev| .        ,(form-rev form-obj))
+                   `((:|_id| .         ,(form-id form))
+                     (:|_rev| .        ,(form-rev form))
                      (:|type| .        "form")
-                     (:|user| .        ,(form-user form-obj))
-                     (:|date| .        ,(form-date form-obj))
-                     (:|update-date| . ,now)
-                     (:|valid-date| .  ,(form-valid-date form-obj))
-                     (:|public-id| .   ,(form-public-id form-obj))
-                     (:|title| .       ,(form-title form-obj))
-                     (:|notes| .       ,(form-notes form-obj))
-                     (:|time-zone| .   ,(form-time-zone form-obj))
-                     (:|status| .      ,(form-status form-obj))
-                     (:|time-limit| .  ,(form-time-limit form-obj))
-                     (:|tries-limit| . ,(form-tries-limit form-obj))
-                     (:|score-p| .     ,(form-score-p form-obj))
-                     (:|comments-p| .  ,(form-comments-p form-obj))
-                     (:|email-dest| .  ,(form-email-dest form-obj))))))
+                     (:|user| .        ,(form-user form))
+                     (:|date| .        ,(slot-value form 'date))
+                     (:|update-date| . ,(format-iso8601-date now))
+                     (:|valid-date| .  ,(slot-value form 'valid-date))
+                     (:|public-id| .   ,(form-public-id form))
+                     (:|title| .       ,(form-title form))
+                     (:|notes| .       ,(form-notes form))
+                     (:|time-zone| .   ,(form-time-zone form))
+                     (:|status| .      ,(form-status form))
+                     (:|time-limit| .  ,(form-time-limit form))
+                     (:|tries-limit| . ,(form-tries-limit form))
+                     (:|score-p| .     ,(form-score-p form))
+                     (:|comments-p| .  ,(form-comments-p form))
+                     (:|email-dest| .  ,(form-email-dest form))))))
     (when (%lowassoc ok saved?)
       ;; Update the _rev info, just in case.
-      (setf (form-rev form-obj) (%lowassoc rev saved?)
-            (form-update-date form-obj) now)
-      form-obj)))
+      (setf (form-rev form) (%lowassoc rev saved?)
+            (form-update-date form) now)
+      form)))
 
 (defun data/save-form-questions (form-obj questions)
   ;; The questions link back to the form using the form's id, and similarly
@@ -403,8 +401,8 @@ This macro saves some typing:
   (let ((doc (clouchdb:create-document
                `((:|type| . "submission")
                  (:|form| . ,(submission-form sub))
-                 (:|start-date| . ,(submission-start-date sub))
-                 (:|finish-date| . ,(submission-finish-date sub))
+                 (:|start-date| . ,(slot-value sub 'start-date))
+                 (:|finish-date| . ,(slot-value sub 'finish-date))
                  (:|ip| . ,(submission-ip sub))
                  (:|user-agent| . ,(submission-user-agent sub))))))
     ;; TODO: Should we check (eql (%lowassoc ok doc) T)?

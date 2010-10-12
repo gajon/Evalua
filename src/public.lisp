@@ -115,9 +115,8 @@ returns NIL."
              (sub (data/create-submission
                     (make-instance 'submission
                                    :form (form-id form)
-                                   :start-date (format-iso8601-date start-date)
-                                   :finish-date (format-iso8601-date
-                                                  finish-date)
+                                   :start-date start-date
+                                   :finish-date finish-date
                                    :ip (remote-addr*)
                                    :user-agent (user-agent)))))
         (public%save-submitted-answers sub questions ht time-zone))

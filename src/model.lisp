@@ -40,6 +40,55 @@
    (control :initarg :control :reader answer-control)
    (text    :initarg :text    :reader answer-text)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+
+(defmethod initialize-instance :after ((form form) &key)
+  (let ((date (and (slot-boundp form 'date)
+                   (slot-value form 'date)))
+        (update-date (and (slot-boundp form 'update-date)
+                          (slot-value form 'update-date)))
+        (valid-date (and (slot-boundp form 'valid-date)
+                         (slot-value form 'valid-date))))
+    (when (and date (eq (type-of date) 'date))
+      (setf (form-date form) date))
+    (when (and update-date (eq (type-of update-date) 'date))
+      (setf (form-update-date form) update-date))
+    (when (and valid-date (eq (type-of valid-date) 'date))
+      (setf (form-valid-date form) valid-date))))
+
+(defmethod form-date ((form form))
+  (let ((date (and (slot-boundp form 'date) (slot-value form 'date))))
+    (when date
+      (parse-iso8601-date date))))
+
+(defmethod (setf form-date) :after ((date date) (form form))
+  (when date
+    (setf (slot-value form 'date) (format-iso8601-date date))))
+
+(defmethod form-update-date ((form form))
+  (let ((date (and (slot-boundp form 'update-date)
+                   (slot-value form 'update-date))))
+    (when date
+      (parse-iso8601-date date))))
+
+(defmethod (setf form-update-date) :after ((date date) (form form))
+  (when date
+    (setf (slot-value form 'update-date) (format-iso8601-date date))))
+
+(defmethod form-valid-date ((form form))
+  (let ((date (and (slot-boundp form 'valid-date)
+                   (slot-value form 'valid-date))))
+    (when date
+      (parse-iso8601-date date))))
+
+(defmethod (setf form-valid-date) :after ((date date) (form form))
+  (when date
+    (setf (slot-value form 'valid-date) (format-iso8601-date date))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 
 (defgeneric form-questions (form)
   (:documentation "")
@@ -80,6 +129,36 @@
    (ip          :initarg :ip          :accessor submission-ip)
    (user-agent  :initarg :user-agent  :accessor submission-user-agent))
   (:documentation ""))
+
+(defmethod initialize-instance :after ((sub submission) &key)
+  (let ((start-date (and (slot-boundp sub 'start-date)
+                         (slot-value sub 'start-date)))
+        (finish-date (and (slot-boundp sub 'finish-date)
+                          (slot-value sub 'finish-date))))
+    (when (and start-date (eq (type-of start-date) 'date))
+      (setf (submission-start-date sub) start-date))
+    (when (and finish-date (eq (type-of finish-date) 'date))
+      (setf (submission-finish-date sub) finish-date))))
+
+(defmethod submission-start-date ((submission submission))
+  (let ((start-date (and (slot-boundp submission 'start-date)
+                         (slot-value submission 'start-date))))
+    (when start-date
+      (parse-iso8601-date start-date))))
+
+(defmethod (setf submission-start-date) :after ((date date) (sub submission))
+  (when date
+    (setf (slot-value sub 'start-date) (format-iso8601-date date))))
+
+(defmethod submission-finish-date ((submission submission))
+  (let ((finish-date (and (slot-boundp submission 'finish-date)
+                          (slot-value submission 'finish-date))))
+    (when finish-date
+      (parse-iso8601-date finish-date))))
+
+(defmethod (setf submission-finish-date) :after ((date date) (sub submission))
+  (when date
+    (setf (slot-value sub 'finish-date) (format-iso8601-date date))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
