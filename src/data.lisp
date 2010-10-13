@@ -503,12 +503,7 @@ This macro saves some typing:
       (defun map (doc)
         (with-slots (type question sort _id) doc
           (if (and type (= type "answer"))
-            (emit (array question sort _id) nil)))))
-    (clouchdb:ps-view ("submitted-answers")
-      (defun map (doc)
-        (with-slots (type question) doc
-          (if (and type (= type "submitted-answer"))
-            (emit question nil))))))
+            (emit (array question sort _id) nil))))))
   (clouchdb:create-ps-view "submissions"
     (clouchdb:ps-view ("submissions-by-form")
       (defun map (doc)
@@ -516,7 +511,12 @@ This macro saves some typing:
           (if (and type (= type "submission"))
             (emit form 1))))
       (defun reduce (keys values)
-        (sum values)))))
+        (sum values)))
+    (clouchdb:ps-view ("submitted-answers")
+      (defun map (doc)
+        (with-slots (type question) doc
+          (if (and type (= type "submitted-answer"))
+            (emit question nil)))))))
 
 (defun %%delete-design-documents ()
   (clouchdb:delete-view "forms")
@@ -538,10 +538,6 @@ This macro saves some typing:
     (mapc #'delete-document
           (clouchdb:query-document
             '(:|rows| :|id|)
-            (clouchdb:invoke-view "answers" "submitted-answers")))
-    (mapc #'delete-document
-          (clouchdb:query-document
-            '(:|rows| :|id|)
             (clouchdb:invoke-view "questions" "all-questions")))
     (mapc #'delete-document
           (clouchdb:query-document
@@ -554,5 +550,14 @@ This macro saves some typing:
     (mapc #'delete-document
           (clouchdb:query-document
             '(:|rows| :|id|)
-            (clouchdb:invoke-view "forms" "fresh-forms"))))
+            (clouchdb:invoke-view "forms" "fresh-forms")))
+    (mapc #'delete-document
+          (clouchdb:query-document
+            '(:|rows| :|id|)
+            (clouchdb:invoke-view "submissions" "submissions-by-form"
+                                  :reduce nil)))
+    (mapc #'delete-document
+          (clouchdb:query-document
+            '(:|rows| :|id|)
+            (clouchdb:invoke-view "submissions" "submitted-answers"))))
   (values))
