@@ -199,6 +199,7 @@
             (:li :class "preview"
               (:a :href (escape-string
                           (format nil "/design/preview-form?id=~a" id))
+                  :target "_blank"
                   "Vista preliminar")))))
       ;;
       ;; Pause/Run button & description, incl. link to form.
@@ -392,10 +393,6 @@
       ;; Questions.
       ;;
       (:section :id "questions"
-        (:div :class "return-link"
-          (:a :href (escape-string
-                      (format nil "/design/form-info?id=~a" (form-id form)))
-              "Regresar a datos de la evaluación."))
         (dolist (question questions)
           (htm (:div :class "question"
                  (:h2 (esc (format nil "~d. ~a"
@@ -413,12 +410,8 @@
       (push-info-msg "Esta es una vista preliminar de la evaluación,
                      no se puede mandar respuestas desde aquí.")
       (:section :id "submit"
-        (submit-button "Enviar respuestas")
-        (show-all-messages)
-        (:div :class "return-link"
-          (:a :href (escape-string
-                      (format nil "/design/form-info?id=~a" (form-id form)))
-              "Regresar a datos de la evaluación."))))))
+        (submit-button "Enviar respuestas" :disabled t)
+        (show-all-messages)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
