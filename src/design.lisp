@@ -336,13 +336,30 @@
       (:div :class "stats"
         (:label "Evaluaciones completadas: ")
         (str (aif (data/get-submissions-by-form-count form) it "N/A")))
-      (:div :class "stats"
-        (:label "Fecha inicio: ")
-        (str (aif (form-start-date form)
-                  (format-date it)
-                  "N/A")))
-      (:div :class "stats"
-        (:label "Días corriendo la evaluación: ") "0")
+      (if (string= (form-status form) "active")
+        (htm
+          (:div :class "stats"
+            (:label "Fecha inicio: ")
+            (str (format-date (form-start-date form))))
+          (:div :class "stats"
+            (:label "Días corriendo la evaluación: ")
+            (kmrcl:let-when (start (form-start-date form))
+              (let* ((now (make-date (get-universal-time)
+                                     (form-time-zone form)))
+                     (diff (- (date-universal-time now)
+                              (date-universal-time start))))
+                ;; It shouldn't happen that DIFF is negative.
+                (if (minusp diff)
+                  (htm "N/A")
+                  (htm (str (format nil "~a día~:p"
+                                    (floor (/ diff %secs-in-one-day))))))))))
+        ;;
+        ;; The form is NOT active.
+        ;;
+        (htm
+          (:div :class "stats inactive" (:label "Fecha inicio: ") "N/A")
+          (:div :class "stats inactive"
+            (:label "Días corriendo la evaluación: ") "N/A")))
       (when with-download-button
         (htm (:p "Haz click en el siguiente botón para descargar la información
                  de las evaluaciones completadas. Puedes abrir este archivo

@@ -123,6 +123,7 @@ div.dummy-question div.answer-add img { vertical-align: text-bottom; }
 #form-info-stats div.stats  { margin-bottom: 0.5em; }
 #form-info-stats p          { font-size:12px; margin: 1em 0 1em 0; }
 #form-info-stats div.button { text-align:center; }
+#form-info-stats div.stats.inactive { color:#666; font-style:italic; }
 
 
 /* Form activation {{{1 */
