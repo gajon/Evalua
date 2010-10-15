@@ -242,10 +242,12 @@
 (defun design%render-form-options (form &key (div.id "form-info-options")
                                         (with-hidden-id t)
                                         (with-submit-button t))
-  (with-html-output (*standard-output*)
+  (let ((tries (parse-int-force-pos-or-zero (form-tries-limit form)))
+        (id (form-id form)))
+    (with-html-output (*standard-output*)
     (:div :id (escape-string div.id)
       (when with-hidden-id
-        (htm (hidden-input "id" :default-value (form-id form))))
+        (htm (hidden-input "id" :default-value id)))
       (:h2 "Opciones")
       (:div :class "option" :id "form-option-time"
        (:p (text-input "Tiempo límite:" "timelimit" :size 6
@@ -259,7 +261,8 @@
                 la evaluación."))
       (:div :class "option" :id "form-option-tries"
        (:p (text-input "Intentos permitidos:" "tries" :size 3
-                       :default-value (form-tries-limit form)))
+                       :default-value (when (> tries 0)
+                                        (princ-to-string tries))))
        (:p :class "help"
         "El número de veces que un evaluado podrá participar en la
                 evaluación. En caso de que se le permita contestar la
@@ -294,7 +297,7 @@
                 evaluador."))
       (when with-submit-button
         (htm (:div :class "button"
-              (submit-button "Guardar opciones" :name "options")))))))
+              (submit-button "Guardar opciones" :name "options"))))))))
 
 
 (defun design/process-form-options (form-obj)
@@ -312,7 +315,7 @@
                  (and (> 60 hours) (> 60 minutes)))))))
     ;; Get data from the post, and validate.
     (let ((time-limit (trim-or-nil (post-parameter "timelimit")))
-          (tries (trim-or-nil (post-parameter "tries")))
+          (tries (parse-int-force-pos-or-zero (post-parameter "tries")))
           (score-p (string= (trim-or-nil (post-parameter "score")) "yes"))
           (comments-p (string= (trim-or-nil (post-parameter "comments"))
                                "yes")))
