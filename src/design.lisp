@@ -337,7 +337,10 @@
         (:label "Evaluaciones completadas: ")
         (str (aif (data/get-submissions-by-form-count form) it "N/A")))
       (:div :class "stats"
-        (:label "Fecha inicio: ") "N/A")
+        (:label "Fecha inicio: ")
+        (str (aif (form-start-date form)
+                  (format-date it)
+                  "N/A")))
       (:div :class "stats"
         (:label "Días corriendo la evaluación: ") "0")
       (when with-download-button
@@ -411,10 +414,12 @@
          (title (escape-string (form-title form))))
     ;;
     ;;
-    (when (and (eql :post (request-method*))
-               (setf (form-status form) "active")
-               (design/process-form-options form))
-      (redirect (format nil "/design/form-info?id=~a" id)))
+    (let ((now (make-date (get-universal-time) (or time-zone 6))))
+      (when (and (eql :post (request-method*))
+                 (setf (form-status form) "active"
+                       (form-start-date form) now)
+                 (design/process-form-options form))
+        (redirect (format nil "/design/form-info?id=~a" id))))
     ;;
     ;;
     (standard-page (:title (format nil "Evaluacion: ~a" title)

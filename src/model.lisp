@@ -9,6 +9,7 @@
    (user        :initarg :user        :accessor form-user)
    (date        :initarg :date        :accessor form-date)
    (update-date :initarg :update-date :accessor form-update-date)
+   (start-date  :initarg :start-date  :accessor form-start-date)
    (valid-date  :initarg :valid-date  :accessor form-valid-date)
    (public-id   :initarg :public-id   :accessor form-public-id)
    (title       :initarg :title       :accessor form-title)
@@ -48,15 +49,20 @@
                    (slot-value form 'date)))
         (update-date (and (slot-boundp form 'update-date)
                           (slot-value form 'update-date)))
+        (start-date (and (slot-boundp form 'start-date)
+                         (slot-value form 'start-date)))
         (valid-date (and (slot-boundp form 'valid-date)
                          (slot-value form 'valid-date))))
     (when (and date (eq (type-of date) 'date))
       (setf (form-date form) date))
     (when (and update-date (eq (type-of update-date) 'date))
       (setf (form-update-date form) update-date))
+    (when (and start-date (eq (type-of start-date) 'date))
+      (setf (form-start-date form) start-date))
     (when (and valid-date (eq (type-of valid-date) 'date))
       (setf (form-valid-date form) valid-date))))
 
+;;; FORM-DATE
 (defmethod form-date ((form form))
   (let ((date (and (slot-boundp form 'date) (slot-value form 'date))))
     (when date
@@ -66,6 +72,7 @@
   (when date
     (setf (slot-value form 'date) (format-iso8601-date date))))
 
+;;; FORM-UPDATE-DATE
 (defmethod form-update-date ((form form))
   (let ((date (and (slot-boundp form 'update-date)
                    (slot-value form 'update-date))))
@@ -76,6 +83,18 @@
   (when date
     (setf (slot-value form 'update-date) (format-iso8601-date date))))
 
+;;; FORM-START-DATE
+(defmethod form-start-date ((form form))
+  (let ((date (and (slot-boundp form 'start-date)
+                   (slot-value form 'start-date))))
+    (when date
+      (parse-iso8601-date date))))
+
+(defmethod (setf form-start-date) :after ((date date) (form form))
+  (when date
+    (setf (slot-value form 'start-date) (format-iso8601-date date))))
+
+;;; FORM-VALID-DATE
 (defmethod form-valid-date ((form form))
   (let ((date (and (slot-boundp form 'valid-date)
                    (slot-value form 'valid-date))))
