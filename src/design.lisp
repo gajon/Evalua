@@ -232,23 +232,11 @@
       ;; Form options box and statistics/download box.
       ;;
       (:section :id "form-info-options-and-stats"
+        ;; Options
         (:form :method "post" :action "/design/form-info"
          (design%render-form-options form))
-        (:div :id "form-info-stats"
-          (:h2 "Estadísticas")
-          (:div :class "stats"
-            (:label "Evaluaciones completadas: ")
-            (str (aif (data/get-submissions-by-form-count form)
-                      it
-                      "N/A")))
-          (:div :class "stats"
-            (:label "Fecha inicio: ") "N/A")
-          (:div :class "stats"
-            (:label "Días corriendo la evaluación: ") "0")
-          (:p "Haz click en el siguiente botón para descargar la información
-          de las evaluaciones completadas. Puedes abrir este archivo en Excel:")
-          (:div :class "button"
-            (button "Descargar estadísticas" "download")))))))
+        ;; Stats
+        (design%render-form-stats form)))))
 
 (defun design%render-form-options (form &key (div.id "form-info-options")
                                         (with-hidden-id t)
@@ -338,6 +326,26 @@
               (form-comments-p form-obj) comments-p)
         ;; Save it!
         (data/save-form form-obj)))))
+
+
+(defun design%render-form-stats (form &key (div.id "form-info-stats")
+                                      (with-download-button t))
+  (with-html-output (*standard-output*)
+    (:div :id (escape-string div.id)
+      (:h2 "Estadísticas")
+      (:div :class "stats"
+        (:label "Evaluaciones completadas: ")
+        (str (aif (data/get-submissions-by-form-count form) it "N/A")))
+      (:div :class "stats"
+        (:label "Fecha inicio: ") "N/A")
+      (:div :class "stats"
+        (:label "Días corriendo la evaluación: ") "0")
+      (when with-download-button
+        (htm (:p "Haz click en el siguiente botón para descargar la información
+                 de las evaluaciones completadas. Puedes abrir este archivo
+                 en Excel:")
+             (:div :class "button"
+               (button "Descargar estadísticas" "download")))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -487,11 +495,4 @@
           (:a :href (escape-string (format nil "/design/form-info?id=~a" id))
            "Cancelar")
           (submit-button "Detener evaluaciones")))
-        (:div :id "form-info-stats"
-          (:h2 "Estadísticas")
-          (:div :class "stats"
-            (:label "Evaluaciones completadas: ") "3")
-          (:div :class "stats"
-            (:label "Fecha inicio: ") "N/A")
-          (:div :class "stats"
-            (:label "Días corriendo la evaluación: ") "0")))))))
+        (design%render-form-stats form :with-download-button nil))))))
