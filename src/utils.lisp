@@ -56,7 +56,8 @@ BE CAREFUL."
                         (setf (session-value 'authenticated) nil)
                         (redirect "/")))
                   ;; Yay, we have a valid user, let's set the time zone.
-                  (setf (user-time-zone the-user) (session-value 'timezone))
+                  (when time-zone
+                    (setf (user-time-zone the-user) time-zone))
                   ,@body))
               ;;;
               ;;; Update Hunchentoot's dispatch table.

@@ -38,18 +38,18 @@
   ;; anonymous users in place.
   ;;
   ;; Ensure the dummy user exists
-  (or (data/get-user "gajon")
-      (data/create-user
-        (make-instance 'user
-                       :username "gajon"
-                       :full-name "Jorge Gajon"
-                       :email "gajon@gajon.org"
-                       :password-digest (hunchentoot::md5-hex "gajon")
-                       :time-zone 5)))
+  ;(or (data/get-user "gajon")
+  ;    (data/create-user
+  ;      (make-instance 'user
+  ;                     :username "gajon"
+  ;                     :full-name "Jorge Gajon"
+  ;                     :email "gajon@gajon.org"
+  ;                     :password-digest (hunchentoot::md5-hex "gajon")
+  ;                     :time-zone 5)))
   ;; Set the session.
-  (setf (session-value 'authenticated) "yes"
-        (session-value 'username) "gajon"
-        (session-value 'timezone) 5)
+  ;(setf (session-value 'authenticated) "yes"
+  ;      (session-value 'username) "gajon"
+  ;      (session-value 'timezone) 5)
   ;;
   ;;
   (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear evaluaciones en línea."
@@ -120,7 +120,7 @@
       timezoneInput.value = (new Date()).getTimezoneOffset() / 60;
       SCRIPT)))
 
-(define-url-fn wait-registry
+(define-url-fn (wait-registry :auth nil)
   ;; TODO: We are not storing the timezone in the session.
   (let* ((email (trim-or-nil (post-parameter "email")))
         (timezone (parse-int-or-force-value (post-parameter "timezone") 6))
@@ -141,3 +141,39 @@
       (:p "Te queremos recordar que tu dirección de correo electrónico es
           completamente confidencial y no será compartida con nadie, ni será
           utilizada para mandarte correo no deseado."))))
+
+(define-url-fn (login :auth nil)
+  (when (eq :post (request-method*))
+    (let ((username (trim-or-nil (post-parameter "username")))
+          (password (trim-or-nil (post-parameter "password")))
+          (timezone (parse-int-or-force-value (post-parameter "timezone") 6)))
+      (if (and (require-fields username password)
+               (or (data/validate-credentials username password)
+                   (push-error-msg "El usuario o contraseña son incorrectos.")))
+        (setf (session-value 'authenticated) "yes"
+              (session-value 'username) username
+              (session-value 'timezone) timezone)
+        ;; Invalid credentials
+        (setf (session-value 'authenticated) nil))))
+  (when (string= (session-value 'authenticated) "yes")
+    (redirect "/dashboard"))
+  (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear evaluaciones en línea."
+                  :css-files ("index.css?v=20101019")
+                  :show-options nil
+                  :include-analytics-p nil)
+    (:section :id "login"
+     (show-all-messages)
+     (:form :method "post" :action "/login"
+      (hidden-input "timezone")
+      (:div (text-input "Usuario:" "username"))
+      (:div (text-input "Contraseña:" "password"))
+      (:div (submit-button "Entrar"))))
+    (:script
+      #>SCRIPT
+      var usernameInput = document.getElementById("id_username");
+      usernameInput.focus();
+      usernameInput.select();
+
+      var timezoneInput = document.getElementById("id_timezone");
+      timezoneInput.value = (new Date()).getTimezoneOffset() / 60;
+      SCRIPT)))

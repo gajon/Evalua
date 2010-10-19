@@ -70,9 +70,9 @@
         (:td (:a :href (escape-string ;;TODO: Is escape-string necessary here?
                          (format nil "/form-reports?id=~a" id))
                  (str title)))
-        (:td (esc (format-date (parse-iso8601-date date))))
+        (:td (esc (format-date date)))
         (:td (if valid
-               (htm (esc (format-date (parse-iso8601-date valid))))
+               (htm (esc (format-date date)))
                (htm "N/A")))
         (:td "20")
         (:td "90.3")
