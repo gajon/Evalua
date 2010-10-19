@@ -161,7 +161,7 @@
                    (redirect "/")))
          (id (form-id form))
          (title (escape-string (form-title form)))
-         (public-url (format nil "http://~a:8081/a?id=~a"
+         (public-url (format nil "http://~a/a?id=~a"
                              (host)
                              (form-public-id form))))
     ;;
