@@ -360,6 +360,13 @@ This macro saves some typing:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; DOCUMENT DELETION
 
+(defun data/delete-form (form)
+  (let* ((fid (if (eq (type-of form) 'form) (form-id form) form))
+         (doc (clouchdb:get-document fid :if-missing :ignore)))
+    (when doc
+      (data/delete-form-questions fid)
+      (clouchdb:delete-document fid :if-missing :ignore))))
+
 (defun data/delete-form-questions (form)
   (let* ((fid (if (eq (type-of form) 'form) (form-id form) form))
          (questions (data/get-questions-by-form fid :raw-alist t)))
