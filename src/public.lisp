@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; RENDER A PUBLIC FORM.
 
-(define-url-fn (public/a :prefix "a")
+(define-url-fn (public/a :prefix "a" :auth nil)
   (let* ((form (or (data/get-form-by-public-id (parameter "id"))
                    (redirect "/")))
          (start-time (or (session-value 'start-time)
@@ -170,7 +170,7 @@ returns NIL."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 
-(define-url-fn (public/thankyou :prefix "thankyou")
+(define-url-fn (public/thankyou :prefix "thankyou" :auth nil)
   (let ((form (or (data/get-form-by-public-id (parameter "id"))
                   (redirect "/")))
         (sub (or (data/get-submission (parameter "sub"))
