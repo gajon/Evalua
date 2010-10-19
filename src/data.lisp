@@ -248,6 +248,8 @@ This macro saves some typing:
           (%create-form form))))))
 
 (defun data/save-form (form)
+  (when (string= (form-status form) "fresh")
+    (setf (form-status form) "inactive"))
   (let* ((now (make-date (get-universal-time) (or (form-time-zone form) 6)))
          (saved? (clouchdb:put-document
                    `((:|_id| .         ,(form-id form))
