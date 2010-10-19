@@ -116,6 +116,12 @@ This macro saves some typing:
 ;;; Submissions
 ;;;
 
+(defun data/get-submission (id)
+  (handler-case
+      (data/build-submission-from-alist
+       (clouchdb:get-document id))
+    (error () nil)))
+
 (defun data/get-submissions-by-form (form)
   (let ((form (if (eq (type-of form) 'form) (form-id form) form)))
     (mapcar #'data/build-submission-from-alist
@@ -425,6 +431,13 @@ This macro saves some typing:
       (:|question| . ,question-id)
       (:|submission| . ,sub-id))))
 
+(defun data/add-submitted-comments (form-id sub-id comments now)
+  (clouchdb:create-document
+   `((:|type| . "submitted-comments")
+     (:|form| . ,form-id)
+     (:|submission| . ,sub-id)
+     (:|date| . ,(format-iso8601-date now))
+     (:|comments| . ,comments))))
 
 
 
@@ -519,7 +532,14 @@ This macro saves some typing:
       (defun map (doc)
         (with-slots (type question) doc
           (if (and type (= type "submitted-answer"))
-            (emit question nil)))))))
+            (emit question nil)))))
+    (clouchdb:ps-view ("submitted-comments-by-form")
+      (defun map (doc)
+        (with-slots (type form) doc
+          (if (and type (= type "submitted-comments"))
+            (emit form 1))))
+      (defun reduce (keys values)
+        (sum values)))))
 
 (defun %%delete-design-documents ()
   (clouchdb:delete-view "forms")

@@ -88,4 +88,11 @@ small { font-size: 80% }
 	font-size: 2.0em;
 }
 
+/* Thank you page {{{1 */
+#thankyou { margin-top:1em; }
+#comments { margin-top:2em; }
+#comments label { display:block; }
+#comments textarea { width:400px; height:7em; }
+#comments div.button { width:400px; text-align:right; }
+
 /* vim: set foldmethod=marker: */

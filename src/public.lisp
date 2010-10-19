@@ -12,14 +12,18 @@
          (questions (form-questions form)))
     ;;
     ;;
-    (when (and (eql :post (request-method*))
-               (public%process-submitted-answers form questions start-time))
-      (redirect (format nil "/thankyou?id=~a" (form-public-id form))))
+    (awhen (and (eql :post (request-method*))
+                (public%process-submitted-answers form questions start-time))
+      ;; IT is the anaphor that (as the value of AND) refers to the SUBMISSION
+      ;; object returned by public%process-submitted-answers above.
+      (redirect (format nil "/thankyou?id=~a&sub=~a"
+                        (form-public-id form)
+                        (submission-id it))))
     ;;
     ;;
     (standard-page (:title (form-title form)
                     :show-banner nil
-                    :css-files ("public-styles.css"))
+                    :css-files ("public-styles.css?v=20101018"))
       (:form :method "post" :action "/a"
         (hidden-input "id" :default-value (form-public-id form))
         ;;
@@ -159,7 +163,7 @@ returns NIL."
                         (and wrap? (car (gethash ansid ht)))
                         now
                         (submission-id sub)))))
-  t)
+  sub)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -167,11 +171,43 @@ returns NIL."
 
 (define-url-fn (public/thankyou :prefix "thankyou")
   (let ((form (or (data/get-form-by-public-id (parameter "id"))
-                  (redirect "/"))))
+                  (redirect "/")))
+        (sub (or (data/get-submission (parameter "sub"))
+                 (redirect "/"))))
+    ;; TODO: Do we really want to redirect to "/" on errors?
+    (unless (string= (form-id form) (submission-form sub))
+      (redirect "/"))
+    ;;
+    (awhen (and (eq :post (request-method*))
+               (form-comments-p form)
+               (trim-or-nil (post-parameter "comments")))
+      ;; IT is the anaphor that (as the value of AND) refers to the "Comments"
+      (data/add-submitted-comments (form-id form)
+                                   (submission-id sub)
+                                   it
+                                   (make-date (get-universal-time)
+                                              (form-time-zone form)))
+      (push-success-msg "Tus comentarios se han enviado, gracias")
+      (redirect (format nil "/thankyou?id=~a&sub=~a"
+                        (form-public-id form)
+                        (submission-id sub))))
+    ;;
     (standard-page (:title "Gracias"
                     :show-banner nil
-                    :css-files ("public-styles.css"))
+                    :css-files ("public-styles.css?v=20101018"))
       (:section :id "form-title"
         (:header (:h1 (esc (form-title form)))))
       (:section :id "thankyou"
-        (:h2 "Gracias por contestar el cuestionario.")))))
+        (:h2 "Gracias por contestar la evaluación.")
+        (show-all-messages))
+      (when (form-comments-p form)
+        (htm
+         (:form :method "post" :action "/thankyou"
+          (hidden-input "id" :default-value (form-public-id form))
+          (hidden-input "sub" :default-value (submission-id sub))
+          (:section :id "comments"
+           (text-area
+            "Puedes dejar comentarios adicionales (opcional):"
+            "comments")
+           (:div :class "button"
+            (submit-button "Enviar")))))))))
