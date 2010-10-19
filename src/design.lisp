@@ -169,6 +169,7 @@
     (when (and (eql :post (request-method*))
                ;; TODO: Distinguish action.
                (design/process-form-options form))
+      (push-success-msg "Las opciones se han guardado.")
       (redirect (format nil "/design/form-info?id=~a" id)))
     ;;
     (standard-page (:title (format nil "Evaluacion: ~a" title)
@@ -204,6 +205,7 @@
       ;; Pause/Run button & description, incl. link to form.
       ;;
       (:section :id "form-info-run-button"
+       (show-all-messages)
        (if (string= (form-status form) "active")
          (htm (:p "La evaluacion se encuentra corriendo: "
                (:a :target "_blank" :class "link"
@@ -305,17 +307,34 @@
 
 
 (defun design/process-form-options (form-obj)
-  (let ((time-limit (trim-or-nil (post-parameter "timelimit")))
-        (tries (trim-or-nil (post-parameter "tries")))
-        (score-p (string= (trim-or-nil (post-parameter "score")) "yes"))
-        (comments-p (string= (trim-or-nil (post-parameter "comments")) "yes")))
-    (setf (form-time-limit form-obj) time-limit
-          (form-tries-limit form-obj) tries
-          (form-score-p form-obj) score-p
-          (form-comments-p form-obj) comments-p)
-    ;; Save it!
-    (setf form-obj (data/save-form form-obj))))
-
+  (flet ((validate-time-limit (time)
+           (multiple-value-bind (start end start-positions end-positions)
+               (#~m/^(\d{1,2}):(\d{1,2})$/ time)
+             (when start
+               (let ((hours (parse-integer time
+                                           :start (svref start-positions 0)
+                                           :end (svref end-positions 0)))
+                     (minutes (parse-integer time
+                                             :start (svref start-positions 1)
+                                             :end (svref end-positions 1))))
+                 (and (> 60 hours) (> 60 minutes)))))))
+    ;; Get data from the post, and validate.
+    (let ((time-limit (trim-or-nil (post-parameter "timelimit")))
+          (tries (trim-or-nil (post-parameter "tries")))
+          (score-p (string= (trim-or-nil (post-parameter "score")) "yes"))
+          (comments-p (string= (trim-or-nil (post-parameter "comments"))
+                               "yes")))
+      ;;
+      (when (or (null time-limit)
+                (validate-time-limit time-limit)
+                (push-error-msg "El formato de tiempo limite debe ser hh:mm,
+                                por ejemplo 03:00"))
+        (setf (form-time-limit form-obj) time-limit
+              (form-tries-limit form-obj) tries
+              (form-score-p form-obj) score-p
+              (form-comments-p form-obj) comments-p)
+        ;; Save it!
+        (data/save-form form-obj)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
