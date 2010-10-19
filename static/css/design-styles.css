@@ -127,16 +127,23 @@ div.dummy-question div.answer-add img { vertical-align: text-bottom; }
 
 /* Form activation {{{1 */
 /* We mostly reuse the styles from "Form Infomation" page. */
-#form-info-title-activate { padding:1em 32px 2em 32px; }
+/* TODO: too much duplication... */
+#form-info-title-activate                   { padding:1em 32px 2em 32px; }
 #form-info-title-activate div.title h1      { color:#000; text-shadow:1px 1px 2px #666; font:normal 24px Tahoma,Arial,sans-serif; }
 #form-info-title-activate div.title h1 span { color:#666; }
 #form-info-title-activate div.title p.dates { margin-top:5px; font-size:12px; }
-#form-info-title-activate div.title p.dates span.date { margin-right:2em; }
-#form-info-title-activate div.title p.dates .state-paused { color:red; padding:2px 0 2px 20px; background:url('/static/icons/control_pause.png') no-repeat top left; }
+#form-info-title-activate div.title p.dates span.date      { margin-right:2em; }
+#form-info-title-activate div.title p.dates .state-paused  { color:red; padding:2px 0 2px 20px; background:url('/static/icons/control_pause.png') no-repeat top left; }
+#form-info-title-activate div.title p.dates .state-running { color:lightgreen; font-weight:bold; padding:2px 0 2px 20px; background:url('/static/icons/control_play_blue.png') no-repeat top left; }
 
-#form-activate-button { float:left; width:264px; }
-#form-activate-button p { margin-bottom:1em; }
+#form-activate-button        { float:left; width:264px; }
+#form-activate-button p      { margin-bottom:1em; }
 #form-activate-button button { font-size:20px; }
 
+#form-deactivate-button            { float:left; width:480px; padding:0.5em 15px; margin-right:10px; }
+#form-deactivate-button p          { margin-bottom:1em; }
+#form-deactivate-button div.button { text-align:center; }
+#form-deactivate-button div.button a { font-size:14px; margin-right:3em; color:red; padding:2px 0 2px 20px; background:url('/static/icons/cancel.png') no-repeat top left; }
+#form-deactivate-button button { font-size:20px; }
 
 /* vim: set foldmethod=marker: */

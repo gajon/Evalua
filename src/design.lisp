@@ -212,7 +212,7 @@
                    personas que desees tomen parte en la evaluacion.")
               (:p "Para detener el proceso de evaluacion deberas hacer click en
                    el siguiente boton:")
-              (:form :method "get" :action "/design/inactivate-form"
+              (:form :method "get" :action "/design/deactivate-form"
                (:p :class "stop-button"
                 (hidden-input "id" :default-value id)
                 (submit-button "Detener evaluaciones"))))
@@ -386,9 +386,10 @@
           (:span :class "date"
            (esc (format-date (parse-iso8601-date
                               (form-update-date form)))))
+          ;; TODO: Verify this
           (:em :class "state-paused" "Pausada"))))
        ;;
-       ;; Form options box and statistics/download box.
+       ;; Form options box.
        ;;
        (:section :id "form-info-options-and-stats"
         (:div :id "form-info-options"
@@ -435,3 +436,57 @@
               personas que desees tomen parte en la evaluacion.")
          (:div :class "button"
           (submit-button "Activar evaluación"))))))))
+
+(define-url-fn design/deactivate-form
+  (let* ((form (or (data/get-form (parameter "id"))
+                   (redirect "/")))
+         (id (form-id form))
+         (title (escape-string (form-title form))))
+    ;;
+    ;;
+    (when (eql :post (request-method*))
+      ;; TODO: save settings
+      (setf (form-status form) "inactive")
+      (data/save-form  form)
+      (redirect (format nil "/design/form-info?id=~a" id)))
+    ;;
+    ;;
+    (standard-page (:title (format nil "Evaluacion: ~a" title)
+                    :css-files ("design-styles.css?v=20101007"))
+      (:form :method "post" :action "/design/deactivate-form"
+       (hidden-input "id" :default-value id)
+       ;;
+       ;; Form title and links to modify/preview.
+       ;;
+       (:section :id "form-info-title-activate"
+        (:div :class "title"
+         (:h1 "Evaluación: " (:span :class "title" (str title)))
+         (:p :class "dates"
+          (:em "Fecha de creación: ")
+          (:span :class "date"
+           (esc (format-date (parse-iso8601-date (form-date form)))))
+          (:em "Última modificación: ")
+          (:span :class "date"
+           (esc (format-date (parse-iso8601-date
+                              (form-update-date form)))))
+          ;; TODO: Verify this.
+          (:em :class "state-running" "Corriendo"))))
+       ;;
+       ;; Form statistics box.
+       ;;
+       (:section :id "form-info-options-and-stats"
+        (:div :id "form-deactivate-button"
+         (:p "Estas seguro(a) que deseas detener las evaluaciones? Al detener las
+              evaluaciones nadie podra enviar mas respuestas.")
+         (:div :class "button"
+          (:a :href (escape-string (format nil "/design/form-info?id=~a" id))
+           "Cancelar")
+          (submit-button "Detener evaluaciones")))
+        (:div :id "form-info-stats"
+          (:h2 "Estadísticas")
+          (:div :class "stats"
+            (:label "Evaluaciones completadas: ") "3")
+          (:div :class "stats"
+            (:label "Fecha inicio: ") "N/A")
+          (:div :class "stats"
+            (:label "Días corriendo la evaluación: ") "0")))))))
