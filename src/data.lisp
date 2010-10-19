@@ -187,7 +187,7 @@ This macro saves some typing:
                  :rev             (%lowassoc _rev alist)
                  :full-name       (%lowassoc full-name alist)
                  :username        (%lowassoc _id alist)
-                 :password-digest (%lowassoc password alist)
+                 :password-digest (%lowassoc password-digest alist)
                  :email           (%lowassoc email alist)
                  :time-zone       (%lowassoc time-zone alist)))
 
