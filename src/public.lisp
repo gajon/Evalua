@@ -6,11 +6,14 @@
 (define-url-fn (public/a :prefix "a")
   (let* ((form (or (data/get-form-by-public-id (parameter "id"))
                    (redirect "/")))
+         (start-time (or (session-value 'start-time)
+                         (setf (session-value 'start-time)
+                               (get-universal-time))))
          (questions (form-questions form)))
     ;;
     ;;
     (when (and (eql :post (request-method*))
-               (public%process-submitted-answers form questions))
+               (public%process-submitted-answers form questions start-time))
       (redirect (format nil "/thankyou?id=~a" (form-public-id form))))
     ;;
     ;;
@@ -68,7 +71,7 @@
                                       (escape-string (answer-id answer))))
              (text-area nil (escape-string (answer-id answer))))))))
 
-(defun public%process-submitted-answers (form questions)
+(defun public%process-submitted-answers (form questions start-universal-time)
   "Traverses the list of questions, validating that each one of them has a
 valid answer sent in the POST data. If all of them are valid, they are saved
 in the database; otherwise each invalid question is marked and this function
@@ -110,7 +113,7 @@ returns NIL."
               finally (return success))
       (let* ((time-zone (form-time-zone form))
              ;; TODO
-             (start-date (make-date (get-universal-time) time-zone))
+             (start-date (make-date start-universal-time time-zone))
              (finish-date (make-date (get-universal-time) time-zone))
              (sub (data/create-submission
                     (make-instance 'submission
