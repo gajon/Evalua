@@ -108,7 +108,7 @@ This macro saves some typing:
   (handler-case
     (let ((alist (clouchdb:get-document username))
           (digest (hunchentoot::md5-hex password)))
-      (string= digest (%lowassoc password alist)))
+      (string= digest (%lowassoc password-digest alist)))
     (error () nil)))
 
 

@@ -166,7 +166,7 @@
      (:form :method "post" :action "/login"
       (hidden-input "timezone")
       (:div (text-input "Usuario:" "username"))
-      (:div (text-input "Contraseña:" "password"))
+      (:div (password-input "Contraseña:" "password"))
       (:div (submit-button "Entrar"))))
     (:script
       #>SCRIPT
@@ -177,3 +177,8 @@
       var timezoneInput = document.getElementById("id_timezone");
       timezoneInput.value = (new Date()).getTimezoneOffset() / 60;
       SCRIPT)))
+
+(define-url-fn (logout :auth nil)
+  (setf (session-value 'authenticated) nil
+        (session-value 'username) "")
+  (redirect "/"))
