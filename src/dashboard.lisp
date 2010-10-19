@@ -10,24 +10,24 @@
                                "jquery.tablesorter.min.js"
                                "dashboard.js?v=20100914"))
       (:section :id "dashboard"
-        (:header (:h1 "Dashboard")
-          (:a :href "/create-new-form"
+        (:header (:h1 "Dashboard"))
+        (:div :id "big-button"
+         (:a :href "/design/create-new-form"
               (:span "Crea una evaluación")))
         (:div :class "listing"
           (:h2 "Mis evaluaciones activas")
-          (:h3 "(haz click en una evaluación para ver los reportes)")
+          ;(:h3 "(haz click en una evaluación para ver los reportes)")
           (:table :id "id-table-active"
                   :class "tablesorter"
                   :cellspacing 1 :cellpadding 0
-            (table-columns "Evaluación" "Fecha Inicio" "Fecha Fin"
-                           "Enviadas" "Promedio Puntos" "Configuración")
-            (:tfoot
-              (:tr (:th "Totals:")
-                   (:th "")
-                   (:th "")
-                   (:th "")
-                   (:th "")
-                   (:th "")))
+            (table-columns "Evaluación" "Fecha Inicio" "Enviadas" "Promedio Puntos" "Configuración")
+            ;(:tfoot
+            ;  (:tr (:th "Totals:")
+            ;       (:th "")
+            ;       (:th "")
+            ;       (:th "")
+            ;       (:th "")
+            ;       (:th "")))
             (:tbody
               (if active-forms
                 (loop for form-obj in active-forms
@@ -36,31 +36,28 @@
                                "No tienes evaluaciones activas.")))))))
         (:div :class "listing"
           (:h2 "Mis evaluaciones inactivas")
-          (:h3 "(haz click en una evaluación para ver los reportes)")
           (:table :id "id-table-inactive"
                   :class "tablesorter"
                   :cellspacing 1 :cellpadding 0
-            (table-columns "Evaluación" "Fecha Inicio" "Fecha Fin"
+            (table-columns "Evaluación"
                            "Enviadas" "Promedio Puntos" "Configuración")
-            (:tfoot
-              (:tr (:th "Totals:")
-                   (:th "")
-                   (:th "")
-                   (:th "")
-                   (:th "")
-                   (:th "")))
+            ;(:tfoot
+            ;  (:tr (:th "Totals:")
+            ;       (:th "")
+            ;       (:th "")
+            ;       (:th "")
+            ;       (:th "")
+            ;       (:th "")))
             (:tbody
               (if inactive-forms
                 (loop for form-obj in inactive-forms
-                      do (dashboard/render-form-as-row form-obj))
+                      do (dashboard/render-form-as-row form-obj :start-date nil))
                 (htm (:tr (:td :colspan 6
                                "No tienes evaluaciones inactivas.")))))))))))
 
-(defun dashboard/render-form-as-row (form-obj)
+(defun dashboard/render-form-as-row (form-obj &key (start-date t))
   (let ((id (form-id form-obj))
-        (date (form-date form-obj))
-        (title (or (form-title form-obj) "N/A"))
-        (valid (form-valid-date form-obj)))
+        (title (or (form-title form-obj) "N/A")))
     ;; We want to limit the title to 50 chars.
     (when (> (length title) 50)
       (setf title (escape-string
@@ -68,14 +65,12 @@
     (with-html-output (*standard-output*)
       (:tr
         (:td (:a :href (escape-string ;;TODO: Is escape-string necessary here?
-                         (format nil "/form-reports?id=~a" id))
+                         (format nil "/design/form-info?id=~a" id))
                  (str title)))
-        (:td (esc (format-date date)))
-        (:td (if valid
-               (htm (esc (format-date date)))
-               (htm "N/A")))
-        (:td "20")
-        (:td "90.3")
+        (when start-date
+          (htm (:td (esc (format-date (form-start-date form-obj))))))
+        (:td (str (aif (data/get-submissions-by-form-count form-obj) it "N/A")))
+        (:td "N/A")
         (:td (:a :href (escape-string ;; TODO: is escape necessary?
-                         (format nil "/edit-form-options?id=~a" id))
+                         (format nil "/design/form-info?id=~a" id))
                  "Configuración"))))))

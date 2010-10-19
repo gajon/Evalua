@@ -1,12 +1,15 @@
 /* Dashboard {{{1 */
 
 #dashboard { padding: 1em 0; }
+
+#dashboard header { float:left; }
 #dashboard h1 { color: #000; text-shadow: 1px 1px 2px #666; font: normal 24px Tahoma,Arial,sans-serif; }
 
-/*#dashboard header a span   { display: none; }*/
-/*#dashboard header a        { background: url("/static/img/ActionButton.png") no-repeat scroll 0 0 transparent; display: inline-block; width: 290px; height: 63px; }*/
-/*#dashboard header a:focus,*/
-/*#dashboard header a:hover  { background: url("/static/img/ActionButtonHigh.png") no-repeat scroll 0 0 transparent; }*/
+#dashboard #big-button { float:right; }
+#dashboard #big-button a span   { display: none; }
+#dashboard #big-button a        { background: url("/static/img/ActionButton.png") no-repeat scroll 0 0 transparent; display: inline-block; width: 290px; height: 63px; }
+#dashboard #big-button a:focus,
+#dashboard #big-button a:hover  { background: url("/static/img/ActionButtonHigh.png") no-repeat scroll 0 0 transparent; }
 
 #dashboard div.listing { clear: both; margin-top: 32px;
 font-size: 12px;  line-height: 1.6; }
