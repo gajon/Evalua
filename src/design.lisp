@@ -171,7 +171,7 @@
       (push-success-msg "Las opciones se han guardado.")
       (redirect (format nil "/design/form-info?id=~a" id)))
     ;;
-    (standard-page (:title (format nil "Evaluacion: ~a" title)
+    (standard-page (:title (format nil "Evaluación: ~a" title)
                     :css-files ("design-styles.css?v=20101007"))
       ;;
       ;; Form title and links to modify/preview.
@@ -206,19 +206,19 @@
       (:section :id "form-info-run-button"
        (show-all-messages)
        (if (string= (form-status form) "active")
-         (htm (:p "La evaluacion se encuentra corriendo: "
+         (htm (:p "La evaluación se encuentra corriendo: "
                (:a :target "_blank" :class "link"
                 :href public-url (esc public-url)))
-              (:p "Deberas enviar la siguiente liga mostrada arriba a todas las
-                   personas que desees tomen parte en la evaluacion.")
-              (:p "Para detener el proceso de evaluacion deberas hacer click en
-                   el siguiente boton:")
+              (:p "Deberás enviar la siguiente liga mostrada arriba a todas las
+                   personas que desees tomen parte en la evaluación.")
+              (:p "Para detener el proceso de evaluación deberás hacer click en
+                   el siguiente botón:")
               (:form :method "get" :action "/design/deactivate-form"
                (:p :class "stop-button"
                 (hidden-input "id" :default-value id)
                 (submit-button "Detener evaluaciones"))))
          (htm
-          (:p "La evaluación se encuentra en pausa, nadie podra contestar la
+          (:p "La evaluación se encuentra en pausa, nadie podrá contestar la
                evaluación mientras se encuentre pausada.")
           (:p "Puedes continuar editando la evaluación, agregando y modificando
                preguntas y respuestas.")
@@ -279,7 +279,7 @@
          "Si al diseñar la evaluación se indicaron cuáles eran las
           respuestas correctas el sistema podrá evaluar
           automáticamente las respuestas enviadas por los evaluados.
-          Si la evaluacion contiene preguntas de texto libre éstas
+          Si la evaluación contiene preguntas de texto libre éstas
           deberán ser revisadas manualmente para obtener la
           calificación final."))
        (:div :class "option" :id "form-option-comments"
@@ -321,7 +321,7 @@
       ;;
       (when (or (null time-limit)
                 (validate-time-limit time-limit)
-                (push-error-msg "El formato de tiempo limite debe ser hh:mm,
+                (push-error-msg "El formato de tiempo límite debe ser hh:mm,
                                 por ejemplo 03:00"))
         (setf (form-time-limit form-obj) time-limit
               (form-tries-limit form-obj) tries
@@ -366,9 +366,9 @@
       (when with-download-button
         (htm (:form :method "get" :action "/design/download"
                (hidden-input "id" :default-value (form-id form))
-               (:p "Haz click en el siguiente botón para descargar la información
-                   de las evaluaciones completadas. Puedes abrir este archivo
-                   en Excel:")
+               (:p "Haz click en el siguiente botón para descargar la
+                   información de las evaluaciones completadas. Puedes abrir
+                   este archivo en Excel:")
                (:div :class "button"
                  (submit-button "Descargar estadísticas"
                                 :name "download"))))))))
@@ -437,7 +437,7 @@
         (redirect (format nil "/design/form-info?id=~a" id))))
     ;;
     ;;
-    (standard-page (:title (format nil "Evaluacion: ~a" title)
+    (standard-page (:title (format nil "Evaluación: ~a" title)
                     :css-files ("design-styles.css?v=20101007"))
       (:form :method "post" :action "/design/activate-form"
        (hidden-input "id" :default-value id)
@@ -464,10 +464,10 @@
                                     :with-hidden-id nil
                                     :with-submit-button nil)
         (:div :id "form-activate-button"
-         (:p "Indica las opciones que deseas para esta evaluacion.")
-         (:p "Al hacer click en el boton de abajo se activara la evaluacion;
-              obtendras una URL, la cual deberas de mandar a todas aquellas
-              personas que desees tomen parte en la evaluacion.")
+         (:p "Indica las opciones que deseas para esta evaluación.")
+         (:p "Al hacer click en el botón de abajo se activara la evaluación;
+              obtendrás una URL, la cual deberás mandar a todas aquellas
+              personas que desees tomen parte en la evaluación.")
          (:div :class "button"
           (submit-button "Activar evaluación"))))))))
 
@@ -485,7 +485,7 @@
       (redirect (format nil "/design/form-info?id=~a" id)))
     ;;
     ;;
-    (standard-page (:title (format nil "Evaluacion: ~a" title)
+    (standard-page (:title (format nil "Evaluación: ~a" title)
                     :css-files ("design-styles.css?v=20101007"))
       (:form :method "post" :action "/design/deactivate-form"
        (hidden-input "id" :default-value id)
@@ -509,8 +509,8 @@
        ;;
        (:section :id "form-info-options-and-stats"
         (:div :id "form-deactivate-button"
-         (:p "Estas seguro(a) que deseas detener las evaluaciones? Al detener las
-              evaluaciones nadie podra enviar mas respuestas.")
+         (:p "Estas seguro(a) que deseas detener las evaluaciones? Al detener
+             las evaluaciones nadie podrá enviar mas respuestas.")
          (:div :class "button"
           (:a :href (escape-string (format nil "/design/form-info?id=~a" id))
            "Cancelar")
@@ -521,7 +521,7 @@
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
          (title (escape-string (form-title form))))
-    (standard-page (:title (format nil "Evaluacion: ~a" title)
+    (standard-page (:title (format nil "Evaluación: ~a" title)
                     :css-files ("design-styles.css?v=20101007"))
       (:section :id "form-download-stats"
         (:h1 "Espérame tantito!")))))

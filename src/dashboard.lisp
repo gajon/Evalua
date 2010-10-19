@@ -20,7 +20,8 @@
           (:table :id "id-table-active"
                   :class "tablesorter"
                   :cellspacing 1 :cellpadding 0
-            (table-columns "Evaluación" "Fecha Inicio" "Enviadas" "Promedio Puntos" "Configuración")
+            (table-columns "Evaluación" "Fecha Inicio" "Enviadas"
+                           "Promedio Puntos" "Configuración")
             ;(:tfoot
             ;  (:tr (:th "Totals:")
             ;       (:th "")
@@ -39,8 +40,8 @@
           (:table :id "id-table-inactive"
                   :class "tablesorter"
                   :cellspacing 1 :cellpadding 0
-            (table-columns "Evaluación"
-                           "Enviadas" "Promedio Puntos" "Configuración")
+            (table-columns "Evaluación" "Enviadas" "Promedio Puntos"
+                           "Configuración")
             ;(:tfoot
             ;  (:tr (:th "Totals:")
             ;       (:th "")
@@ -51,7 +52,8 @@
             (:tbody
               (if inactive-forms
                 (loop for form-obj in inactive-forms
-                      do (dashboard/render-form-as-row form-obj :start-date nil))
+                      do (dashboard/render-form-as-row form-obj
+                                                       :start-date nil))
                 (htm (:tr (:td :colspan 6
                                "No tienes evaluaciones inactivas.")))))))))))
 
