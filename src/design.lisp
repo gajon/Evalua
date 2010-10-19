@@ -231,57 +231,8 @@
       ;; Form options box and statistics/download box.
       ;;
       (:section :id "form-info-options-and-stats"
-        (:div :id "form-info-options"
-         (:form :method "post" :action "/design/form-info"
-          (hidden-input "id" :default-value id)
-          (:h2 "Opciones")
-          (:div :class "option" :id "form-option-time"
-            (:p (text-input "Tiempo límite:" "timelimit" :size 6
-                           :default-value (form-time-limit form))
-                (:small "hh:mm"))
-            (:p :class "help"
-                "Limita el tiempo disponible para completar la evaluación.
-                Si el evaluado no termina la evaluación en el tiempo
-                indicado las respuestas que haya dato hasta ese
-                momento se guardarán y ya no podrá continuar con el resto de
-                la evaluación."))
-          (:div :class "option" :id "form-option-tries"
-            (:p (text-input "Intentos permitidos:" "tries" :size 3
-                            :default-value (form-tries-limit form)))
-            (:p :class "help"
-                "El número de veces que un evaluado podrá participar en la
-                evaluación. En caso de que se le permita contestar la
-                evaluación mas de una vez los resultados enviados se
-                acumularán."))
-          (:div :class "option" :id "form-option-score"
-            (:p (:label "¿Asignar calificación?:")
-                (radio-choice "Si" "score" "yes" :labelclass "radio"
-                              :current-value (if (form-score-p form)
-                                               "yes" "no"))
-                (radio-choice "No" "score" "no" :labelclass "radio"
-                              :current-value (if (form-score-p form)
-                                               "yes" "no")))
-            (:p :class "help"
-                "Si al diseñar la evaluación se indicaron cuáles eran las
-                respuestas correctas el sistema podrá evaluar
-                automáticamente las respuestas enviadas por los evaluados.
-                Si la evaluacion contiene preguntas de texto libre éstas
-                deberán ser revisadas manualmente para obtener la
-                calificación final."))
-          (:div :class "option" :id "form-option-comments"
-            (:p (:label "¿Habilitar comentarios?:")
-                (radio-choice "Si" "comments" "yes" :labelclass "radio"
-                              :current-value (if (form-comments-p form)
-                                               "yes" "no"))
-                (radio-choice "No" "comments" "no" :labelclass "radio"
-                              :current-value (if (form-comments-p form)
-                                               "yes" "no")))
-            (:p :class "help"
-                "Al habilitar esta opción el evaluado podrá, después de
-                haber completado la evaluación, dejar comentarios para el
-                evaluador."))
-          (:div :class "button"
-            (submit-button "Guardar opciones" :name "options"))))
+        (:form :method "post" :action "/design/form-info"
+         (design%render-form-options form))
         (:div :id "form-info-stats"
           (:h2 "Estadísticas")
           (:div :class "stats"
@@ -294,6 +245,63 @@
           de las evaluaciones completadas. Puedes abrir este archivo en Excel:")
           (:div :class "button"
             (button "Descargar estadísticas" "download")))))))
+
+(defun design%render-form-options (form &key (div.id "form-info-options")
+                                        (with-hidden-id t)
+                                        (with-submit-button t))
+  (with-html-output (*standard-output*)
+    (:div :id (escape-string div.id)
+      (when with-hidden-id
+        (htm (hidden-input "id" :default-value (form-id form))))
+      (:h2 "Opciones")
+      (:div :class "option" :id "form-option-time"
+       (:p (text-input "Tiempo límite:" "timelimit" :size 6
+                       :default-value (form-time-limit form))
+        (:small "hh:mm"))
+       (:p :class "help"
+        "Limita el tiempo disponible para completar la evaluación.
+                Si el evaluado no termina la evaluación en el tiempo
+                indicado las respuestas que haya dato hasta ese
+                momento se guardarán y ya no podrá continuar con el resto de
+                la evaluación."))
+      (:div :class "option" :id "form-option-tries"
+       (:p (text-input "Intentos permitidos:" "tries" :size 3
+                       :default-value (form-tries-limit form)))
+       (:p :class "help"
+        "El número de veces que un evaluado podrá participar en la
+                evaluación. En caso de que se le permita contestar la
+                evaluación mas de una vez los resultados enviados se
+                acumularán."))
+      (:div :class "option" :id "form-option-score"
+       (:p (:label "¿Asignar calificación?:")
+        (radio-choice "Si" "score" "yes" :labelclass "radio"
+                      :current-value (if (form-score-p form)
+                                       "yes" "no"))
+        (radio-choice "No" "score" "no" :labelclass "radio"
+                      :current-value (if (form-score-p form)
+                                       "yes" "no")))
+       (:p :class "help"
+        "Si al diseñar la evaluación se indicaron cuáles eran las
+                respuestas correctas el sistema podrá evaluar
+                automáticamente las respuestas enviadas por los evaluados.
+                Si la evaluacion contiene preguntas de texto libre éstas
+                deberán ser revisadas manualmente para obtener la
+                calificación final."))
+      (:div :class "option" :id "form-option-comments"
+       (:p (:label "¿Habilitar comentarios?:")
+        (radio-choice "Si" "comments" "yes" :labelclass "radio"
+                      :current-value (if (form-comments-p form)
+                                       "yes" "no"))
+        (radio-choice "No" "comments" "no" :labelclass "radio"
+                      :current-value (if (form-comments-p form)
+                                       "yes" "no")))
+       (:p :class "help"
+        "Al habilitar esta opción el evaluado podrá, después de
+                haber completado la evaluación, dejar comentarios para el
+                evaluador."))
+      (when with-submit-button
+        (htm (:div :class "button"
+              (submit-button "Guardar opciones" :name "options")))))))
 
 
 (defun design/process-form-options (form-obj)
@@ -373,10 +381,9 @@
          (title (escape-string (form-title form))))
     ;;
     ;;
-    (when (eql :post (request-method*))
-      ;; TODO: save settings
-      (setf (form-status form) "active")
-      (data/save-form  form)
+    (when (and (eql :post (request-method*))
+               (setf (form-status form) "active")
+               (design/process-form-options form))
       (redirect (format nil "/design/form-info?id=~a" id)))
     ;;
     ;;
@@ -404,43 +411,9 @@
        ;; Form options box.
        ;;
        (:section :id "form-info-options-and-stats"
-        (:div :id "form-info-options"
-         (:h2 "Opciones")
-         (:div :class "option" :id "form-option-time"
-          (:p (text-input "Tiempo límite:" "timelimit" :size 6)
-           (:small "hh:mm"))
-          (:p :class "help"
-           "Limita el tiempo disponible para completar la evaluación.
-                Si el evaluado no termina la evaluación en el tiempo
-                indicado las respuestas que haya dato hasta ese
-                momento se guardarán y ya no podrá continuar con el resto de
-                la evaluación."))
-         (:div :class "option" :id "form-option-tries"
-          (:p (text-input "Intentos permitidos:" "tries" :size 3))
-          (:p :class "help"
-           "El número de veces que un evaluado podrá participar en la
-                evaluación. En caso de que se le permita contestar la
-                evaluación mas de una vez los resultados enviados se
-                acumularán."))
-         (:div :class "option" :id "form-option-score"
-          (:p (:label "¿Asignar calificación?:")
-           (radio-choice "Si" "score" "yes" :labelclass "radio")
-           (radio-choice "No" "score" "no" :labelclass "radio"))
-          (:p :class "help"
-           "Si al diseñar la evaluación se indicaron cuáles eran las
-                respuestas correctas el sistema podrá evaluar
-                automáticamente las respuestas enviadas por los evaluados.
-                Si la evaluacion contiene preguntas de texto libre éstas
-                deberán ser revisadas manualmente para obtener la
-                calificación final."))
-         (:div :class "option" :id "form-option-comments"
-          (:p (:label "¿Habilitar comentarios?:")
-           (radio-choice "Si" "comments" "yes" :labelclass "radio")
-           (radio-choice "No" "comments" "no" :labelclass "radio"))
-          (:p :class "help"
-           "Al habilitar esta opción el evaluado podrá, después de
-                haber completado la evaluación, dejar comentarios para el
-                evaluador.")))
+        (design%render-form-options form
+                                    :with-hidden-id nil
+                                    :with-submit-button nil)
         (:div :id "form-activate-button"
          (:p "Indica las opciones que deseas para esta evaluacion.")
          (:p "Al hacer click en el boton de abajo se activara la evaluacion;
