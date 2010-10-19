@@ -98,7 +98,7 @@ BE CAREFUL."
                                (show-banner t)
                                (show-options t)
                                (show-footer t)
-                               (include-analytics-p t)
+                               (include-analytics-p nil)
                                css-files js-files)
                          &body body)
   `(with-html-output-to-string (*standard-output* nil :prologue t :indent nil)

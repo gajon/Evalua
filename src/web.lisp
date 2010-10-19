@@ -54,7 +54,8 @@
   ;;
   (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear evaluaciones en línea."
                   :css-files ("index.css?v=20101004")
-                  :show-options nil)
+                  :show-options nil
+                  :include-analytics-p t)
     ;;
     ;; Middle Section, main benefits.
     ;;
@@ -133,7 +134,8 @@
       (redirect "/wait-registry")))
   (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear evaluaciones en línea."
                   :css-files ("index.css?v=20101004")
-                  :show-options nil)
+                  :show-options nil
+                  :include-analytics-p t)
     (:section :id "wait-registry"
       (:h1 "Gracias por tu interés.")
       (:p "Nosotros te avisaremos por correo electrónico tan pronto el
@@ -159,8 +161,7 @@
     (redirect "/dashboard"))
   (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear evaluaciones en línea."
                   :css-files ("index.css?v=20101019")
-                  :show-options nil
-                  :include-analytics-p nil)
+                  :show-options nil)
     (:section :id "login"
      (show-all-messages)
      (:form :method "post" :action "/login"
