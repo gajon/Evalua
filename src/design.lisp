@@ -27,7 +27,7 @@
   ;; done by the function `backend-save-form` below.
   (let ((form (or (data/get-form (parameter "id")) (redirect "/"))))
     (standard-page (:title "Paso 1. Diseña tu cuestionario."
-                    :css-files ("design-styles.css?v=20101004")
+                    :css-files ("design-styles.css?v=20101019")
                     :js-files ("jquery-1.4.2.min.js"
                                "json2.min.js"
                                "design.js?v=20101007"))
@@ -57,7 +57,7 @@
               (:a :id "textarea"
                   (:img :src "/static/icons/text_dropcaps.png" :alt "")
                   "Texto libre")))
-      (:section :id "questions-submit" (submit-button "Enviar")))))
+      (:section :id "questions-submit" (submit-button "Guardar cambios")))))
 
 (define-json-fn design/backend-get-form-questions
   (let ((form-obj (or (data/get-form (parameter "id")) (error ""))))

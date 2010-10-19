@@ -20,6 +20,7 @@
 #questions-selection { clear: both; padding: 1em 32px 0 32px; }
 #questions-selection h3 { margin-bottom: 1em; }
 #questions-submit { clear: both; padding: 32px 32px 0 32px; }
+#questions-submit button { font-size:20px; }
 
 
 /* The Added Questions {{{1 */
