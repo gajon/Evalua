@@ -315,31 +315,35 @@ ANALYTICS
   (button label name :disabled disabled :submit-p t :inputclass inputclass
           :escape-label escape-label))
 
-(defun checkbox-choice (label name value &key disabled
+(defun checkbox-choice (label name value &key disabled current-value
                               labelclass inputclass (type "checkbox"))
   (let* ((name (escape-string name))
          (label (escape-string label))
          (id (format nil "id_~a" (gensym name)))
          (disabled (and disabled "disabled"))
          (value (escape-string value))
-         (checked (when (find-if (lambda (x) (and (consp x)
-                                                  (string= (car x) name)
-                                                  (string= (cdr x) value)))
-                                 (post-parameters*))
-                    "checked")))
+         (checked (or (find-if (lambda (x) (and (consp x)
+                                                (string= (car x) name)
+                                                (string= (cdr x) value)))
+                               (post-parameters*))
+                      (and current-value (string= current-value value)))))
     (with-html-output (*standard-output*)
       (:input :type type
               :id id
               :value value
               :name name
               :class inputclass
-              :checked checked
+              :checked (when checked "checked")
               :disabled disabled)
       (when label
         (htm (:label :for id :class labelclass (str label)))))))
 
-(defun radio-choice (label name value &key disabled labelclass inputclass)
-  (checkbox-choice label name value :disabled disabled :labelclass labelclass
+(defun radio-choice (label name value &key disabled current-value
+                           labelclass inputclass)
+  (checkbox-choice label name value
+                   :disabled disabled
+                   :current-value current-value
+                   :labelclass labelclass
                    :inputclass inputclass :type "radio"))
 
 

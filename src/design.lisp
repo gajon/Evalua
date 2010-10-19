@@ -232,9 +232,12 @@
       ;;
       (:section :id "form-info-options-and-stats"
         (:div :id "form-info-options"
+         (:form :method "post" :action "/design/form-info"
+          (hidden-input "id" :default-value id)
           (:h2 "Opciones")
           (:div :class "option" :id "form-option-time"
-            (:p (text-input "Tiempo límite:" "timelimit" :size 6)
+            (:p (text-input "Tiempo límite:" "timelimit" :size 6
+                           :default-value (form-time-limit form))
                 (:small "hh:mm"))
             (:p :class "help"
                 "Limita el tiempo disponible para completar la evaluación.
@@ -243,7 +246,8 @@
                 momento se guardarán y ya no podrá continuar con el resto de
                 la evaluación."))
           (:div :class "option" :id "form-option-tries"
-            (:p (text-input "Intentos permitidos:" "tries" :size 3))
+            (:p (text-input "Intentos permitidos:" "tries" :size 3
+                            :default-value (form-tries-limit form)))
             (:p :class "help"
                 "El número de veces que un evaluado podrá participar en la
                 evaluación. En caso de que se le permita contestar la
@@ -251,8 +255,12 @@
                 acumularán."))
           (:div :class "option" :id "form-option-score"
             (:p (:label "¿Asignar calificación?:")
-                (radio-choice "Si" "score" "yes" :labelclass "radio")
-                (radio-choice "No" "score" "no" :labelclass "radio"))
+                (radio-choice "Si" "score" "yes" :labelclass "radio"
+                              :current-value (if (form-score-p form)
+                                               "yes" "no"))
+                (radio-choice "No" "score" "no" :labelclass "radio"
+                              :current-value (if (form-score-p form)
+                                               "yes" "no")))
             (:p :class "help"
                 "Si al diseñar la evaluación se indicaron cuáles eran las
                 respuestas correctas el sistema podrá evaluar
@@ -262,14 +270,18 @@
                 calificación final."))
           (:div :class "option" :id "form-option-comments"
             (:p (:label "¿Habilitar comentarios?:")
-                (radio-choice "Si" "comments" "yes" :labelclass "radio")
-                (radio-choice "No" "comments" "no" :labelclass "radio"))
+                (radio-choice "Si" "comments" "yes" :labelclass "radio"
+                              :current-value (if (form-comments-p form)
+                                               "yes" "no"))
+                (radio-choice "No" "comments" "no" :labelclass "radio"
+                              :current-value (if (form-comments-p form)
+                                               "yes" "no")))
             (:p :class "help"
                 "Al habilitar esta opción el evaluado podrá, después de
                 haber completado la evaluación, dejar comentarios para el
                 evaluador."))
           (:div :class "button"
-            (button "Guardar opciones" "options")))
+            (submit-button "Guardar opciones" :name "options"))))
         (:div :id "form-info-stats"
           (:h2 "Estadísticas")
           (:div :class "stats"
