@@ -4,7 +4,9 @@
 ;;; Server Port and Directories
 
 (defvar *server-port* 8081)
-(defvar *webapp-home* *default-pathname-defaults*)
+(defvar *webapp-home* (or (and (pathname-directory *default-pathname-defaults*)
+                               *default-pathname-defaults*)
+                          (pathname "C:/DOCUME~1/GAJN~1/MISDOC~1/LISPLI~1/Evalua/")))
 (defvar *static-web-files* (merge-pathnames "static/" *webapp-home*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
