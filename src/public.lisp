@@ -106,16 +106,23 @@ returns NIL."
     ;; idAnswer2   => (Text entered by the user)
     (loop for (key . value) in (post-parameters*)
           do (push value (gethash key ht)))
-    ;; Now we iterate over the questions defined by our form and consult the
-    ;; submitted answers from the hash table. We'll save the information
-    ;; only when every question has a valid answer. Otherwise we return NIL
-    ;; and let the caller deal with it.
-    (if (loop with success = t
-              for question in questions
-              for valid = (public%validate-question question ht)
-              unless valid do (setf (question-valid-p question) nil
-                                    success nil)
-              finally (return success))
+    ;; ONLY WHEN THE FORM REQUIRES SCORING we iterate over the questions defined
+    ;; by our form and consult the submitted answers from the hash table.
+    ;;
+    ;; If we require scoring, we'll save the information only when every
+    ;; question has a valid answer. Otherwise we return NIL and let the caller
+    ;; deal with it.
+    ;;
+    ;; If the form does not require scoring we just save what we have, we don't
+    ;; care if the user did not answer all the questions.
+    ;; TODO: What if the user did not send any single answer?
+    (if (or (not (form-score-p form))
+            (loop with success = t
+                  for question in questions
+                  for valid = (public%validate-question question ht)
+                  unless valid do (setf (question-valid-p question) nil
+                                        success nil)
+              finally (return success)))
       (let* ((time-zone (form-time-zone form))
              ;; TODO
              (start-date (make-date start-universal-time time-zone))
