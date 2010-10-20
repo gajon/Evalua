@@ -364,7 +364,7 @@
           (:div :class "stats inactive"
             (:label "Días corriendo la evaluación: ") "N/A")))
       (when with-download-button
-        (htm (:form :method "get" :action "/design/download"
+        (htm (:form :method "get" :action "/dashboard/download"
                (hidden-input "id" :default-value (form-id form))
                (:p "Haz click en el siguiente botón para descargar la
                    información de las evaluaciones completadas. Puedes abrir
@@ -516,12 +516,3 @@
            "Cancelar")
           (submit-button "Detener evaluaciones")))
         (design%render-form-stats form :with-download-button nil))))))
-
-(define-url-fn design/download
-  (let* ((form (or (data/get-form (parameter "id"))
-                   (redirect "/")))
-         (title (escape-string (form-title form))))
-    (standard-page (:title (format nil "Evaluación: ~a" title)
-                    :css-files ("design-styles.css?v=20101007"))
-      (:section :id "form-download-stats"
-        (:h1 "Espérame tantito!")))))

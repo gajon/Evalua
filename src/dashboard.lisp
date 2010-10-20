@@ -76,3 +76,45 @@
         (:td (:a :href (escape-string ;; TODO: is escape necessary?
                          (format nil "/design/form-info?id=~a" id))
                  "Configuración"))))))
+
+(define-url-fn dashboard/download
+  (let* ((form (or (data/get-form (parameter "id"))
+                   (redirect "/")))
+         (title (escape-string (form-title form)))
+         (submissions (data/get-submissions-by-form form))
+         (questions (form-questions form)))
+    (standard-page (:title (format nil "Evaluación: ~a" title)
+                    :css-files ("design-styles.css?v=20101007"))
+      (:section :id "form-download-stats"
+        (:h1 "Espérame tantito!")
+        (:table :id "id-form-stats" :class "tablesorter"
+                :cellspacing 1 :cellpadding 0
+          (:thead
+            (:tr (:th "Hora")
+                 (loop for qq in questions
+                       do (htm (:th (esc (question-text qq)))))))
+          (:tbody
+            (dashboard%render-submitted-answers submissions questions)))))))
+
+(defun dashboard%render-submitted-answers (subs questions)
+  (labels ((%render-answers (answers)
+             (with-html-output (*standard-output*)
+               (:td
+                 (esc
+                   (format nil "~{~a~^, ~}"
+                           (mapcar (lambda (ans)
+                                     (if (%lowassoc value ans)
+                                       (%lowassoc value ans)
+                                       (%lowassoc text
+                                                  (clouchdb:get-document
+                                                    (%lowassoc answer ans)))))
+                                   answers)))))))
+    (dolist (ss subs)
+      (with-html-output (*standard-output*)
+        (:tr
+          (:td (esc (format-date (submission-finish-date ss))))
+          (loop for question in questions
+                for answers = (data/get-submitted-answers-by-question
+                                (submission-id ss)
+                                (question-id question))
+                do (%render-answers answers)))))))

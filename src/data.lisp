@@ -124,12 +124,17 @@ This macro saves some typing:
 
 (defun data/get-submissions-by-form (form)
   (let ((form (if (eq (type-of form) 'form) (form-id form) form)))
+    ;; clouchdb:query-document reverses our results, so we re-reverse.
     (mapcar #'data/build-submission-from-alist
-            (clouchdb:query-document
-              `(:|rows| :|id| ,#'clouchdb:get-document)
-              (clouchdb:invoke-view "submissions" "submissions-by-form"
-                                    :reduce nil
-                                    :key form)))))
+            (nreverse
+              (clouchdb:query-document
+                `(:|rows| :|id| ,#'clouchdb:get-document)
+                (clouchdb:invoke-view "submissions" "submissions-by-form"
+                                      :reduce nil
+                                      :descending nil 
+                                      :start-key (list form)
+                                      :end-key (list form
+                                                     (make-hash-table))))))))
 
 (defun data/get-submissions-by-form-count (form)
   (let* ((form (if (eq (type-of form) 'form) (form-id form) form))
@@ -138,8 +143,21 @@ This macro saves some typing:
              '(:|rows| :|value|)
              (clouchdb:invoke-view "submissions" "submissions-by-form"
                                    :reduce t
-                                   :key form))))
+                                   :start-key (list form)
+                                   :end-key (list form (make-hash-table))))))
     (car value)))
+
+(defun data/get-submitted-answers-by-question (sub question)
+  (let ((sub (if (eq (type-of sub) 'submission) (submission-id sub) sub))
+        (qid (if (eq (type-of question) 'question)
+               (question-id question)
+               question)))
+    (clouchdb:query-document
+      `(:|rows| :|id| ,#'clouchdb:get-document)
+      (clouchdb:invoke-view "submissions" "submitted-answers-by-question"
+                            :key (list sub qid)))))
+                                   ;"f11cfb4dc86501cf2be8544f6202d1a4"
+                                   ;"f11cfb4dc86501cf2be8544f62020e57")))))
 
 
 ;;;
@@ -532,16 +550,34 @@ This macro saves some typing:
   (clouchdb:create-ps-view "submissions"
     (clouchdb:ps-view ("submissions-by-form")
       (defun map (doc)
-        (with-slots (type form) doc
+        (with-slots (type form :finish-date) doc
           (if (and type (= type "submission"))
-            (emit form 1))))
+            (emit (array form :finish-date) 1))))
       (defun reduce (keys values)
         (sum values)))
+    ;#>END
+    ;"submissions-by-form": {
+      ;"map": "function (doc) {
+                ;if (doc.type && doc.type === 'submission') {
+                  ;return emit([doc.form, doc['finish-date']], 1);
+                ;}
+              ;}",
+
+      ;"reduce": "function (keys, values) {
+                  ;return sum(values);
+                ;}"
+    ;}
+    ;END
     (clouchdb:ps-view ("submitted-answers")
       (defun map (doc)
-        (with-slots (type question) doc
+        (with-slots (type submission) doc
           (if (and type (= type "submitted-answer"))
-            (emit question nil)))))
+            (emit submission nil)))))
+    (clouchdb:ps-view ("submitted-answers-by-question")
+      (defun map (doc)
+        (with-slots (type submission question) doc
+          (if (and type (= type "submitted-answer"))
+            (emit (array submission question) nil)))))
     (clouchdb:ps-view ("submitted-comments-by-form")
       (defun map (doc)
         (with-slots (type form) doc
