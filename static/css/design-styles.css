@@ -148,8 +148,4 @@ div.dummy-question div.answer-add img { vertical-align: text-bottom; }
 #form-deactivate-button div.button a { font-size:14px; margin-right:3em; color:red; padding:2px 0 2px 20px; background:url('/static/icons/cancel.png') no-repeat top left; }
 #form-deactivate-button button { font-size:20px; }
 
-/* Form Download Stats {{{1 */
-#form-download-stats { padding:1em 32px 0 32px; }
-#form-download-stats h1    { color: #000; text-shadow: 1px 1px 2px #666; font: normal 24px Tahoma,Arial,sans-serif; }
-
 /* vim: set foldmethod=marker: */

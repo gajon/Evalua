@@ -77,6 +77,10 @@
                          (format nil "/design/form-info?id=~a" id))
                  "Configuración"))))))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; STATS AND DOWNLOAD OPTIONS
+
 (define-url-fn dashboard/download
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
@@ -84,10 +88,14 @@
          (submissions (data/get-submissions-by-form form))
          (questions (form-questions form)))
     (standard-page (:title (format nil "Evaluación: ~a" title)
-                    :css-files ("design-styles.css?v=20101007"))
+                    :css-files ("dashboard.css?v=20101020"
+                                "tablesorter/blue/style.css")
+                    :js-files ("jquery-1.4.2.min.js"
+                               "jquery.tablesorter.min.js"
+                               "dashboard-stats.js?v=20101020"))
       (:section :id "form-download-stats"
         (:h1 "Espérame tantito!")
-        (:table :id "id-form-stats" :class "tablesorter"
+        (:table :id "id-table-stats" :class "tablesorter"
                 :cellspacing 1 :cellpadding 0
           (:thead
             (:tr (:th "Hora")
@@ -97,24 +105,44 @@
             (dashboard%render-submitted-answers submissions questions)))))))
 
 (defun dashboard%render-submitted-answers (subs questions)
-  (labels ((%render-answers (answers)
+  (labels ((%limit-width (x)
+             (if (> (length x) 50)
+               (format nil "~a..." (subseq x 0 46))
+               x))
+           (%collect-answers (answers cached)
+             (mapcar
+               (lambda (ans)
+                 (aif (%lowassoc value ans)
+                   ;; If there's a value, we use that.
+                   (%limit-width it)
+                   ;; Other wise we need to retrieve the 'answer' document
+                   ;; from the DB to lookup it's 'text' field; unless we
+                   ;; already have it in our hash table.
+                   (let ((id (%lowassoc answer ans)))
+                     (aif (gethash id cached)
+                       it
+                       ;; cache miss... update it,
+                       (setf (gethash id cached)
+                             (%limit-width ; limit the widht,
+                               (%lowassoc text ; of the text field,
+                                          ;; of the 'answer' document.
+                                          (clouchdb:get-document id))))))))
+               answers))
+           (%render-answers (answers cached)
              (with-html-output (*standard-output*)
                (:td
                  (esc
                    (format nil "~{~a~^, ~}"
-                           (mapcar (lambda (ans)
-                                     (if (%lowassoc value ans)
-                                       (%lowassoc value ans)
-                                       (%lowassoc text
-                                                  (clouchdb:get-document
-                                                    (%lowassoc answer ans)))))
-                                   answers)))))))
-    (dolist (ss subs)
-      (with-html-output (*standard-output*)
-        (:tr
-          (:td (esc (format-date (submission-finish-date ss))))
-          (loop for question in questions
-                for answers = (data/get-submitted-answers-by-question
-                                (submission-id ss)
-                                (question-id question))
-                do (%render-answers answers)))))))
+                           (%collect-answers answers cached)))))))
+    ;;
+    ;;
+    (let ((cached-ansers (make-hash-table)))
+      (dolist (ss subs)
+        (with-html-output (*standard-output*)
+          (:tr
+            (:td (esc (format-date (submission-finish-date ss))))
+            (loop for question in questions
+                  for answers = (data/get-submitted-answers-by-question
+                                  (submission-id ss)
+                                  (question-id question))
+                  do (%render-answers answers cached-ansers))))))))
