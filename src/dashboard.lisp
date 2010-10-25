@@ -95,6 +95,9 @@
                                "dashboard-stats.js?v=20101020"))
       (:section :id "form-download-stats"
         (:h1 "Espérame tantito!")
+        (:form :method "post" :action "/dashboard/download-excel"
+               (hidden-input "id" :default-value (form-id form))
+               (submit-button "Descargar"))
         (:table :id "id-table-stats" :class "tablesorter"
                 :cellspacing 1 :cellpadding 0
           (:thead
@@ -146,3 +149,34 @@
                                   (submission-id ss)
                                   (question-id question))
                   do (%render-answers answers cached-ansers))))))))
+
+(define-url-fn dashboard/download-excel
+  (let ((replacer #~s/"/""/)) ;"))
+    (labels ((%collect-answers (answers)
+               (mapcar (lambda (ans)
+                         (aif (%lowassoc value ans)
+                              it
+                              (%lowassoc text (clouchdb:get-document
+                                               (%lowassoc answer ans)))))
+                       answers)))
+      (when (eql :post (request-method*))
+        (with-html-output-to-string (*standard-output*)
+          (let* ((form (or (data/get-form (parameter "id"))
+                           (redirect "/")))
+                 (submissions (data/get-submissions-by-form form))
+                 (questions (form-questions form)))
+            (setf (hunchentoot:header-out :content-disposition)
+                  (format nil "attachment; filename=\"export.csv\""))
+            (format *standard-output* "~{\"~a\"~^,~}~%"
+                    (mapcar (lambda (q)
+                              (funcall replacer (question-text q)))
+                            questions))
+            (dolist (ss submissions)
+              (format *standard-output* "~{\"~a\"~^,~}~%"
+                      (loop for question in questions
+                         for answers = (data/get-submitted-answers-by-question
+                                        (submission-id ss)
+                                        (question-id question))
+                         collect (funcall replacer
+                                  (format nil "~{~a~^, ~}"
+                                          (%collect-answers answers))))))))))))
