@@ -203,31 +203,33 @@
       ;;
       ;; Pause/Run button & description, incl. link to form.
       ;;
-      (:section :id "form-info-run-button"
-       (show-all-messages)
-       (if (string= (form-status form) "active")
-         (htm (:p "La evaluación se encuentra corriendo: "
-               (:a :target "_blank" :class "link"
-                :href public-url (esc public-url)))
-              (:p "Deberás enviar la siguiente liga mostrada arriba a todas las
-                   personas que desees tomen parte en la evaluación.")
-              (:p "Para detener el proceso de evaluación deberás hacer click en
-                   el siguiente botón:")
-              (:form :method "get" :action "/design/deactivate-form"
-               (:p :class "stop-button"
-                (hidden-input "id" :default-value id)
-                (submit-button "Detener evaluaciones"))))
-         (htm
-          (:p "La evaluación se encuentra en pausa, nadie podrá contestar la
-               evaluación mientras se encuentre pausada.")
-          (:p "Puedes continuar editando la evaluación, agregando y modificando
-               preguntas y respuestas.")
-          (:p "Cuando hayas terminado de diseñar tu evaluación y desees comenzar
-               a recibir respuestas haz click en el siguiente botón:")
-          (:form :method "get" :action "/design/activate-form"
-           (:p :class "button"
-            (hidden-input "id" :default-value id)
-            (submit-button "Comenzar evaluaciones"))))))
+      (with-tabbed-page (:current :form-info)
+        (:section :id "form-info-run-button"
+          (show-all-messages)
+          (if (string= (form-status form) "active")
+              (htm (:p "La evaluación se encuentra corriendo: "
+                       (:a :target "_blank" :class "link"
+                           :href public-url (esc public-url)))
+                   (:p "Deberás enviar la siguiente liga mostrada arriba a todas
+                        las personas que desees tomen parte en la evaluación.")
+                   (:p "Para detener el proceso de evaluación deberás hacer
+                        click en el siguiente botón:")
+                   (:form :method "get" :action "/design/deactivate-form"
+                          (:p :class "stop-button"
+                              (hidden-input "id" :default-value id)
+                              (submit-button "Detener evaluaciones"))))
+              (htm
+               (:p "La evaluación se encuentra en pausa, nadie podrá contestar
+                    la evaluación mientras se encuentre pausada.")
+               (:p "Puedes continuar editando la evaluación, agregando y
+                    modificando preguntas y respuestas.")
+               (:p "Cuando hayas terminado de diseñar tu evaluación y desees
+                    comenzar a recibir respuestas haz click en el siguiente
+                    botón:")
+               (:form :method "get" :action "/design/activate-form"
+                      (:p :class "button"
+                          (hidden-input "id" :default-value id)
+                          (submit-button "Comenzar evaluaciones")))))))
       ;;
       ;; Form options box and statistics/download box.
       ;;

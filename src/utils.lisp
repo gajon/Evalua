@@ -171,6 +171,22 @@ var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga
 ANALYTICS
             #| End of analytics code |#)))))
 
+(defmacro with-tabbed-page ((&key current) &body body)
+  `(with-html-output (*standard-output*)
+     (:div :id "tabbed-navigation"
+           (:div :id "tabbed-navigation-tabs"
+                 (:ul
+                  (:li ,@(when (eql current :form-info) `(:class "current"))
+                       (:a :href "/dashboard/form-info" "Información"))
+                  (:li ,@(when (eql current :form-options) `(:class "current"))
+                       (:a :href "/dashboard/form-options" "Opciones"))
+                  (:li ,@(when (eql current :form-stats) `(:class "current"))
+                       (:a :href "/dashboard/stats" "Estadísticas"))
+                  (:li ,@(when (eql current :form-download) `(:class "current"))
+                       (:a :href "/dashboard/download" "Exportar"))))
+           (:div :id "tabbed-navigation-content"
+                 ,@body))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; QUEUE AND SHOW ERROR/SUCCESS MESSAGES TO THE USER

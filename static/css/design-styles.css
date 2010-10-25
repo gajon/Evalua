@@ -148,4 +148,26 @@ div.dummy-question div.answer-add img { vertical-align: text-bottom; }
 #form-deactivate-button div.button a { font-size:14px; margin-right:3em; color:red; padding:2px 0 2px 20px; background:url('/static/icons/cancel.png') no-repeat top left; }
 #form-deactivate-button button { font-size:20px; }
 
+
+/* Tabbed navigation {{{1 */
+#tabbed-navigation              { clear:both; }
+#tabbed-navigation-tabs         { float:left; width:100%; line-height:normal; background:#DAE0D2 url("/static/img/tabs-bg.gif") repeat-x bottom; }
+#tabbed-navigation-content      { clear:both; }
+#tabbed-navigation-tabs ul      { margin:0; padding:1em 10px 0; list-style:none; }
+#tabbed-navigation-tabs li      { float:left; margin:0; padding:0 0 0 9px; background:url("/static/img/tabs-left.gif") no-repeat left top; }
+#tabbed-navigation-tabs a,
+#tabbed-navigation-tabs strong,
+#tabbed-navigation-tabs span    { display:block; padding:5px 15px 4px 6px; text-decoration:none; color:#666; background:url("/static/img/tabs-right.gif") no-repeat right top; }
+
+#tabbed-navigation-tabs a:hover          { color:#333; }
+#tabbed-navigation-tabs .current         { background-image:url("/static/img/tabs-left_on.gif"); }
+#tabbed-navigation-tabs .current a       { padding-bottom:5px; color:#000; background-image:url("/static/img/tabs-right_on.gif"); }
+#tabbed-navigation-tabs li.notab,
+#tabbed-navigation-tabs li.notab a,
+#tabbed-navigation-tabs li.notab span    { background:none !important; color: #000; }
+#tabbed-navigation-tabs li.notab a       { color: #00f; text-decoration: none; }
+#tabbed-navigation-tabs li.notab a:focus,
+#tabbed-navigation-tabs li.notab a:hover { color: #f00; text-decoration: underline; }
+
+
 /* vim: set foldmethod=marker: */
