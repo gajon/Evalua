@@ -167,16 +167,18 @@
                  (questions (form-questions form)))
             (setf (hunchentoot:header-out :content-disposition)
                   (format nil "attachment; filename=\"export.csv\""))
-            (format *standard-output* "~{\"~a\"~^,~}~%"
+            (format *standard-output* "~a~%" (form-title form))
+            (format *standard-output* "\"Hora envíada\",~{\"~a\"~^,~}~%"
                     (mapcar (lambda (q)
                               (funcall replacer (question-text q)))
                             questions))
             (dolist (ss submissions)
-              (format *standard-output* "~{\"~a\"~^,~}~%"
+              (format *standard-output* "\"~a\",~{\"~a\"~^,~}~%"
+                      (format-iso8601-date (submission-finish-date ss))
                       (loop for question in questions
                          for answers = (data/get-submitted-answers-by-question
                                         (submission-id ss)
                                         (question-id question))
                          collect (funcall replacer
-                                  (format nil "~{~a~^, ~}"
+                                  (format nil "~{~a~^ | ~}"
                                           (%collect-answers answers))))))))))))
