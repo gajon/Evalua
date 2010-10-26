@@ -85,39 +85,16 @@
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
          (id (form-id form))
-         (title (escape-string (form-title form)))
          (public-url (format nil "http://~a/a?id=~a"
                              (host)
                              (form-public-id form))))
-    (standard-page (:title (format nil "Evaluación: ~a" title)
+    (standard-page (:title (format nil "Evaluación: ~a"
+                                   (escape-string (form-title form)))
                     :css-files ("design-styles.css?v=20101026"))
       ;;
       ;; Form title and links to modify/preview.
       ;;
-      (:section :id "form-info-title"
-        (:div :class "title"
-          (:h1 "Evaluación: " (:span :class "title" (str title)))
-          (:p :class "dates"
-              (:em "Fecha de creación: ")
-              (:span :class "date"
-                (esc (format-date (form-date form))))
-              (:em "Última modificación: ")
-              (:span :class "date"
-                (esc (format-date (form-update-date form))))
-              (if (string= (form-status form) "active")
-                (htm (:em :class "state-running" "Corriendo"))
-                (htm (:em :class "state-paused" "Pausada")))))
-        (:div :class "links"
-          (:ul
-            (:li :class "edit"
-              (:a :href (escape-string
-                          (format nil "/design/edit-form?id=~a" id))
-                  "Modificar evaluación"))
-            (:li :class "preview"
-              (:a :href (escape-string
-                          (format nil "/design/preview-form?id=~a" id))
-                  :target "_blank"
-                  "Vista preliminar")))))
+      (dashboard%render-form-title-and-links form)
       ;;
       ;; Pause/Run button & description, incl. link to form.
       ;;
@@ -155,6 +132,35 @@
         ;; Stats
         (design%render-form-stats form)))))
 
+(defun dashboard%render-form-title-and-links (form)
+  (with-html-output (*standard-output*)
+    (:section :id "form-info-title"
+      (:div :class "title"
+            (:h1 "Evaluación: " (:span :class "title" (esc (form-title form))))
+            (:p :class "dates"
+                (:em "Fecha de creación: ")
+                (:span :class "date"
+                       (esc (format-date (form-date form))))
+                (:em "Última modificación: ")
+                (:span :class "date"
+                       (esc (format-date (form-update-date form))))
+                (if (string= (form-status form) "active")
+                    (htm (:em :class "state-running" "Corriendo"))
+                    (htm (:em :class "state-paused" "Pausada")))))
+              (:div :class "links"
+                    (:ul
+                     (:li :class "edit"
+                          (:a :href (escape-string
+                                     (format nil "/design/edit-form?id=~a"
+                                             (form-id form)))
+                              "Modificar evaluación"))
+                     (:li :class "preview"
+                          (:a :href (escape-string
+                                     (format nil "/design/preview-form?id=~a"
+                                             (form-id form)))
+                              :target "_blank"
+                              "Vista preliminar")))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; FORM OPTIONS
@@ -175,30 +181,7 @@
       ;;
       ;; Form title and links to modify/preview.
       ;;
-      (:section :id "form-info-title"
-        (:div :class "title"
-          (:h1 "Evaluación: " (:span :class "title" (str title)))
-          (:p :class "dates"
-              (:em "Fecha de creación: ")
-              (:span :class "date"
-                (esc (format-date (form-date form))))
-              (:em "Última modificación: ")
-              (:span :class "date"
-                (esc (format-date (form-update-date form))))
-              (if (string= (form-status form) "active")
-                (htm (:em :class "state-running" "Corriendo"))
-                (htm (:em :class "state-paused" "Pausada")))))
-        (:div :class "links"
-          (:ul
-            (:li :class "edit"
-              (:a :href (escape-string
-                          (format nil "/design/edit-form?id=~a" id))
-                  "Modificar evaluación"))
-            (:li :class "preview"
-              (:a :href (escape-string
-                          (format nil "/design/preview-form?id=~a" id))
-                  :target "_blank"
-                  "Vista preliminar")))))
+      (dashboard%render-form-title-and-links form)
       ;;
       ;; Form options box and statistics/download box.
       ;;
