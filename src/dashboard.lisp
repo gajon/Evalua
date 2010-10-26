@@ -67,15 +67,103 @@
     (with-html-output (*standard-output*)
       (:tr
         (:td (:a :href (escape-string ;;TODO: Is escape-string necessary here?
-                         (format nil "/design/form-info?id=~a" id))
+                         (format nil "/dashboard/form-info?id=~a" id))
                  (str title)))
         (when start-date
           (htm (:td (esc (format-date (form-start-date form-obj))))))
         (:td (str (aif (data/get-submissions-by-form-count form-obj) it "N/A")))
         (:td "N/A")
         (:td (:a :href (escape-string ;; TODO: is escape necessary?
-                         (format nil "/design/form-info?id=~a" id))
+                         (format nil "/dashboard/form-info?id=~a" id))
                  "Configuración"))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; FORM INFORMATION
+
+(define-url-fn dashboard/form-info
+  (let* ((form (or (data/get-form (parameter "id"))
+                   (redirect "/")))
+         (id (form-id form))
+         (title (escape-string (form-title form)))
+         (public-url (format nil "http://~a/a?id=~a"
+                             (host)
+                             (form-public-id form))))
+    ;;
+    (when (and (eql :post (request-method*))
+               ;; TODO: Distinguish action.
+               (design/process-form-options form))
+      (push-success-msg "Las opciones se han guardado.")
+      (redirect (format nil "/dashboard/form-info?id=~a" id)))
+    ;;
+    (standard-page (:title (format nil "Evaluación: ~a" title)
+                    :css-files ("design-styles.css?v=20101007"))
+      ;;
+      ;; Form title and links to modify/preview.
+      ;;
+      (:section :id "form-info-title"
+        (:div :class "title"
+          (:h1 "Evaluación: " (:span :class "title" (str title)))
+          (:p :class "dates"
+              (:em "Fecha de creación: ")
+              (:span :class "date"
+                (esc (format-date (form-date form))))
+              (:em "Última modificación: ")
+              (:span :class "date"
+                (esc (format-date (form-update-date form))))
+              (if (string= (form-status form) "active")
+                (htm (:em :class "state-running" "Corriendo"))
+                (htm (:em :class "state-paused" "Pausada")))))
+        (:div :class "links"
+          (:ul
+            (:li :class "edit"
+              (:a :href (escape-string
+                          (format nil "/design/edit-form?id=~a" id))
+                  "Modificar evaluación"))
+            (:li :class "preview"
+              (:a :href (escape-string
+                          (format nil "/design/preview-form?id=~a" id))
+                  :target "_blank"
+                  "Vista preliminar")))))
+      ;;
+      ;; Pause/Run button & description, incl. link to form.
+      ;;
+      (with-tabbed-page (:current :form-info)
+        (:section :id "form-info-run-button"
+          (show-all-messages)
+          (if (string= (form-status form) "active")
+              (htm (:p "La evaluación se encuentra corriendo: "
+                       (:a :target "_blank" :class "link"
+                           :href public-url (esc public-url)))
+                   (:p "Deberás enviar la siguiente liga mostrada arriba a todas
+                        las personas que desees tomen parte en la evaluación.")
+                   (:p "Para detener el proceso de evaluación deberás hacer
+                        click en el siguiente botón:")
+                   (:form :method "get" :action "/design/deactivate-form"
+                          (:p :class "stop-button"
+                              (hidden-input "id" :default-value id)
+                              (submit-button "Detener evaluaciones"))))
+              (htm
+               (:p "La evaluación se encuentra en pausa, nadie podrá contestar
+                    la evaluación mientras se encuentre pausada.")
+               (:p "Puedes continuar editando la evaluación, agregando y
+                    modificando preguntas y respuestas.")
+               (:p "Cuando hayas terminado de diseñar tu evaluación y desees
+                    comenzar a recibir respuestas haz click en el siguiente
+                    botón:")
+               (:form :method "get" :action "/design/activate-form"
+                      (:p :class "button"
+                          (hidden-input "id" :default-value id)
+                          (submit-button "Comenzar evaluaciones")))))))
+      ;;
+      ;; Form options box and statistics/download box.
+      ;;
+      (:section :id "form-info-options-and-stats"
+        ;; Options
+        (:form :method "post" :action "/dashboard/form-info"
+         (design%render-form-options form))
+        ;; Stats
+        (design%render-form-stats form)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
