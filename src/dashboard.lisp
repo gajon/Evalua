@@ -89,15 +89,8 @@
          (public-url (format nil "http://~a/a?id=~a"
                              (host)
                              (form-public-id form))))
-    ;;
-    (when (and (eql :post (request-method*))
-               ;; TODO: Distinguish action.
-               (design/process-form-options form))
-      (push-success-msg "Las opciones se han guardado.")
-      (redirect (format nil "/dashboard/form-info?id=~a" id)))
-    ;;
     (standard-page (:title (format nil "Evaluación: ~a" title)
-                    :css-files ("design-styles.css?v=20101007"))
+                    :css-files ("design-styles.css?v=20101026"))
       ;;
       ;; Form title and links to modify/preview.
       ;;
@@ -128,7 +121,7 @@
       ;;
       ;; Pause/Run button & description, incl. link to form.
       ;;
-      (with-tabbed-page (:current :form-info)
+      (with-tabbed-page (id :current :form-info)
         (:section :id "form-info-run-button"
           (show-all-messages)
           (if (string= (form-status form) "active")
@@ -159,11 +152,120 @@
       ;; Form options box and statistics/download box.
       ;;
       (:section :id "form-info-options-and-stats"
-        ;; Options
-        (:form :method "post" :action "/dashboard/form-info"
-         (design%render-form-options form))
         ;; Stats
         (design%render-form-stats form)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; FORM OPTIONS
+
+(define-url-fn dashboard/form-options
+  (let* ((form (or (data/get-form (parameter "id"))
+                   (redirect "/")))
+         (id (form-id form))
+         (title (escape-string (form-title form))))
+    ;;
+    (when (and (eql :post (request-method*))
+               (design/process-form-options form))
+      (push-success-msg "Las opciones se han guardado.")
+      (redirect (format nil "/dashboard/form-options?id=~a" id)))
+    ;;
+    (standard-page (:title (format nil "Evaluación: ~a" title)
+                    :css-files ("design-styles.css?v=20101026"))
+      ;;
+      ;; Form title and links to modify/preview.
+      ;;
+      (:section :id "form-info-title"
+        (:div :class "title"
+          (:h1 "Evaluación: " (:span :class "title" (str title)))
+          (:p :class "dates"
+              (:em "Fecha de creación: ")
+              (:span :class "date"
+                (esc (format-date (form-date form))))
+              (:em "Última modificación: ")
+              (:span :class "date"
+                (esc (format-date (form-update-date form))))
+              (if (string= (form-status form) "active")
+                (htm (:em :class "state-running" "Corriendo"))
+                (htm (:em :class "state-paused" "Pausada")))))
+        (:div :class "links"
+          (:ul
+            (:li :class "edit"
+              (:a :href (escape-string
+                          (format nil "/design/edit-form?id=~a" id))
+                  "Modificar evaluación"))
+            (:li :class "preview"
+              (:a :href (escape-string
+                          (format nil "/design/preview-form?id=~a" id))
+                  :target "_blank"
+                  "Vista preliminar")))))
+      ;;
+      ;; Form options box and statistics/download box.
+      ;;
+      (with-tabbed-page (id :current :form-options)
+        (:form :method "post" :action "/dashboard/form-options"
+               (dashboard%render-form-options form))))))
+
+(defun dashboard%render-form-options (form &key (div.id "form-info-options")
+                                      (with-hidden-id t)
+                                      (with-submit-button t))
+  (let ((tries (form-tries-limit form))
+        (id (form-id form)))
+    (with-html-output (*standard-output*)
+      (:div :id (escape-string div.id)
+       (when with-hidden-id
+         (htm (hidden-input "id" :default-value id)))
+       (show-all-messages)
+       (:h2 "Opciones")
+       (:div :class "option" :id "form-option-time"
+        (:p (text-input "Tiempo límite:" "timelimit" :size 6
+                        :default-value (form-time-limit form))
+         (:small "hh:mm"))
+        (:p :class "help"
+         "Limita el tiempo disponible para completar la evaluación.
+          Si el evaluado no termina la evaluación en el tiempo
+          indicado las respuestas que haya dato hasta ese
+          momento se guardarán y ya no podrá continuar con el resto de
+          la evaluación."))
+       (:div :class "option" :id "form-option-tries"
+        (:p (text-input "Intentos permitidos:" "tries" :size 3
+                        :default-value (when (and tries (> tries 0))
+                                         (princ-to-string tries))))
+        (:p :class "help"
+         "El número de veces que un evaluado podrá participar en la
+          evaluación. En caso de que se le permita contestar la
+          evaluación mas de una vez los resultados enviados se
+          acumularán."))
+       (:div :class "option" :id "form-option-score"
+        (:p (:label "¿Asignar calificación?:")
+         (radio-choice "Si" "score" "yes" :labelclass "radio"
+                       :current-value (if (form-score-p form)
+                                        "yes" "no"))
+         (radio-choice "No" "score" "no" :labelclass "radio"
+                       :current-value (if (form-score-p form)
+                                        "yes" "no")))
+        (:p :class "help"
+         "Si al diseñar la evaluación se indicaron cuáles eran las
+          respuestas correctas el sistema podrá evaluar
+          automáticamente las respuestas enviadas por los evaluados.
+          Si la evaluación contiene preguntas de texto libre éstas
+          deberán ser revisadas manualmente para obtener la
+          calificación final."))
+       (:div :class "option" :id "form-option-comments"
+        (:p (:label "¿Habilitar comentarios?:")
+         (radio-choice "Si" "comments" "yes" :labelclass "radio"
+                       :current-value (if (form-comments-p form)
+                                        "yes" "no"))
+         (radio-choice "No" "comments" "no" :labelclass "radio"
+                       :current-value (if (form-comments-p form)
+                                        "yes" "no")))
+        (:p :class "help"
+         "Al habilitar esta opción el evaluado podrá, después de
+          haber completado la evaluación, dejar comentarios para el
+          evaluador."))
+       (when with-submit-button
+         (htm (:div :class "button"
+               (submit-button "Guardar opciones" :name "options"))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

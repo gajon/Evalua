@@ -111,10 +111,12 @@ div.dummy-question div.answer-add img { vertical-align: text-bottom; }
 #form-info-run-button p.stop-button   { text-align:center; }
 #form-info-run-button a.link          { font-size:18px; }
 
-#form-info-options-and-stats    { clear:both; padding:1em 32px 0 32px; }
-#form-info-options-and-stats h2 { margin-bottom: 1em; }
+/*#form-info-options-and-stats    { clear:both; padding:1em 32px 0 32px; }*/
+/*#form-info-options-and-stats h2 { margin-bottom: 1em; }*/
 
-#form-info-options            { float:left; width:480px; padding:0.5em 15px; margin-right:10px; background-color:#e5efff; }
+/*#form-info-options            { float:left; width:480px; padding:0.5em 15px; margin-right:10px; background-color:#e5efff; }*/
+#form-info-options            { padding:1em 32px 0 32px; clear:both; }
+#form-info-options h2         { margin-bottom:1em; }
 #form-info-options label      { margin-right:1em; }
 #form-info-options small      { font-size: 11px; }
 #form-info-options p.help     { font-size: 11px; color:#666; font-style:italic; margin-bottom: 1em; }
