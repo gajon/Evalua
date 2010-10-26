@@ -124,13 +124,7 @@
                (:form :method "get" :action "/design/activate-form"
                       (:p :class "button"
                           (hidden-input "id" :default-value id)
-                          (submit-button "Comenzar evaluaciones")))))))
-      ;;
-      ;; Form options box and statistics/download box.
-      ;;
-      (:section :id "form-info-options-and-stats"
-        ;; Stats
-        (design%render-form-stats form)))))
+                          (submit-button "Comenzar evaluaciones"))))))))))
 
 (defun dashboard%render-form-title-and-links (form)
   (with-html-output (*standard-output*)
@@ -183,7 +177,7 @@
       ;;
       (dashboard%render-form-title-and-links form)
       ;;
-      ;; Form options box and statistics/download box.
+      ;; Form options box.
       ;;
       (with-tabbed-page (id :current :form-options)
         (:form :method "post" :action "/dashboard/form-options"
@@ -252,7 +246,70 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; STATS AND DOWNLOAD OPTIONS
+;;; FORM STATISTICS.
+
+(define-url-fn dashboard/form-stats
+  (let* ((form (or (data/get-form (parameter "id"))
+                   (redirect "/")))
+         (submissions-count (data/get-submissions-by-form-count form)))
+    (standard-page (:title (format nil "Evaluación: ~a"
+                                   (escape-string (form-title form)))
+                    :css-files ("design-styles.css?v=20101026"))
+      ;;
+      ;; Form title and links to modify/preview.
+      ;;
+      (dashboard%render-form-title-and-links form)
+      ;;
+      ;; Form statistics/download box.
+      ;;
+      (with-tabbed-page ((form-id form) :current :form-stats)
+        (dashboard%render-form-stats form)))))
+
+(defun dashboard%render-form-stats (form &key (div.id "form-info-stats")
+                                      (with-download-button t))
+  (with-html-output (*standard-output*)
+    (:div :id (escape-string div.id)
+      (:h2 "Estadísticas")
+      (:div :class "stats"
+        (:label "Evaluaciones completadas: ")
+        (str (aif (data/get-submissions-by-form-count form) it "N/A")))
+      (if (string= (form-status form) "active")
+        (htm
+          (:div :class "stats"
+            (:label "Fecha inicio: ")
+            (str (format-date (form-start-date form))))
+          (:div :class "stats"
+            (:label "Días corriendo la evaluación: ")
+            (kmrcl:let-when (start (form-start-date form))
+              (let* ((now (make-date (get-universal-time)
+                                     (form-time-zone form)))
+                     (diff (- (date-universal-time now)
+                              (date-universal-time start))))
+                ;; It shouldn't happen that DIFF is negative.
+                (if (minusp diff)
+                  (htm "N/A")
+                  (htm (str (format nil "~a día~:p"
+                                    (floor (/ diff %secs-in-one-day))))))))))
+        ;;
+        ;; The form is NOT active.
+        ;;
+        (htm
+          (:div :class "stats inactive" (:label "Fecha inicio: ") "N/A")
+          (:div :class "stats inactive"
+            (:label "Días corriendo la evaluación: ") "N/A")))
+      (when with-download-button
+        (htm (:form :method "get" :action "/dashboard/download"
+               (hidden-input "id" :default-value (form-id form))
+               (:p "Haz click en el siguiente botón para descargar la
+                   información de las evaluaciones completadas. Puedes abrir
+                   este archivo en Excel:")
+               (:div :class "button"
+                 (submit-button "Descargar estadísticas"
+                                :name "download"))))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; FORM DOWNLOAD OPTIONS
 
 (define-url-fn dashboard/download
   (let* ((form (or (data/get-form (parameter "id"))

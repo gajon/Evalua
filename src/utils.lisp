@@ -185,11 +185,11 @@ ANALYTICS
                                          ,form-id)
                            "Opciones"))
                   (:li ,@(when (eql current :form-stats) `(:class "current"))
-                       (:a :href (format nil "/dashboard/stats?id=~a"
+                       (:a :href (format nil "/dashboard/form-stats?id=~a"
                                          ,form-id)
                            "Estadísticas"))
                   (:li ,@(when (eql current :form-download) `(:class "current"))
-                       (:a :href (format nil "/dashboard/download?id=~a"
+                       (:a :href (format nil "/dashboard/form-download?id=~a"
                                          ,form-id)
                            "Exportar"))))
            (:div :id "tabbed-navigation-content"
