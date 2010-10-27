@@ -90,7 +90,7 @@
                              (form-public-id form))))
     (standard-page (:title (format nil "Evaluación: ~a"
                                    (escape-string (form-title form)))
-                    :css-files ("design-styles.css?v=20101026"))
+                    :css-files ("dashboard.css?v=20101027"))
       ;;
       ;; Form title and links to modify/preview.
       ;;
@@ -171,7 +171,7 @@
       (redirect (format nil "/dashboard/form-options?id=~a" id)))
     ;;
     (standard-page (:title (format nil "Evaluación: ~a" title)
-                    :css-files ("design-styles.css?v=20101026"))
+                    :css-files ("dashboard.css?v=20101027"))
       ;;
       ;; Form title and links to modify/preview.
       ;;
@@ -254,7 +254,7 @@
          (submissions-count (data/get-submissions-by-form-count form)))
     (standard-page (:title (format nil "Evaluación: ~a"
                                    (escape-string (form-title form)))
-                    :css-files ("design-styles.css?v=20101026"))
+                    :css-files ("dashboard.css?v=20101027"))
       ;;
       ;; Form title and links to modify/preview.
       ;;

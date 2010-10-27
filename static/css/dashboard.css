@@ -1,34 +1,86 @@
 /* Dashboard {{{1 */
-
-#dashboard { padding: 1em 0; }
-
+#dashboard        { padding: 1em 0; }
 #dashboard header { float:left; }
-#dashboard h1 { color: #000; text-shadow: 1px 1px 2px #666; font: normal 24px Tahoma,Arial,sans-serif; }
+#dashboard h1     { color: #000; text-shadow: 1px 1px 2px #666; font: normal 24px Tahoma,Arial,sans-serif; }
 
-#dashboard #big-button { float:right; }
+#dashboard #big-button          { float:right; }
 #dashboard #big-button a span   { display: none; }
 #dashboard #big-button a        { background: url("/static/img/ActionButton.png") no-repeat scroll 0 0 transparent; display: inline-block; width: 290px; height: 63px; }
 #dashboard #big-button a:focus,
 #dashboard #big-button a:hover  { background: url("/static/img/ActionButtonHigh.png") no-repeat scroll 0 0 transparent; }
 
-#dashboard div.listing { clear: both; margin-top: 32px;
-font-size: 12px;  line-height: 1.6; }
-
-#dashboard div.listing h3 { font-size: 12px; font-weight: normal; }
-
-#dashboard div.listing table { margin-top: 10px; width: 100%; }
-#dashboard div.listing td { padding: 0 0.5em; vertical-align:middle; }
-#dashboard div.listing th { padding: 0 0.5em; }
-#dashboard div.listing tfoot th { text-align:center; }
+#dashboard div.listing                      { clear: both; margin-top: 32px; font-size: 12px;  line-height: 1.6; }
+#dashboard div.listing h3                   { font-size: 12px; font-weight: normal; }
+#dashboard div.listing table                { margin-top: 10px; width: 100%; }
+#dashboard div.listing td                   { padding: 0 0.5em; vertical-align:middle; }
+#dashboard div.listing th                   { padding: 0 0.5em; }
+#dashboard div.listing tfoot th             { text-align:center; }
 #dashboard div.listing tfoot th:first-child { text-align:left !important; }
+#dashboard div.listing .highlight           { background-color: #faffc5 !important; }
 
-#dashboard div.listing .highlight { background-color: #faffc5 !important; }
+
+/* Form Information {{{1 */
+#form-info-title                   { padding:1em 32px 0 32px; }
+#form-info-title div.title         { float:left; width:550px; }
+#form-info-title div.title h1      { color:#000; text-shadow:1px 1px 2px #666; font:normal 24px Tahoma,Arial,sans-serif; }
+#form-info-title div.title h1 span { color:#666; }
+#form-info-title div.title p.dates { margin-top:5px; font-size:12px; }
+#form-info-title div.title p.dates span.date      { margin-right:2em; }
+#form-info-title div.title p.dates .state-paused  { color:red; padding:2px 0 2px 20px; background:url('/static/icons/control_pause.png') no-repeat top left; }
+#form-info-title div.title p.dates .state-running { color:lightgreen; font-weight:bold; padding:2px 0 2px 20px; background:url('/static/icons/control_play_blue.png') no-repeat top left; }
+
+#form-info-title div.links            { float:left; width:264px; text-align:left; }
+#form-info-title div.links ul         { font-size:12px; list-style:none; float:right; }
+#form-info-title div.links li         { padding:2px 0 2px 25px; }
+#form-info-title div.links li.edit    { background:url('/static/icons/page_edit.png') no-repeat top left; }
+#form-info-title div.links li.preview { background:url('/static/icons/page_go.png') no-repeat top left; }
+
+#form-info-run-button                 { padding:1em 32px 0 32px; clear:both; }
+#form-info-run-button p               { margin-bottom:0.5em; }
+#form-info-run-button p.button        { text-align:center; }
+#form-info-run-button p.button button { font-size:20px; }
+#form-info-run-button p.stop-button   { text-align:center; }
+#form-info-run-button a.link          { font-size:18px; }
+
+/*#form-info-options            { float:left; width:480px; padding:0.5em 15px; margin-right:10px; background-color:#e5efff; }*/
+#form-info-options            { padding:1em 32px 0 32px; clear:both; }
+#form-info-options h2         { margin-bottom:1em; }
+#form-info-options label      { margin-right:1em; }
+#form-info-options small      { font-size: 11px; }
+#form-info-options p.help     { font-size: 11px; color:#666; font-style:italic; margin-bottom: 1em; }
+#form-info-options div.button { text-align:center; }
+
+/*#form-info-stats            { float:left; width:264px; padding: 0.5em 15px; background-color:#e5efff; }*/
+#form-info-stats            { padding:1em 32px 0 32px; clear:both; }
+#form-info-stats h2         { margin-bottom:1em; }
+#form-info-stats div.stats  { margin-bottom: 0.5em; }
+#form-info-stats p          { font-size:12px; margin: 1em 0 1em 0; }
+#form-info-stats div.button { text-align:center; }
+#form-info-stats div.stats.inactive { color:#666; font-style:italic; }
+
 
 /* Form Download Stats {{{1 */
-#form-download-stats { padding:1em 32px 0 32px; }
+#form-download-stats       { padding:1em 32px 0 32px; }
 #form-download-stats h1    { color: #000; text-shadow: 1px 1px 2px #666; font: normal 24px Tahoma,Arial,sans-serif; }
 
+/* Tabbed navigation {{{1 */
+#tabbed-navigation              { clear:both; }
+#tabbed-navigation-tabs         { float:left; font-size:12px; width:100%; line-height:normal; background:#fff url("/static/img/tabs-bg.gif") repeat-x bottom; }
+#tabbed-navigation-content      { clear:both; }
+#tabbed-navigation-tabs ul      { margin:0; padding:2em 32px 0; list-style:none; }
+#tabbed-navigation-tabs li      { float:left; margin:0; padding:0 0 0 9px; background:url("/static/img/tabs-left.gif") no-repeat left top; }
+#tabbed-navigation-tabs a,
+#tabbed-navigation-tabs strong,
+#tabbed-navigation-tabs span    { display:block; padding:5px 15px 4px 6px; text-decoration:none; color:#666; background:url("/static/img/tabs-right.gif") no-repeat right top; }
 
-
+#tabbed-navigation-tabs a:hover          { color:#333; }
+#tabbed-navigation-tabs .current         { background-image:url("/static/img/tabs-left_on.gif"); }
+#tabbed-navigation-tabs .current a       { padding-bottom:5px; color:#000; background-image:url("/static/img/tabs-right_on.gif"); }
+#tabbed-navigation-tabs li.notab,
+#tabbed-navigation-tabs li.notab a,
+#tabbed-navigation-tabs li.notab span    { background:none !important; color: #000; }
+#tabbed-navigation-tabs li.notab a       { color: #00f; text-decoration: none; }
+#tabbed-navigation-tabs li.notab a:focus,
+#tabbed-navigation-tabs li.notab a:hover { color: #f00; text-decoration: underline; }
 
 /* vim: set foldmethod=marker: */
