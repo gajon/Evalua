@@ -155,9 +155,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; FORM OPTIONS AND STATS
 
-
-
-
 (defun design/process-form-options (form-obj)
   (flet ((validate-time-limit (time)
            (multiple-value-bind (start end start-positions end-positions)
@@ -241,8 +238,7 @@
 (define-url-fn design/activate-form
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
-         (id (form-id form))
-         (title (escape-string (form-title form))))
+         (id (form-id form)))
     ;;
     ;;
     (let ((now (make-date (get-universal-time) (or time-zone 6))))
@@ -253,45 +249,27 @@
         (redirect (format nil "/dashboard/form-info?id=~a" id))))
     ;;
     ;;
-    (standard-page (:title (format nil "Evaluación: ~a" title)
-                    :css-files ("design-styles.css?v=20101007"))
+    (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
+                    :css-files ("design-styles.css?v=20101027"
+                                "dashboard.css?v=20101027"))
       (:form :method "post" :action "/design/activate-form"
        (hidden-input "id" :default-value id)
-       ;;
-       ;; Form title and links to modify/preview.
-       ;;
-       (:section :id "form-info-title-activate"
-        (:div :class "title"
-         (:h1 "Evaluación: " (:span :class "title" (str title)))
-         (:p :class "dates"
-          (:em "Fecha de creación: ")
-          (:span :class "date"
-           (esc (format-date (form-date form))))
-          (:em "Última modificación: ")
-          (:span :class "date"
-           (esc (format-date (form-update-date form))))
-          ;; TODO: Verify this
-          (:em :class "state-paused" "Pausada"))))
-       ;;
-       ;; Form options box.
-       ;;
-       (:section :id "form-info-options-and-stats"
-        (dashboard%render-form-options form
-                                    :with-hidden-id nil
-                                    :with-submit-button nil)
-        (:div :id "form-activate-button"
-         (:p "Indica las opciones que deseas para esta evaluación.")
-         (:p "Al hacer click en el botón de abajo se activara la evaluación;
-              obtendrás una URL, la cual deberás mandar a todas aquellas
-              personas que desees tomen parte en la evaluación.")
-         (:div :class "button"
-          (submit-button "Activar evaluación"))))))))
+       (dashboard%render-form-title-and-links form)
+       (with-tabbed-page (id :current :form-info)
+         (:div :id "form-activate-button"
+               (:p "Al hacer click en el botón de abajo se activara la
+                   evaluación; obtendrás una URL, la cual deberás mandar a todas
+                   aquellas personas que desees tomen parte en la evaluación.")
+               (:div :class "button"
+                     (submit-button "Activar evaluación")))
+         (dashboard%render-form-options form
+                                        :with-hidden-id nil
+                                        :with-submit-button nil))))))
 
 (define-url-fn design/deactivate-form
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
-         (id (form-id form))
-         (title (escape-string (form-title form))))
+         (id (form-id form)))
     ;;
     ;;
     (when (eql :post (request-method*))
@@ -301,34 +279,19 @@
       (redirect (format nil "/dashboard/form-info?id=~a" id)))
     ;;
     ;;
-    (standard-page (:title (format nil "Evaluación: ~a" title)
-                    :css-files ("design-styles.css?v=20101007"))
+    (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
+                    :css-files ("design-styles.css?v=20101027"
+                                "dashboard.css?v=20101027"))
       (:form :method "post" :action "/design/deactivate-form"
        (hidden-input "id" :default-value id)
-       ;;
-       ;; Form title and links to modify/preview.
-       ;;
-       (:section :id "form-info-title-activate"
-        (:div :class "title"
-         (:h1 "Evaluación: " (:span :class "title" (str title)))
-         (:p :class "dates"
-          (:em "Fecha de creación: ")
-          (:span :class "date"
-           (esc (format-date (form-date form))))
-          (:em "Última modificación: ")
-          (:span :class "date"
-           (esc (format-date (form-update-date form))))
-          ;; TODO: Verify this.
-          (:em :class "state-running" "Corriendo"))))
-       ;;
-       ;; Form statistics box.
-       ;;
-       (:section :id "form-info-options-and-stats"
-        (:div :id "form-deactivate-button"
-         (:p "Estas seguro(a) que deseas detener las evaluaciones? Al detener
-             las evaluaciones nadie podrá enviar mas respuestas.")
-         (:div :class "button"
-          (:a :href (escape-string (format nil "/dashboard/form-info?id=~a" id))
-           "Cancelar")
-          (submit-button "Detener evaluaciones")))
-        (dashboard%render-form-stats form :with-download-button nil))))))
+       (dashboard%render-form-title-and-links form)
+       (with-tabbed-page (id :current :form-info)
+         (:div :id "form-deactivate-button"
+           (:p "¿Estas seguro(a) que deseas detener las evaluaciones? Al
+                detener las evaluaciones nadie podrá enviar mas respuestas.")
+           (:div :class "button"
+                 (:a :href (escape-string
+                            (format nil "/dashboard/form-info?id=~a" id))
+                     "Cancelar")
+                 (submit-button "Detener evaluaciones")))
+         (dashboard%render-form-stats form :with-download-button nil))))))

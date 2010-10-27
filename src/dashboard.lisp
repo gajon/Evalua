@@ -88,8 +88,7 @@
          (public-url (format nil "http://~a/a?id=~a"
                              (host)
                              (form-public-id form))))
-    (standard-page (:title (format nil "Evaluación: ~a"
-                                   (escape-string (form-title form)))
+    (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("dashboard.css?v=20101027"))
       ;;
       ;; Form title and links to modify/preview.
@@ -162,15 +161,14 @@
 (define-url-fn dashboard/form-options
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
-         (id (form-id form))
-         (title (escape-string (form-title form))))
+         (id (form-id form)))
     ;;
     (when (and (eql :post (request-method*))
                (design/process-form-options form))
       (push-success-msg "Las opciones se han guardado.")
       (redirect (format nil "/dashboard/form-options?id=~a" id)))
     ;;
-    (standard-page (:title (format nil "Evaluación: ~a" title)
+    (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("dashboard.css?v=20101027"))
       ;;
       ;; Form title and links to modify/preview.
@@ -252,8 +250,7 @@
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
          (submissions-count (data/get-submissions-by-form-count form)))
-    (standard-page (:title (format nil "Evaluación: ~a"
-                                   (escape-string (form-title form)))
+    (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("dashboard.css?v=20101027"))
       ;;
       ;; Form title and links to modify/preview.
@@ -314,10 +311,9 @@
 (define-url-fn dashboard/download
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
-         (title (escape-string (form-title form)))
          (submissions (data/get-submissions-by-form form))
          (questions (form-questions form)))
-    (standard-page (:title (format nil "Evaluación: ~a" title)
+    (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("dashboard.css?v=20101020"
                                 "tablesorter/blue/style.css")
                     :js-files ("jquery-1.4.2.min.js"

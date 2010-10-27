@@ -65,48 +65,16 @@ div.dummy-question div.answer-add a   { font-size: 12px; text-decoration: none; 
 div.dummy-question div.answer-add img { vertical-align: text-bottom; }
 
 
-/* Step 2 {{{1 */
-
-#options       { padding: 1em 32px 0 32px; }
-#options label { color: #666; margin-right: 1em; }
-#options h1    { color: #000; text-shadow: 1px 1px 2px #666; font: normal 24px Tahoma,Arial,sans-serif; }
-/*#options h1 { color: #7baf26; text-shadow: 1px 1px 1px #000; }*/
-
-#options #time,
-#options #tries,
-#options #score,
-#options #comments,
-#options #email {
-	margin: 1em 0;
-}
-
-#options #score input    { margin-bottom: 0.5em; }
-#options #comments input { margin-bottom: 0.5em; }
-
-#options-submit { padding: 32px; }
-#options-submit a { margin-right: 2em; }
-
 
 /* Form activation {{{1 */
-/* We mostly copied the styles from "Form Infomation" page. */
-/* TODO: too much duplication... */
-#form-info-title-activate                   { padding:1em 32px 2em 32px; }
-#form-info-title-activate div.title h1      { color:#000; text-shadow:1px 1px 2px #666; font:normal 24px Tahoma,Arial,sans-serif; }
-#form-info-title-activate div.title h1 span { color:#666; }
-#form-info-title-activate div.title p.dates { margin-top:5px; font-size:12px; }
-#form-info-title-activate div.title p.dates span.date      { margin-right:2em; }
-#form-info-title-activate div.title p.dates .state-paused  { color:red; padding:2px 0 2px 20px; background:url('/static/icons/control_pause.png') no-repeat top left; }
-#form-info-title-activate div.title p.dates .state-running { color:lightgreen; font-weight:bold; padding:2px 0 2px 20px; background:url('/static/icons/control_play_blue.png') no-repeat top left; }
+#form-activate-button                   { padding: 1em 32px 0 32px; }
+#form-activate-button div.button        { text-align:center; padding:1em; }
+#form-activate-button div.button button { font-size:20px; }
 
-#form-activate-button        { float:left; width:264px; }
-#form-activate-button p      { margin-bottom:1em; }
-#form-activate-button button { font-size:20px; }
-
-#form-deactivate-button            { float:left; width:480px; padding:0.5em 15px; margin-right:10px; }
-#form-deactivate-button p          { margin-bottom:1em; }
-#form-deactivate-button div.button { text-align:center; }
+#form-deactivate-button              { padding:1em 32px 0 32px; }
+#form-deactivate-button div.button   { text-align:center; padding:1em; }
 #form-deactivate-button div.button a { font-size:14px; margin-right:3em; color:red; padding:2px 0 2px 20px; background:url('/static/icons/cancel.png') no-repeat top left; }
-#form-deactivate-button button { font-size:20px; }
+#form-deactivate-button button       { font-size:20px; }
 
 
 /* vim: set foldmethod=marker: */
