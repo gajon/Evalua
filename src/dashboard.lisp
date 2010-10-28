@@ -438,3 +438,84 @@
                          collect (funcall replacer
                                   (format nil "~{~a~^ | ~}"
                                           (%collect-answers answers))))))))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ACCOUNT PAGE
+
+(define-url-fn dashboard/account
+  (when (eql :post (request-method*))
+    (let ((full-name (trim-or-nil (parameter "full-name")))
+          (email (trim-or-nil (parameter "email")))
+          (current-password (trim-or-nil (parameter "current-password")))
+          (new-password (trim-or-nil (parameter "new-password")))
+          (confirm-password (trim-or-nil (parameter "confirm-password"))))
+      (when (or full-name email)
+        (setf (user-full-name the-user) full-name
+              (user-email the-user) email)
+        (data/save-user the-user)
+        (push-success-msg "Los cambios se han guardado.")
+        (redirect "/dashboard/account"))
+      (when (and (or current-password new-password confirm-password)
+                 (dashboard%process-account-change-password current-password
+                                                            new-password
+                                                            confirm-password
+                                                            the-user))
+        (redirect "/dashboard/account"))))
+  (standard-page (:title "Mi cuenta"
+                  :css-files ("dashboard.css?v=20101027"))
+    (:section :id "account"
+      (:form :method "post" :action "/dashboard/account"
+             ;; TODO: place messages here or in the password change section
+             ;; below, depending on action taken.
+             (show-all-messages)
+             (:header (:h1 "Mi cuenta"))
+             (:div :class ""
+                   (text-input "Nombre:" "full-name"
+                               :default-value (user-full-name the-user)))
+             (:div :class ""
+                   (text-input "E-Mail:" "email"
+                               :default-value (user-email the-user)))
+             (:div :class ""
+                   (submit-button "Guardar"))))
+    (:section :id "account-password"
+      (:form :method "post" :action "/dashboard/account"
+             (:header (:h1 "Contraseña"))
+             (:p "Para cambiar tu contraseña introduce la contraseña actual y
+                 luego introduce la contraseña nueva dos veces:")
+             (:div :class ""
+                   (password-input "Actual:" "current-password"))
+             (:div :class ""
+                   (password-input "Nueva:" "new-password"))
+             (:div :class ""
+                   (password-input "Confirmación:" "confirm-password"))
+             (:div :class "" (submit-button "Cambiar"))))))
+
+(defun dashboard%process-account-change-password (current-password
+                                                  new-password
+                                                  confirm-password
+                                                  the-user)
+  ;;
+  ;; Check some basics
+  (unless current-password
+    (push-error-msg "La contraseña actual es requerida.")
+    (return-from dashboard%process-account-change-password nil))
+  (unless new-password
+    (push-error-msg "La nueva contraseña no puede estar vacía")
+    (return-from dashboard%process-account-change-password nil))
+  (unless (string= new-password confirm-password)
+    (push-error-msg "La confirmación de la contraseña no es correcta")
+    (return-from dashboard%process-account-change-password nil))
+  ;;
+  ;; Basics ok, calculate digest and confirm current password.
+  (let ((curr-digest (hunchentoot::md5-hex current-password))
+        (new-digest (hunchentoot::md5-hex new-password)))
+    (unless (string= curr-digest (user-password-digest the-user))
+      (push-error-msg "La contraseña actual no es correcta")
+      (return-from dashboard%process-account-change-password nil))
+    ;;
+    ;; It seems everything is ok... GO!
+    (setf (user-password-digest the-user) new-digest)
+    (data/save-user the-user)
+    (push-success-msg "La contraseña se ha cambiado.")
+    the-user))

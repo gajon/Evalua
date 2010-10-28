@@ -19,6 +19,22 @@
 #dashboard div.listing .highlight           { background-color: #faffc5 !important; }
 
 
+/* Account settings {{{1 */
+#account        { padding:1em 32px 0 32px; }
+#account h1     { color:#000; text-shadow:1px 1px 2px #666; font:normal 24px Tahoma,Arial,sans-serif; }
+#account div    { clear:left; margin:5px 0 0 0; padding:1px 0px; }
+#account label  { display:block; float:left; width:120px; padding:4px 5px; margin:1px 0; }
+#account input  { padding:4px; margin:2px 4px; width:200px; }
+#account button { margin-left:134px; }
+
+#account-password        { padding:2em 32px 0 32px; }
+#account-password h1     { color:#000; text-shadow:1px 1px 2px #666; font:normal 24px Tahoma,Arial,sans-serif; }
+#account-password p      { margin-bottom:0.5em; }
+#account-password div    { clear:left; margin:5px 0 0 0; padding:1px 0px; }
+#account-password label  { display:block; float:left; width:120px; padding:4px 5px; margin:1px 0; }
+#account-password input  { padding:4px; margin:2px 4px; width:200px; }
+#account-password button { margin-left:134px; }
+
 /* Form Information {{{1 */
 #form-info-title                   { padding:1em 32px 0 32px; }
 #form-info-title div.title         { float:left; width:550px; }

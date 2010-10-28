@@ -142,7 +142,7 @@ BE CAREFUL."
                          (:li (:div :class "search"
                                 (:input :type "text" :name "search")))
                          (:li (:a :href "/dashboard" "Tablero"))
-                         (:li (:a :href "#" "Mi cuenta"))
+                         (:li (:a :href "/dashboard/account" "Mi cuenta"))
                          (:li (:a :href "#" "Opciones"))
                          (:li (:a :href "/logout" "Salir")))))))
            (:section :id "content"
