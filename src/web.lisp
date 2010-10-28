@@ -34,25 +34,8 @@
 ;;; INDEX PAGE
 
 (define-index-fn
-  ;; TODO: We are cheating here... until we have the authentication and
-  ;; anonymous users in place.
-  ;;
-  ;; Ensure the dummy user exists
-  ;(or (data/get-user "gajon")
-  ;    (data/create-user
-  ;      (make-instance 'user
-  ;                     :username "gajon"
-  ;                     :full-name "Jorge Gajon"
-  ;                     :email "gajon@gajon.org"
-  ;                     :password-digest (hunchentoot::md5-hex "gajon")
-  ;                     :time-zone 5)))
-  ;; Set the session.
-  ;(setf (session-value 'authenticated) "yes"
-  ;      (session-value 'username) "gajon"
-  ;      (session-value 'timezone) 5)
-  ;;
-  ;;
-  (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear evaluaciones en línea."
+  (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear
+                         evaluaciones en línea."
                   :css-files ("index.css?v=20101004")
                   :show-options nil
                   :include-analytics-p t)
@@ -132,7 +115,8 @@
     (when (and email (eql :post (request-method*)))
       (data/add-wait-registry email now (user-agent) (real-remote-addr))
       (redirect "/wait-registry")))
-  (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear evaluaciones en línea."
+  (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear
+                         evaluaciones en línea."
                   :css-files ("index.css?v=20101004")
                   :show-options nil
                   :include-analytics-p t)
@@ -159,7 +143,8 @@
         (setf (session-value 'authenticated) nil))))
   (when (string= (session-value 'authenticated) "yes")
     (redirect "/dashboard"))
-  (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear evaluaciones en línea."
+  (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear
+                         evaluaciones en línea."
                   :css-files ("index.css?v=20101019")
                   :show-options nil)
     (:section :id "login"

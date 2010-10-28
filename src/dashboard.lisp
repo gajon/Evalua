@@ -32,7 +32,7 @@
             (:tbody
               (if active-forms
                 (loop for form-obj in active-forms
-                      do (dashboard/render-form-as-row form-obj))
+                      do (dashboard%render-form-as-row form-obj))
                 (htm (:tr (:td :colspan 6
                                "No tienes evaluaciones activas.")))))))
         (:div :class "listing"
@@ -52,12 +52,12 @@
             (:tbody
               (if inactive-forms
                 (loop for form-obj in inactive-forms
-                      do (dashboard/render-form-as-row form-obj
+                      do (dashboard%render-form-as-row form-obj
                                                        :start-date nil))
                 (htm (:tr (:td :colspan 6
                                "No tienes evaluaciones inactivas.")))))))))))
 
-(defun dashboard/render-form-as-row (form-obj &key (start-date t))
+(defun dashboard%render-form-as-row (form-obj &key (start-date t))
   (let ((id (form-id form-obj))
         (title (or (form-title form-obj) "N/A")))
     ;; We want to limit the title to 50 chars.
@@ -164,7 +164,7 @@
          (id (form-id form)))
     ;;
     (when (and (eql :post (request-method*))
-               (design/process-form-options form))
+               (dashboard%process-form-options form))
       (push-success-msg "Las opciones se han guardado.")
       (redirect (format nil "/dashboard/form-options?id=~a" id)))
     ;;
@@ -242,6 +242,36 @@
          (htm (:div :class "button"
                (submit-button "Guardar opciones" :name "options"))))))))
 
+(defun dashboard%process-form-options (form-obj)
+  (flet ((validate-time-limit (time)
+           (multiple-value-bind (start end start-positions end-positions)
+               (#~m/^(\d{1,2}):(\d{1,2})$/ time)
+             (declare (ignore end))
+             (when start
+               (let ((hours (parse-integer time
+                                           :start (svref start-positions 0)
+                                           :end (svref end-positions 0)))
+                     (minutes (parse-integer time
+                                             :start (svref start-positions 1)
+                                             :end (svref end-positions 1))))
+                 (and (> 60 hours) (> 60 minutes)))))))
+    ;; Get data from the post, and validate.
+    (let ((time-limit (trim-or-nil (post-parameter "timelimit")))
+          (tries (parse-int-force-pos-or-zero (post-parameter "tries")))
+          (score-p (string= (trim-or-nil (post-parameter "score")) "yes"))
+          (comments-p (string= (trim-or-nil (post-parameter "comments"))
+                               "yes")))
+      ;;
+      (when (or (null time-limit)
+                (validate-time-limit time-limit)
+                (push-error-msg "El formato de tiempo límite debe ser hh:mm,
+                                por ejemplo 03:00"))
+        (setf (form-time-limit form-obj) time-limit
+              (form-tries-limit form-obj) tries
+              (form-score-p form-obj) score-p
+              (form-comments-p form-obj) comments-p)
+        ;; Save it!
+        (data/save-form form-obj)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; FORM STATISTICS.

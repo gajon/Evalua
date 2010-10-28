@@ -97,7 +97,7 @@
                (data/delete-form-parts to-delete)
                (data/save-form-questions
                  form-obj
-                 (design/numerate-questions-and-answers questions-data)))
+                 (design%numerate-questions-and-answers questions-data)))
         (htm (str (clouchdb:document-to-json
                     `((:|status| . "ok")
                       (:|id| . ,(form-id form-obj))))))
@@ -110,7 +110,7 @@
                        `((:|status| . "error")
                          (:|error| . ,(format nil "~a" c)))))))))
 
-(defun design/numerate-questions-and-answers (data)
+(defun design%numerate-questions-and-answers (data)
   "This function will add a new key :|question-number| to each question's
   alist in increasing order, while also adding a new key :|answer-number| to
   each of the answers of each question. This is so that we can record the
@@ -149,42 +149,7 @@
                           {"text":"Texto libre", "control":"textarea","_id":null,
                            "answers":[{"control":"textarea","_id":null,"text":""}]}]"#)))
   (declare (ignorable decoded-data1 decoded-data2))
-  (design/numerate-questions-and-answers decoded-data2)) |#
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; FORM OPTIONS AND STATS
-
-(defun design/process-form-options (form-obj)
-  (flet ((validate-time-limit (time)
-           (multiple-value-bind (start end start-positions end-positions)
-               (#~m/^(\d{1,2}):(\d{1,2})$/ time)
-             (declare (ignore end))
-             (when start
-               (let ((hours (parse-integer time
-                                           :start (svref start-positions 0)
-                                           :end (svref end-positions 0)))
-                     (minutes (parse-integer time
-                                             :start (svref start-positions 1)
-                                             :end (svref end-positions 1))))
-                 (and (> 60 hours) (> 60 minutes)))))))
-    ;; Get data from the post, and validate.
-    (let ((time-limit (trim-or-nil (post-parameter "timelimit")))
-          (tries (parse-int-force-pos-or-zero (post-parameter "tries")))
-          (score-p (string= (trim-or-nil (post-parameter "score")) "yes"))
-          (comments-p (string= (trim-or-nil (post-parameter "comments"))
-                               "yes")))
-      ;;
-      (when (or (null time-limit)
-                (validate-time-limit time-limit)
-                (push-error-msg "El formato de tiempo límite debe ser hh:mm,
-                                por ejemplo 03:00"))
-        (setf (form-time-limit form-obj) time-limit
-              (form-tries-limit form-obj) tries
-              (form-score-p form-obj) score-p
-              (form-comments-p form-obj) comments-p)
-        ;; Save it!
-        (data/save-form form-obj)))))
+  (design%numerate-questions-and-answers decoded-data2)) |#
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -245,7 +210,7 @@
       (when (and (eql :post (request-method*))
                  (setf (form-status form) "active"
                        (form-start-date form) now)
-                 (design/process-form-options form))
+                 (dashboard%process-form-options form))
         (redirect (format nil "/dashboard/form-info?id=~a" id))))
     ;;
     ;;

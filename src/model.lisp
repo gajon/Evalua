@@ -186,4 +186,3 @@
 (defmethod print-object ((u user) stream)
   (print-unreadable-object (u stream :identity t :type t)
     (format stream "~a (~a)" (user-username u) (user-full-name u))))
-

@@ -19,8 +19,6 @@ This macro saves some typing:
             ,obj))))
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; DOCUMENT RETRIEVAL
 
@@ -131,7 +129,7 @@ This macro saves some typing:
                 `(:|rows| :|id| ,#'clouchdb:get-document)
                 (clouchdb:invoke-view "submissions" "submissions-by-form"
                                       :reduce nil
-                                      :descending nil 
+                                      :descending nil
                                       :start-key (list form)
                                       :end-key (list form
                                                      (make-hash-table))))))))
@@ -373,8 +371,6 @@ This macro saves some typing:
       user-obj)))
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; DOCUMENT DELETION
 
@@ -428,8 +424,6 @@ This macro saves some typing:
   t)
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; SUBMITTED ANSWERS
 
@@ -467,7 +461,6 @@ This macro saves some typing:
      (:|comments| . ,comments))))
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; WAIT REGISTRY
 
@@ -478,8 +471,6 @@ This macro saves some typing:
       (:|user-agent| . ,user-agent)
       (:|remote-addr| . ,remote-addr)
       (:|date| . ,(format-iso8601-date date)))))
-
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
