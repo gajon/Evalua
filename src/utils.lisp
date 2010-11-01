@@ -199,44 +199,59 @@ ANALYTICS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; QUEUE AND SHOW ERROR/SUCCESS MESSAGES TO THE USER
 
-(defun push-error-msg (msg)
-  (push msg (session-value 'error-msgs))
+(defun push-error-msg (msg &key group)
+  (push (cons group msg) (session-value 'error-msgs))
   nil)
 
-(defun push-success-msg (msg)
-  (push msg (session-value 'success-msgs)))
+(defun push-success-msg (msg &key group)
+  (push (cons group msg) (session-value 'success-msgs)))
 
-(defun push-info-msg (msg)
-  (push msg (session-value 'info-msgs)))
+(defun push-info-msg (msg &key group)
+  (push (cons group msg) (session-value 'info-msgs)))
 
-(defun %show-messages (msgs css-id)
-  (with-html-output (*standard-output*)
-    (:div :id (escape-string css-id)
-          (:ul (mapcar
-                 (lambda (msg) (htm (:li (esc msg))))
-                 msgs)))))
+(defun %show-messages (messages group css-id)
+  (let ((msgs (if group
+                  (filter (lambda (x) (when (eql group (car x)) x))
+                          messages)
+                  messages)))
+    (when msgs
+      (with-html-output (*standard-output*)
+        (:div :id (escape-string css-id)
+              (:ul (mapcar
+                    (lambda (msg) (htm (:li (esc (cdr msg)))))
+                    msgs)))))))
 
-(defun show-error-messages ()
-  (when (session-value 'error-msgs)
-    (%show-messages (reverse (session-value 'error-msgs)) "errors")
-    (setf (session-value 'error-msgs) nil)))
+(defun %clear-messages (group session-key)
+  (if group
+      ;; Filter out those in the group.
+      (setf (session-value session-key)
+            (filter (lambda (x) (unless (eql group (car x)) x))
+                    (session-value session-key)))
+      ;; Erase all
+      (setf (session-value session-key) nil)))
 
-(defun show-success-messages ()
-  (when (session-value 'success-msgs)
-    (%show-messages (reverse (session-value 'success-msgs)) "success")
-    (setf (session-value 'success-msgs) nil)))
+(defun show-error-messages (&key group)
+  (awhen (session-value 'error-msgs)
+    (%show-messages (reverse it) group "errors")
+    (%clear-messages group 'error-msgs)))
 
-(defun show-info-messages ()
-  (when (session-value 'info-msgs)
-    (%show-messages (reverse (session-value 'info-msgs)) "messages")
-    (setf (session-value 'info-msgs) nil)))
+(defun show-success-messages (&key group)
+  (awhen (session-value 'success-msgs)
+    (%show-messages (reverse it) group "success")
+    (%clear-messages group 'success-msgs)))
 
-(defun show-all-messages ()
-  (show-error-messages)
-  (show-info-messages)
-  (show-success-messages))
+(defun show-info-messages (&key group)
+  (awhen (session-value 'info-msgs)
+    (%show-messages (reverse it) group "messages")
+    (%clear-messages group 'info-msgs)))
+
+(defun show-all-messages (&key group)
+  (show-error-messages :group group)
+  (show-info-messages :group group)
+  (show-success-messages :group group))
 
 (defmacro! require-fields (&rest args)
+  ;; TODO: Add group keyword.
   `(let ((,g!success t))
      (flet ((,g!failed (msg)
                (setf ,g!success nil)
