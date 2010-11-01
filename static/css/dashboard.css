@@ -56,7 +56,7 @@
 #form-info-run-button p.button        { text-align:center; }
 #form-info-run-button p.button button { font-size:20px; }
 #form-info-run-button p.stop-button   { text-align:center; }
-#form-info-run-button a.link          { font-size:18px; }
+#form-info-run-button p.link          { text-align:center; font-size:18px; }
 
 /*#form-info-options            { float:left; width:480px; padding:0.5em 15px; margin-right:10px; background-color:#e5efff; }*/
 #form-info-options            { padding:1em 32px 0 32px; clear:both; }

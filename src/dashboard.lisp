@@ -101,10 +101,10 @@
         (:section :id "form-info-run-button"
           (show-all-messages)
           (if (string= (form-status form) "active")
-              (htm (:p "La evaluación se encuentra corriendo: "
-                       (:a :target "_blank" :class "link"
-                           :href public-url (esc public-url)))
-                   (:p "Deberás enviar la siguiente liga mostrada arriba a todas
+              (htm (:p "La evaluación se encuentra corriendo: ")
+                   (:p :class "link"
+                       (:a :target "_blank" :href public-url (esc public-url)))
+                   (:p "Deberás enviar la liga mostrada arriba a todas
                         las personas que desees tomen parte en la evaluación.")
                    (:p "Para detener el proceso de evaluación deberás hacer
                         click en el siguiente botón:")
