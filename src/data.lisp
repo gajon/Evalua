@@ -145,17 +145,36 @@ This macro saves some typing:
                                    :end-key (list form (make-hash-table))))))
     (car value)))
 
-(defun data/get-submitted-answers-by-question (sub question)
+(defun data/get-submitted-answers-by-question-count (question)
+  (let ((qid (if (eq (type-of question) 'question)
+                 (question-id question)
+                 question)))
+    (car
+     (clouchdb:query-document
+      '(:|rows| :|value|)
+      (clouchdb:invoke-view "submissions"
+                            "submitted-answers-by-question"
+                            :group t :reduce t :key qid)))))
+
+(defun data/get-submitted-answers-count (answer)
+  (let ((aid (if (eq (type-of answer) 'answer) (answer-id answer) answer)))
+    (car
+     (clouchdb:query-document
+      `(:|rows| :|value|)
+      (clouchdb:invoke-view "submissions"
+                            "submitted-answers"
+                            :group t :reduce t :key aid)))))
+
+(defun data/get-submitted-answers-by-submission-question (sub question)
   (let ((sub (if (eq (type-of sub) 'submission) (submission-id sub) sub))
         (qid (if (eq (type-of question) 'question)
                (question-id question)
                question)))
     (clouchdb:query-document
       `(:|rows| :|id| ,#'clouchdb:get-document)
-      (clouchdb:invoke-view "submissions" "submitted-answers-by-question"
+      (clouchdb:invoke-view "submissions"
+                            "submitted-answers-by-submission-question"
                             :key (list sub qid)))))
-                                   ;"f11cfb4dc86501cf2be8544f6202d1a4"
-                                   ;"f11cfb4dc86501cf2be8544f62020e57")))))
 
 
 ;;;
@@ -561,10 +580,19 @@ This macro saves some typing:
     ;END
     (clouchdb:ps-view ("submitted-answers")
       (defun map (doc)
-        (with-slots (type submission) doc
+        (with-slots (type answer) doc
           (if (and type (= type "submitted-answer"))
-            (emit submission nil)))))
+            (emit answer 1))))
+      (defun reduce (keys values)
+        (sum values)))
     (clouchdb:ps-view ("submitted-answers-by-question")
+      (defun map (doc)
+        (with-slots (type question) doc
+          (if (and type (= type "submitted-answer"))
+              (emit question 1))))
+      (defun reduce (keys values)
+        (sum values)))
+    (clouchdb:ps-view ("submitted-answers-by-submission-question")
       (defun map (doc)
         (with-slots (type submission question) doc
           (if (and type (= type "submitted-answer"))
@@ -618,5 +646,6 @@ This macro saves some typing:
     (mapc #'delete-document
           (clouchdb:query-document
             '(:|rows| :|id|)
-            (clouchdb:invoke-view "submissions" "submitted-answers"))))
+            (clouchdb:invoke-view "submissions" "submitted-answers"
+                                  :reduce nil))))
   (values))

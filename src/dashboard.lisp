@@ -278,25 +278,52 @@
 
 (define-url-fn dashboard/form-stats
   (let* ((form (or (data/get-form (parameter "id"))
-                   (redirect "/")))
-         (submissions-count (data/get-submissions-by-form-count form)))
+                   (redirect "/"))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("dashboard.css?v=20101027"))
-      ;;
-      ;; Form title and links to modify/preview.
-      ;;
       (dashboard%render-form-title-and-links form)
-      ;;
-      ;; Form statistics/download box.
-      ;;
       (with-tabbed-page ((form-id form) :current :form-stats)
-        (dashboard%render-form-stats form)))))
+        (dashboard%render-form-stats form)
+        (:div :id "form-info-question-stats"
+              (:h2 "Resumen de evaluaciones enviadas")
+              (dashboard%render-questions-stats form))))))
 
-(defun dashboard%render-form-stats (form &key (div.id "form-info-stats")
-                                      (with-download-button t))
+(defun dashboard%render-questions-stats (form)
+  (let ((questions (form-questions form)))
+    (with-html-output (*standard-output*)
+      (dolist (q questions)
+        (let ((count (data/get-submitted-answers-by-question-count q)))
+          (htm
+           (:div :class "question"
+                 (:div :class "question-title"
+                       (:span :class "title" (esc (question-text q)))
+                       (:ul :class "question-options"
+                            (:li (:a :href "" "ver registros"))
+                            (:li (:a :href "" "gráfica"))
+                            (:li (:a :href "" "exportar")))
+                       (:span :class "count"
+                              (str (format nil "(~a completadas)" count))))
+                 (:div :class "answers"
+                       (dashboard%render-answers-stats
+                        form
+                        (question-answers q))))))))))
+
+(defun dashboard%render-answers-stats (form answers)
+  (declare (ignore form))
   (with-html-output (*standard-output*)
-    (:div :id (escape-string div.id)
-      (:h2 "Estadísticas")
+    (dolist (a answers)
+      (htm
+       (:div :class "answer"
+             (:span :class "title" (esc (answer-text a)))
+             (:span :class "bar" "---")
+             (:span :class "stat"
+                    (str
+                     (format nil "(70% ~a)"
+                             (data/get-submitted-answers-count a)))))))))
+
+(defun dashboard%render-form-stats (form &key (with-download-button t))
+  (with-html-output (*standard-output*)
+    (:div :id "form-info-stats"
       (:div :class "stats"
         (:label "Evaluaciones completadas: ")
         (str (aif (data/get-submissions-by-form-count form) it "N/A")))
@@ -401,7 +428,7 @@
           (:tr
             (:td (esc (format-date (submission-finish-date ss))))
             (loop for question in questions
-                  for answers = (data/get-submitted-answers-by-question
+                  for answers = (data/get-submitted-answers-by-submission-question
                                   (submission-id ss)
                                   (question-id question))
                   do (%render-answers answers cached-ansers))))))))
@@ -432,7 +459,7 @@
               (format *standard-output* "\"~a\",~{\"~a\"~^,~}~%"
                       (format-iso8601-date (submission-finish-date ss))
                       (loop for question in questions
-                         for answers = (data/get-submitted-answers-by-question
+                         for answers = (data/get-submitted-answers-by-submission-question
                                         (submission-id ss)
                                         (question-id question))
                          collect (funcall replacer

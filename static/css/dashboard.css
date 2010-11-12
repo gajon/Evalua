@@ -68,12 +68,28 @@
 
 /*#form-info-stats            { float:left; width:264px; padding: 0.5em 15px; background-color:#e5efff; }*/
 #form-info-stats            { padding:1em 32px 0 32px; clear:both; }
-#form-info-stats h2         { margin-bottom:1em; }
+/*#form-info-stats h2         { margin-bottom:1em; }*/
 #form-info-stats div.stats  { margin-bottom: 0.5em; }
 #form-info-stats p          { font-size:12px; margin: 1em 0 1em 0; }
 #form-info-stats div.button { text-align:center; }
 #form-info-stats div.stats.inactive { color:#666; font-style:italic; }
 
+#form-info-question-stats { padding:1em 32px 0 32px; clear:both; }
+#form-info-question-stats h2 { margin-bottom:1em; }
+
+#form-info-question-stats .question { clear:both; margin-top:1em; overflow:auto; }
+
+#form-info-question-stats .question-title { border-bottom:1px solid #ccc; padding-bottom:0.5em; width:100%; overflow:auto; }
+#form-info-question-stats .question-title span.title { float:left; width:450px; }
+#form-info-question-stats .question-title ul { float:left; width:216px; margin:0; padding:0; list-style:none; }
+#form-info-question-stats .question-title li { float:left; margin-right:1em; }
+#form-info-question-stats .question-title a { font-size: 11px; }
+#form-info-question-stats .question-title span.count { float:left; width:150px; font-size:11px; text-align:right; line-height:1.5; }
+
+#form-info-question-stats .answers { clear:both; padding-left:30px; margin:1em 0; overflow:auto; }
+#form-info-question-stats .answers span.title { float:left; width:386px; }
+#form-info-question-stats .answers span.bar   { float:left; width:300px; }
+#form-info-question-stats .answers span.stat  { float:left; width:100px; text-align:right; }
 
 /* Form Download Stats {{{1 */
 #form-download-stats       { padding:1em 32px 0 32px; }

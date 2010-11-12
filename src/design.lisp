@@ -259,4 +259,5 @@
                             (format nil "/dashboard/form-info?id=~a" id))
                      "Cancelar")
                  (submit-button "Detener evaluaciones")))
-         (dashboard%render-form-stats form :with-download-button nil))))))
+         ;(dashboard%render-form-stats form :with-download-button nil)
+         )))))
