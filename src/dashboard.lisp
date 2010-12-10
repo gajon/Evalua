@@ -558,32 +558,26 @@
   (standard-page (:title "Mi cuenta"
                   :css-files ("dashboard.css?v=20101027"))
     (:section :id "account"
+      ;; TODO: place messages here or in the password change section
+      ;; below, depending on action taken.
+      (show-all-messages :group :basic)
       (:form :method "post" :action "/dashboard/account"
-             ;; TODO: place messages here or in the password change section
-             ;; below, depending on action taken.
-             (show-all-messages :group :basic)
              (:header (:h1 "Mi cuenta"))
-             (:div :class ""
-                   (text-input "Nombre:" "full-name"
+             (:div (text-input "Nombre:" "full-name"
                                :default-value (user-full-name the-user)))
-             (:div :class ""
-                   (text-input "E-Mail:" "email"
+             (:div (text-input "E-Mail:" "email"
                                :default-value (user-email the-user)))
-             (:div :class ""
-                   (submit-button "Guardar"))))
+             (:div (submit-button "Guardar"))))
     (:section :id "account-password"
       (:form :method "post" :action "/dashboard/account"
              (show-all-messages :group :password)
              (:header (:h1 "Contraseña"))
              (:p "Para cambiar tu contraseña introduce la contraseña actual y
                  luego introduce la contraseña nueva dos veces:")
-             (:div :class ""
-                   (password-input "Actual:" "current-password"))
-             (:div :class ""
-                   (password-input "Nueva:" "new-password"))
-             (:div :class ""
-                   (password-input "Confirmación:" "confirm-password"))
-             (:div :class "" (submit-button "Cambiar"))))))
+             (:div (password-input "Actual:" "current-password"))
+             (:div (password-input "Nueva:" "new-password"))
+             (:div (password-input "Confirmación:" "confirm-password"))
+             (:div (submit-button "Cambiar"))))))
 
 (defun dashboard%process-account-change-password (current-password
                                                   new-password

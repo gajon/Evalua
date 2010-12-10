@@ -51,11 +51,11 @@ body     { font-size: 16px !important; }
 #wait-registry h1 { margin-bottom:1em; font:italic normal normal 32px Georgia,sans-serif; }
 
 /* Login {{{1 */
-#login { clear: both; padding: 70px 200px 70px 230px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
-#login div { clear:left; display:block; zoom:1; margin:5px 0 0 0; padding:1px 3px; }
-#login label { display:block; float:left; font-weight:bold; width:120px; padding:4px 5px; margin:1px 0; text-align:right; }
-#login input { padding:4px; margin:2px 4px; width:200px; }
-#login button { margin-left:134px; }
+#login          { clear:both; padding:70px 200px 70px 230px; border-top:1px solid #ccc; border-bottom:1px solid #ccc; }
+#login form div { clear:left; display:block; zoom:1; margin:5px 0 0 0; padding:1px 3px; }
+#login label    { display:block; float:left; font-weight:bold; width:120px; padding:4px 5px; margin:1px 0; text-align:right; }
+#login input    { padding:4px; margin:2px 4px; width:200px; }
+#login button   { margin-left:134px; }
 
 
 /* vim: set foldmethod=marker: */

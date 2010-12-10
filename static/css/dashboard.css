@@ -18,16 +18,16 @@
 
 
 /* Account settings {{{1 */
-#account div    { clear:left; margin:5px 0 0 0; padding:1px 0px; }
-#account label  { display:block; float:left; width:120px; padding:4px 5px; margin:1px 0; }
-#account input  { padding:4px; margin:2px 4px; width:200px; }
-#account button { margin-left:134px; }
+#account form div { clear:left; margin:5px 0 0 0; padding:1px 0px; }
+#account label    { display:block; float:left; width:120px; padding:4px 5px; margin:1px 0; }
+#account input    { padding:4px; margin:2px 4px; width:200px; }
+#account button   { margin-left:134px; }
 
-#account-password        { padding-top:2em; }
-#account-password div    { clear:left; margin:5px 0 0 0; padding:1px 0px; }
-#account-password label  { display:block; float:left; width:120px; padding:4px 5px; margin:1px 0; }
-#account-password input  { padding:4px; margin:2px 4px; width:200px; }
-#account-password button { margin-left:134px; }
+#account-password          { padding-top:2em; }
+#account-password form div { clear:left; margin:5px 0 0 0; padding:1px 0px; }
+#account-password label    { display:block; float:left; width:120px; padding:4px 5px; margin:1px 0; }
+#account-password input    { padding:4px; margin:2px 4px; width:200px; }
+#account-password button   { margin-left:134px; }
 
 /* Form Information {{{1 */
 #form-info-title div.title         { float:left; width:550px; }
