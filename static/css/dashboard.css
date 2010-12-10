@@ -1,7 +1,6 @@
 /* Dashboard {{{1 */
-#dashboard        { padding: 1em 0; }
+#dashboard        { padding: 2em 0; }
 #dashboard header { float:left; }
-#dashboard h1     { color: #000; text-shadow: 1px 1px 2px #666; font: normal 24px Tahoma,Arial,sans-serif; }
 
 #dashboard #big-button          { float:right; }
 #dashboard #big-button a span   { display: none; }
@@ -9,8 +8,8 @@
 #dashboard #big-button a:focus,
 #dashboard #big-button a:hover  { background: url("/static/img/ActionButtonHigh.png") no-repeat scroll 0 0 transparent; }
 
-#dashboard div.listing                      { clear: both; margin-top: 32px; font-size: 12px;  line-height: 1.6; }
-#dashboard div.listing h3                   { font-size: 12px; font-weight: normal; }
+#dashboard div.listing                      { clear:both; margin-top:32px; line-height:1.6; }
+#dashboard div.listing h2                   { margin-bottom:0; }
 #dashboard div.listing table                { margin-top: 10px; width: 100%; }
 #dashboard div.listing td                   { padding: 0 0.5em; vertical-align:middle; }
 #dashboard div.listing th                   { padding: 0 0.5em; }
@@ -21,15 +20,12 @@
 
 /* Account settings {{{1 */
 #account        { padding:1em 32px 0 32px; }
-#account h1     { color:#000; text-shadow:1px 1px 2px #666; font:normal 24px Tahoma,Arial,sans-serif; }
 #account div    { clear:left; margin:5px 0 0 0; padding:1px 0px; }
 #account label  { display:block; float:left; width:120px; padding:4px 5px; margin:1px 0; }
 #account input  { padding:4px; margin:2px 4px; width:200px; }
 #account button { margin-left:134px; }
 
 #account-password        { padding:2em 32px 0 32px; }
-#account-password h1     { color:#000; text-shadow:1px 1px 2px #666; font:normal 24px Tahoma,Arial,sans-serif; }
-#account-password p      { margin-bottom:0.5em; }
 #account-password div    { clear:left; margin:5px 0 0 0; padding:1px 0px; }
 #account-password label  { display:block; float:left; width:120px; padding:4px 5px; margin:1px 0; }
 #account-password input  { padding:4px; margin:2px 4px; width:200px; }
@@ -38,53 +34,44 @@
 /* Form Information {{{1 */
 #form-info-title                   { padding:1em 32px 0 32px; }
 #form-info-title div.title         { float:left; width:550px; }
-#form-info-title div.title h1      { color:#000; text-shadow:1px 1px 2px #666; font:normal 24px Tahoma,Arial,sans-serif; }
 #form-info-title div.title h1 span { color:#666; }
-#form-info-title div.title p.dates { margin-top:5px; font-size:12px; }
+#form-info-title div.title p.dates { margin:5px 0 0 0; }
 #form-info-title div.title p.dates span.date      { margin-right:2em; }
 #form-info-title div.title p.dates .state-paused  { color:red; padding:2px 0 2px 20px; background:url('/static/icons/control_pause.png') no-repeat top left; }
-#form-info-title div.title p.dates .state-running { color:lightgreen; font-weight:bold; padding:2px 0 2px 20px; background:url('/static/icons/control_play_blue.png') no-repeat top left; }
+#form-info-title div.title p.dates .state-running { color:green; padding:2px 0 2px 20px; background:url('/static/icons/control_play_blue.png') no-repeat top left; }
 
 #form-info-title div.links            { float:left; width:264px; text-align:left; }
-#form-info-title div.links ul         { font-size:12px; list-style:none; float:right; }
+#form-info-title div.links ul         { list-style:none; float:right; }
 #form-info-title div.links li         { padding:2px 0 2px 25px; }
 #form-info-title div.links li.edit    { background:url('/static/icons/page_edit.png') no-repeat top left; }
 #form-info-title div.links li.preview { background:url('/static/icons/page_go.png') no-repeat top left; }
 
 #form-info-run-button                 { padding:1em 32px 0 32px; clear:both; }
-#form-info-run-button p               { margin-bottom:0.5em; }
 #form-info-run-button p.button        { text-align:center; }
-#form-info-run-button p.button button { font-size:20px; }
-#form-info-run-button p.stop-button   { text-align:center; }
+#form-info-run-button p.button button { font-size:18px; }
 #form-info-run-button p.link          { text-align:center; font-size:18px; }
 
 /*#form-info-options            { float:left; width:480px; padding:0.5em 15px; margin-right:10px; background-color:#e5efff; }*/
 #form-info-options            { padding:1em 32px 0 32px; clear:both; }
-#form-info-options h2         { margin-bottom:1em; }
 #form-info-options label      { margin-right:1em; }
 #form-info-options small      { font-size: 11px; }
-#form-info-options p.help     { font-size: 11px; color:#666; font-style:italic; margin-bottom: 1em; }
+#form-info-options p.help     { font-size: 11px; color:#666; font-style:italic; }
 #form-info-options div.button { text-align:center; }
 
 /*#form-info-stats            { float:left; width:264px; padding: 0.5em 15px; background-color:#e5efff; }*/
 #form-info-stats            { padding:1em 32px 0 32px; clear:both; }
-/*#form-info-stats h2         { margin-bottom:1em; }*/
 #form-info-stats div.stats  { margin-bottom: 0.5em; }
-#form-info-stats p          { font-size:12px; margin: 1em 0 1em 0; }
 #form-info-stats div.button { text-align:center; }
 #form-info-stats div.stats.inactive { color:#666; font-style:italic; }
 
-#form-info-question-stats { padding:1em 32px 0 32px; clear:both; }
-#form-info-question-stats h2 { margin-bottom:1em; }
-
-#form-info-question-stats .question { clear:both; margin-top:1em; overflow:auto; }
-
-#form-info-question-stats .question-title { border-bottom:1px solid #ccc; padding-bottom:0.5em; width:100%; overflow:auto; }
+#form-info-question-stats                    { padding:1em 32px 0 32px; clear:both; }
+#form-info-question-stats .question          { clear:both; margin-top:1em; overflow:auto; }
+#form-info-question-stats .question-title    { border-bottom:1px solid #ccc; padding-bottom:0.5em; width:100%; overflow:auto; }
 #form-info-question-stats .question-title span.title { float:left; width:450px; }
 #form-info-question-stats .question-title ul { float:left; width:216px; margin:0; padding:0; list-style:none; }
 #form-info-question-stats .question-title li { float:left; margin-right:1em; }
-#form-info-question-stats .question-title a { font-size: 11px; }
-#form-info-question-stats .question-title span.count { float:left; width:150px; font-size:11px; text-align:right; line-height:1.5; }
+#form-info-question-stats .question-title a  { font-size:10px; }
+#form-info-question-stats .question-title span.count { float:left; width:150px; font-size:10px; text-align:right; line-height:1.5; }
 
 #form-info-question-stats .answers { clear:both; padding-left:30px; margin:1em 0; overflow:auto; }
 #form-info-question-stats .answers span.title { float:left; width:386px; }
@@ -93,11 +80,10 @@
 
 /* Form Download Stats {{{1 */
 #form-download-stats       { padding:1em 32px 0 32px; }
-#form-download-stats h1    { color: #000; text-shadow: 1px 1px 2px #666; font: normal 24px Tahoma,Arial,sans-serif; }
 
 /* Tabbed navigation {{{1 */
 #tabbed-navigation              { clear:both; }
-#tabbed-navigation-tabs         { float:left; font-size:12px; width:100%; line-height:normal; background:#fff url("/static/img/tabs-bg.gif") repeat-x bottom; }
+#tabbed-navigation-tabs         { float:left; width:100%; line-height:normal; background:#fff url("/static/img/tabs-bg.gif") repeat-x bottom; }
 #tabbed-navigation-content      { clear:both; }
 #tabbed-navigation-tabs ul      { margin:0; padding:2em 32px 0; list-style:none; }
 #tabbed-navigation-tabs li      { float:left; margin:0; padding:0 0 0 9px; background:url("/static/img/tabs-left.gif") no-repeat left top; }

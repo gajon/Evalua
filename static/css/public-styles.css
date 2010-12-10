@@ -9,10 +9,10 @@ body {
 a { color: #00f; text-decoration: none; }
 a:focus, a:hover { color: #f00; text-decoration: underline; }
 
-h1,h2,h3 { text-shadow: 2px 2px 2px #ccc; }
-h1 { font-size: 2.5em; }
-h2 { font-size: 1.6em; }
-h3 { font-size: 1.3em; }
+h1,h2,h3 { text-shadow: 2px 2px 2px #ccc; margin-bottom:0 !important; }
+h1 { font-size: 2.5em !important; }
+h2 { font-size: 1.6em !important; }
+h3 { font-size: 1.3em !important; }
 
 td,th {
 	padding: 0 0.5em;

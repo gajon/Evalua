@@ -1,17 +1,26 @@
 /* Global Styles {{{1 */
 
-body             { color: #000; background: #fff; font: normal 16px Arial,sans-serif; }
+body             { color: #000; background: #fff; font: normal 12px Arial,sans-serif; }
 a                { color: #00f; text-decoration: none; }
 a:focus, a:hover { color: #00f; text-decoration: underline; }
+
+h1,h2,h3,h4,h5,h6 { color:#000; text-shadow:1px 1px 2px #aaa; font-family:Arial,sans-serif; font-style:normal; font-weight:normal; }
+h2,h3,h4,h5,h6 { margin-bottom:1em; }
+h1 { font-size:24px; }
+h2 { font-size:20px; }
+h3 { font-size:16px; }
+h4,h5,h6 { font-size:14px; }
+
+p { margin-bottom:1em; }
 
 #body-container  { margin: 0 auto; padding: 0; width: 880px; }
 div.clear        { clear: both; }
 
-
-input.error { border: 2px solid #f62626; }
+input.error   { border: 2px solid #f62626; }
 div.error-msg { color:#f62626; font-style: italic; }
 
 input, select { vertical-align: baseline; }
+
 
 /* Banner {{{1 */
 
@@ -21,10 +30,10 @@ input, select { vertical-align: baseline; }
 #banner div.logo a       { background: url("/static/img/logo.jpg") no-repeat scroll 0 0 transparent; display: block; width: 284px; height: 77px; }
 #banner div.logo a span  { display: none; }
 
-#banner div.options      { float: right; padding-top: 30px; font-size: 12px; line-height: 1.5; }
-#banner div.options ul   { list-style: none outside none; }
-#banner div.options li   { float: left; margin-left: 20px; }
-#banner div.options div.search input { border: 1px solid #ccc; padding-left: 16px; background: url("/static/icons/magnifier.png") no-repeat scroll 0 0 transparent; width: 150px; }
+#banner div.options      { float:right; padding-top:30px; line-height:1.5; }
+#banner div.options ul   { list-style:none outside none; }
+#banner div.options li   { float:left; margin-left:20px; }
+#banner div.options div.search input { border:1px solid #ccc; padding-left:16px; background:url("/static/icons/magnifier.png") no-repeat scroll 0 0 transparent; width:150px; }
 
 
 /* Footer {{{1 */

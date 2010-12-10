@@ -1,8 +1,7 @@
 /* Questions {{{1 */
 
-#questions       { padding: 1em 32px 0 32px; }
+#questions       { padding: 2em 32px 0 32px; }
 #questions label { color: #666; }
-#questions h1    { color: #000; text-shadow: 1px 1px 2px #666; font: normal 24px Tahoma,Arial,sans-serif; }
 
 #questions #form-basics { margin-top: 1em; background-color: #e5efff; padding: 0.5em 1em 1em 1em; }
 #questions #form-title label { display: block; }
@@ -18,7 +17,6 @@
 /* Question Selection {{{1 */
 
 #questions-selection { clear: both; padding: 1em 32px 0 32px; }
-#questions-selection h3 { margin-bottom: 1em; }
 #questions-submit { clear: both; padding: 32px 32px 0 32px; }
 #questions-submit button { font-size:20px; }
 
@@ -61,7 +59,7 @@ div.dummy-question div.answer-line.highlight div.input textarea { border: 1px da
 
 
 div.dummy-question div.answer-add     { clear: both; margin-left: 20px; }
-div.dummy-question div.answer-add a   { font-size: 12px; text-decoration: none; }
+div.dummy-question div.answer-add a   { text-decoration: none; }
 div.dummy-question div.answer-add img { vertical-align: text-bottom; }
 
 

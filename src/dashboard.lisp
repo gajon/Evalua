@@ -109,7 +109,7 @@
                    (:p "Para detener el proceso de evaluación deberás hacer
                         click en el siguiente botón:")
                    (:form :method "get" :action "/design/deactivate-form"
-                          (:p :class "stop-button"
+                          (:p :class "button"
                               (hidden-input "id" :default-value id)
                               (submit-button "Detener evaluaciones"))))
               (htm
@@ -138,8 +138,8 @@
                 (:span :class "date"
                        (esc (format-date (form-update-date form))))
                 (if (string= (form-status form) "active")
-                    (htm (:em :class "state-running" "Corriendo"))
-                    (htm (:em :class "state-paused" "Pausada")))))
+                    (htm (:span :class "state-running" "Corriendo"))
+                    (htm (:span :class "state-paused" "Pausada")))))
               (:div :class "links"
                     (:ul
                      (:li :class "edit"

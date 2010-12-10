@@ -1,3 +1,6 @@
+/* Override from common.css */
+body { font-size: 16px !important; }
+
 #banner { height: 100px !important; border-bottom: 0px solid white !important; }
 
 
@@ -37,18 +40,15 @@
 #more-features div.firstcolumn  { float: left; width: 33%; }
 #more-features div.secondcolumn { float: left; width: 33%; }
 #more-features div.thirdcolumn  { float: left; width: 33%; }
-#more-features p          { margin-bottom: 1em; }
 #more-features a          { font-style: italic; }
 #more-features ul         { color: #333; list-style-type: none; }
 #more-features ul li      { padding: 2px 0 2px 25px; margin-bottom: 1em; list-style: none; background: url('/static/icons/system-tick-alt-03.png') no-repeat top left; }
 
 
-
 /* Wait registry {{{1 */
 
 #wait-registry { clear: both; padding: 32px 32px 0 32px; border-top: 1px solid #ccc; }
-#wait-registry h1 { margin-bottom: 1em; color: #000; text-shadow: 1px 1px 2px #666; font: italic normal normal 32px Georgia,sans-serif; }
-#wait-registry p { margin-bottom: 1em; }
+#wait-registry h1 { margin-bottom:1em; font:italic normal normal 32px Georgia,sans-serif; }
 
 /* Login {{{1 */
 #login { clear: both; padding: 70px 200px 70px 230px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; }
