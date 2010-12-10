@@ -1,5 +1,4 @@
 /* Dashboard {{{1 */
-#dashboard        { padding: 2em 0; }
 #dashboard header { float:left; }
 
 #dashboard #big-button          { float:right; }
@@ -19,20 +18,18 @@
 
 
 /* Account settings {{{1 */
-#account        { padding:1em 32px 0 32px; }
 #account div    { clear:left; margin:5px 0 0 0; padding:1px 0px; }
 #account label  { display:block; float:left; width:120px; padding:4px 5px; margin:1px 0; }
 #account input  { padding:4px; margin:2px 4px; width:200px; }
 #account button { margin-left:134px; }
 
-#account-password        { padding:2em 32px 0 32px; }
+#account-password        { padding-top:2em; }
 #account-password div    { clear:left; margin:5px 0 0 0; padding:1px 0px; }
 #account-password label  { display:block; float:left; width:120px; padding:4px 5px; margin:1px 0; }
 #account-password input  { padding:4px; margin:2px 4px; width:200px; }
 #account-password button { margin-left:134px; }
 
 /* Form Information {{{1 */
-#form-info-title                   { padding:1em 32px 0 32px; }
 #form-info-title div.title         { float:left; width:550px; }
 #form-info-title div.title h1 span { color:#666; }
 #form-info-title div.title p.dates { margin:5px 0 0 0; }
@@ -46,26 +43,21 @@
 #form-info-title div.links li.edit    { background:url('/static/icons/page_edit.png') no-repeat top left; }
 #form-info-title div.links li.preview { background:url('/static/icons/page_go.png') no-repeat top left; }
 
-#form-info-run-button                 { padding:1em 32px 0 32px; clear:both; }
 #form-info-run-button p.link          { text-align:center; font-size:18px; }
 #form-info-run-button p.button        { text-align:center; padding:1em; }
 #form-info-run-button p.button button { font-size:18px; }
 #form-info-run-button p.button a      { font-size:14px; margin-right:3em; color:red; padding:2px 0 2px 20px; background:url('/static/icons/cancel.png') no-repeat top left; }
 
-/*#form-info-options            { float:left; width:480px; padding:0.5em 15px; margin-right:10px; background-color:#e5efff; }*/
-#form-info-options            { padding:1em 32px 0 32px; clear:both; }
 #form-info-options label      { margin-right:1em; }
 #form-info-options small      { font-size: 11px; }
 #form-info-options p.help     { font-size: 11px; color:#666; font-style:italic; }
 #form-info-options div.button { text-align:center; }
 
-/*#form-info-stats            { float:left; width:264px; padding: 0.5em 15px; background-color:#e5efff; }*/
-#form-info-stats            { padding:1em 32px 0 32px; clear:both; }
 #form-info-stats div.stats  { margin-bottom: 0.5em; }
 #form-info-stats div.button { text-align:center; }
 #form-info-stats div.stats.inactive { color:#666; font-style:italic; }
 
-#form-info-question-stats                    { padding:1em 32px 0 32px; clear:both; }
+#form-info-question-stats                    { padding-top:2em; }
 #form-info-question-stats .question          { clear:both; margin-top:1em; overflow:auto; }
 #form-info-question-stats .question-title    { border-bottom:1px solid #ccc; padding-bottom:0.5em; width:100%; overflow:auto; }
 #form-info-question-stats .question-title span.title { float:left; width:450px; }
@@ -79,13 +71,10 @@
 #form-info-question-stats .answers span.bar   { float:left; width:300px; }
 #form-info-question-stats .answers span.stat  { float:left; width:100px; text-align:right; }
 
-/* Form Download Stats {{{1 */
-#form-download-stats       { padding:1em 32px 0 32px; }
 
 /* Tabbed navigation {{{1 */
 #tabbed-navigation              { clear:both; }
-#tabbed-navigation-tabs         { float:left; width:100%; line-height:normal; background:#fff url("/static/img/tabs-bg.gif") repeat-x bottom; }
-#tabbed-navigation-content      { clear:both; }
+#tabbed-navigation-tabs         { float:left; margin-left:-32px; width:880px; line-height:normal; background:#fff url("/static/img/tabs-bg.gif") repeat-x bottom; }
 #tabbed-navigation-tabs ul      { margin:0; padding:2em 32px 0; list-style:none; }
 #tabbed-navigation-tabs li      { float:left; margin:0; padding:0 0 0 9px; background:url("/static/img/tabs-left.gif") no-repeat left top; }
 #tabbed-navigation-tabs a,
@@ -101,5 +90,8 @@
 #tabbed-navigation-tabs li.notab a       { color: #00f; text-decoration: none; }
 #tabbed-navigation-tabs li.notab a:focus,
 #tabbed-navigation-tabs li.notab a:hover { color: #f00; text-decoration: underline; }
+
+#tabbed-navigation-content { clear:both; padding-top:2em; }
+
 
 /* vim: set foldmethod=marker: */

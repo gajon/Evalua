@@ -35,6 +35,7 @@ input, select { vertical-align: baseline; }
 #banner div.options li   { float:left; margin-left:20px; }
 #banner div.options div.search input { border:1px solid #ccc; padding-left:16px; background:url("/static/icons/magnifier.png") no-repeat scroll 0 0 transparent; width:150px; }
 
+#content { padding:2em 32px 0 32px; }
 
 /* Footer {{{1 */
 
@@ -44,7 +45,7 @@ input, select { vertical-align: baseline; }
 
 /* Messages and Errors {{{1 */
 
-#errors, #messages, #success { clear: both; padding:.5em !important; margin:1em 0; border:2px solid #ddd; font-size: 16px; font-weight:bold; text-shadow: 1px 1px 1px #000; }
+#errors, #messages, #success { clear: both; padding:.5em !important; margin-bottom:1em; border:2px solid #ddd; font-size: 16px; font-weight:bold; text-shadow: 1px 1px 1px #000; }
 #messages                    { text-shadow: 1px 1px 1px #ccc !important; }
 #errors                      { background:#f62626; color:#fff; border-color:#bd0e0e; }
 #messages                    { background:#fffcc4; border-color:#f5d34e; }

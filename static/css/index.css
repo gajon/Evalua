@@ -1,7 +1,7 @@
 /* Override from common.css */
-body { font-size: 16px !important; }
-
-#banner { height: 100px !important; border-bottom: 0px solid white !important; }
+body     { font-size: 16px !important; }
+#banner  { height: 100px !important; border-bottom: 0px solid white !important; }
+#content { padding:0 !important; }
 
 
 /* Middle section {{{1 */
