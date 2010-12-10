@@ -47,9 +47,10 @@
 #form-info-title div.links li.preview { background:url('/static/icons/page_go.png') no-repeat top left; }
 
 #form-info-run-button                 { padding:1em 32px 0 32px; clear:both; }
-#form-info-run-button p.button        { text-align:center; }
-#form-info-run-button p.button button { font-size:18px; }
 #form-info-run-button p.link          { text-align:center; font-size:18px; }
+#form-info-run-button p.button        { text-align:center; padding:1em; }
+#form-info-run-button p.button button { font-size:18px; }
+#form-info-run-button p.button a      { font-size:14px; margin-right:3em; color:red; padding:2px 0 2px 20px; background:url('/static/icons/cancel.png') no-repeat top left; }
 
 /*#form-info-options            { float:left; width:480px; padding:0.5em 15px; margin-right:10px; background-color:#e5efff; }*/
 #form-info-options            { padding:1em 32px 0 32px; clear:both; }

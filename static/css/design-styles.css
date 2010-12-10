@@ -63,16 +63,4 @@ div.dummy-question div.answer-add a   { text-decoration: none; }
 div.dummy-question div.answer-add img { vertical-align: text-bottom; }
 
 
-
-/* Form activation {{{1 */
-#form-activate-button                   { padding: 1em 32px 0 32px; }
-#form-activate-button div.button        { text-align:center; padding:1em; }
-#form-activate-button div.button button { font-size:20px; }
-
-#form-deactivate-button              { padding:1em 32px 0 32px; }
-#form-deactivate-button div.button   { text-align:center; padding:1em; }
-#form-deactivate-button div.button a { font-size:14px; margin-right:3em; color:red; padding:2px 0 2px 20px; background:url('/static/icons/cancel.png') no-repeat top left; }
-#form-deactivate-button button       { font-size:20px; }
-
-
 /* vim: set foldmethod=marker: */

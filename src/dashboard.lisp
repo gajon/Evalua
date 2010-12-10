@@ -108,7 +108,7 @@
                         las personas que desees tomen parte en la evaluación.")
                    (:p "Para detener el proceso de evaluación deberás hacer
                         click en el siguiente botón:")
-                   (:form :method "get" :action "/design/deactivate-form"
+                   (:form :method "get" :action "/dashboard/deactivate-form"
                           (:p :class "button"
                               (hidden-input "id" :default-value id)
                               (submit-button "Detener evaluaciones"))))
@@ -120,7 +120,7 @@
                (:p "Cuando hayas terminado de diseñar tu evaluación y desees
                     comenzar a recibir respuestas haz click en el siguiente
                     botón:")
-               (:form :method "get" :action "/design/activate-form"
+               (:form :method "get" :action "/dashboard/activate-form"
                       (:p :class "button"
                           (hidden-input "id" :default-value id)
                           (submit-button "Comenzar evaluaciones"))))))))))
@@ -153,6 +153,72 @@
                                              (form-id form)))
                               :target "_blank"
                               "Vista preliminar")))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; ACTIVATE/DEACTIVATE FORM
+
+(define-url-fn dashboard/activate-form
+  (let* ((form (or (data/get-form (parameter "id"))
+                   (redirect "/")))
+         (id (form-id form)))
+    ;;
+    ;;
+    (let ((now (make-date (get-universal-time) (or time-zone 6))))
+      (when (and (eql :post (request-method*))
+                 (setf (form-status form) "active"
+                       (form-start-date form) now)
+                 (dashboard%process-form-options form))
+        (redirect (format nil "/dashboard/form-info?id=~a" id))))
+    ;;
+    ;;
+    (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
+                    :css-files ("design-styles.css?v=20101027"
+                                "dashboard.css?v=20101027"))
+      (:form :method "post" :action "/dashboard/activate-form"
+       (hidden-input "id" :default-value id)
+       (dashboard%render-form-title-and-links form)
+       (with-tabbed-page (id :current :form-info)
+         (:div :id "form-info-run-button"
+               (:p "Al hacer click en el botón de abajo se activara la
+                   evaluación; obtendrás una URL, la cual deberás mandar a todas
+                   aquellas personas que desees tomen parte en la evaluación.")
+               (:p :class "button"
+                     (submit-button "Activar evaluación")))
+         (dashboard%render-form-options form
+                                        :with-hidden-id nil
+                                        :with-submit-button nil))))))
+
+(define-url-fn dashboard/deactivate-form
+  (let* ((form (or (data/get-form (parameter "id"))
+                   (redirect "/")))
+         (id (form-id form)))
+    ;;
+    ;;
+    (when (eql :post (request-method*))
+      ;; TODO: save settings
+      (setf (form-status form) "inactive")
+      (data/save-form  form)
+      (redirect (format nil "/dashboard/form-info?id=~a" id)))
+    ;;
+    ;;
+    (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
+                    :css-files ("design-styles.css?v=20101027"
+                                "dashboard.css?v=20101027"))
+      (:form :method "post" :action "/dashboard/deactivate-form"
+       (hidden-input "id" :default-value id)
+       (dashboard%render-form-title-and-links form)
+       (with-tabbed-page (id :current :form-info)
+         (:div :id "form-info-run-button"
+           (:p "¿Estas seguro(a) que deseas detener las evaluaciones? Al
+                detener las evaluaciones nadie podrá enviar mas respuestas.")
+           (:p :class "button"
+                 (:a :href (escape-string
+                            (format nil "/dashboard/form-info?id=~a" id))
+                     "Cancelar")
+                 (submit-button "Detener evaluaciones")))
+         ;(dashboard%render-form-stats form :with-download-button nil)
+         )))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
