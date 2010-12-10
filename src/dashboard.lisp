@@ -4,7 +4,7 @@
   (let ((active-forms (data/get-active-forms the-user))
         (inactive-forms (data/get-inactive-forms the-user)))
     (standard-page (:title "Dashboard"
-                    :css-files ("dashboard.css?v=20101004"
+                    :css-files ("dashboard.css?v=20101209"
                                 "tablesorter/blue/style.css")
                     :js-files ("jquery-1.4.2.min.js"
                                "jquery.tablesorter.min.js"
@@ -89,7 +89,7 @@
                              (host)
                              (form-public-id form))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
-                    :css-files ("dashboard.css?v=20101027"))
+                    :css-files ("dashboard.css?v=20101209"))
       ;;
       ;; Form title and links to modify/preview.
       ;;
@@ -173,8 +173,8 @@
     ;;
     ;;
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
-                    :css-files ("design-styles.css?v=20101027"
-                                "dashboard.css?v=20101027"))
+                    :css-files ("design-styles.css?v=20101209"
+                                "dashboard.css?v=20101209"))
       (:form :method "post" :action "/dashboard/activate-form"
        (hidden-input "id" :default-value id)
        (dashboard%render-form-title-and-links form)
@@ -203,8 +203,8 @@
     ;;
     ;;
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
-                    :css-files ("design-styles.css?v=20101027"
-                                "dashboard.css?v=20101027"))
+                    :css-files ("design-styles.css?v=20101209"
+                                "dashboard.css?v=20101209"))
       (:form :method "post" :action "/dashboard/deactivate-form"
        (hidden-input "id" :default-value id)
        (dashboard%render-form-title-and-links form)
@@ -235,7 +235,7 @@
       (redirect (format nil "/dashboard/form-options?id=~a" id)))
     ;;
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
-                    :css-files ("dashboard.css?v=20101027"))
+                    :css-files ("dashboard.css?v=20101209"))
       ;;
       ;; Form title and links to modify/preview.
       ;;
@@ -346,7 +346,7 @@
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/"))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
-                    :css-files ("dashboard.css?v=20101027"))
+                    :css-files ("dashboard.css?v=20101209"))
       (dashboard%render-form-title-and-links form)
       (with-tabbed-page ((form-id form) :current :form-stats)
         (dashboard%render-form-stats form)
@@ -437,7 +437,7 @@
          (submissions (data/get-submissions-by-form form))
          (questions (form-questions form)))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
-                    :css-files ("dashboard.css?v=20101020"
+                    :css-files ("dashboard.css?v=20101209"
                                 "tablesorter/blue/style.css")
                     :js-files ("jquery-1.4.2.min.js"
                                "jquery.tablesorter.min.js"
@@ -556,7 +556,7 @@
                                                             the-user))
         (redirect "/dashboard/account"))))
   (standard-page (:title "Mi cuenta"
-                  :css-files ("dashboard.css?v=20101027"))
+                  :css-files ("dashboard.css?v=20101209"))
     (:section :id "account"
       ;; TODO: place messages here or in the password change section
       ;; below, depending on action taken.

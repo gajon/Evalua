@@ -27,7 +27,7 @@
   ;; done by the function `backend-save-form` below.
   (let ((form (or (data/get-form (parameter "id")) (redirect "/"))))
     (standard-page (:title "Paso 1. Diseña tu cuestionario."
-                    :css-files ("design-styles.css?v=20101019")
+                    :css-files ("design-styles.css?v=20101209")
                     :js-files ("jquery-1.4.2.min.js"
                                "json2.min.js"
                                "design.js?v=20101007"))
@@ -165,7 +165,7 @@
     (standard-page (:title (form-title form)
                     :show-banner nil
                     :show-footer nil
-                    :css-files ("public-styles.css?v=20101008"))
+                    :css-files ("public-styles.css?v=20101209"))
       ;;
       ;; Title and notes.
       ;;

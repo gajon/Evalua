@@ -24,7 +24,7 @@
     (standard-page (:title (form-title form)
                     :show-banner nil
                     :show-footer nil
-                    :css-files ("public-styles.css?v=20101018"))
+                    :css-files ("public-styles.css?v=20101209"))
       (:form :method "post" :action "/a"
         (hidden-input "id" :default-value (form-public-id form))
         ;;
@@ -203,7 +203,7 @@ returns NIL."
     (standard-page (:title "Gracias"
                     :show-banner nil
                     :show-footer nil
-                    :css-files ("public-styles.css?v=20101018"))
+                    :css-files ("public-styles.css?v=20101209"))
       (:section :id "form-title"
         (:header (:h1 (esc (form-title form)))))
       (:section :id "thankyou"

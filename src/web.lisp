@@ -36,7 +36,7 @@
 (define-index-fn
   (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear
                          evaluaciones en línea."
-                  :css-files ("index.css?v=20101004")
+                  :css-files ("index.css?v=20101209")
                   :show-options nil
                   :include-analytics-p t)
     ;;
@@ -117,7 +117,7 @@
       (redirect "/wait-registry")))
   (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear
                          evaluaciones en línea."
-                  :css-files ("index.css?v=20101004")
+                  :css-files ("index.css?v=20101209")
                   :show-options nil
                   :include-analytics-p t)
     (:section :id "wait-registry"
@@ -145,7 +145,7 @@
     (redirect "/dashboard"))
   (standard-page (:title "Evalua.mx - La manera más fácil y rápida de crear
                          evaluaciones en línea."
-                  :css-files ("index.css?v=20101019")
+                  :css-files ("index.css?v=20101209")
                   :show-options nil)
     (:section :id "login"
      (show-all-messages)

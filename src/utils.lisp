@@ -116,7 +116,7 @@ BE CAREFUL."
          (:link :type "text/css"
                 :rel "stylesheet"
                 :media "screen, projection"
-                :href "/static/css/common.css?v=20101004")
+                :href "/static/css/common.css?v=20101209")
          ,@(mapcar (lambda (file)
                      `(:link :type "text/css" :rel "stylesheet"
                              :media "screen, projection"
