@@ -460,16 +460,12 @@ This macro saves some typing:
             (submission-rev sub) (%lowassoc rev doc))
       sub)))
 
-(defun data/add-submitted-answer (question-id answer-id value now sub-id)
-  ;; When the question contained a text area or some kind of input from the
-  ;; user, that input will come in the VALUE argument.
+(defun data/add-submitted-question (submission-id question-id answers-list)
   (clouchdb:create-document
-    `((:|type| . "submitted-answer")
-      (:|answer| . ,answer-id)
-      ,@(when value `((:|value| . ,value)))
-      (:|date| . ,(format-iso8601-date now))
-      (:|question| . ,question-id)
-      (:|submission| . ,sub-id))))
+   `((:|type| . "submitted-question")
+     (:|question| . ,question-id)
+     (:|submission| . ,submission-id)
+     (:|answers| . ,answers-list))))
 
 (defun data/add-submitted-comments (form-id sub-id comments now)
   (clouchdb:create-document
@@ -578,6 +574,11 @@ This macro saves some typing:
                 ;}"
     ;}
     ;END
+    (clouchdb:ps-view ("submitted-questions")
+      (defun map (doc)
+        (with-slots (type question submission) doc
+          (if (and type (= type "submitted-question"))
+              (emit question 1)))))
     (clouchdb:ps-view ("submitted-answers")
       (defun map (doc)
         (with-slots (type answer) doc
@@ -643,6 +644,10 @@ This macro saves some typing:
             '(:|rows| :|id|)
             (clouchdb:invoke-view "submissions" "submissions-by-form"
                                   :reduce nil)))
+    (mapc #'delete-document
+          (clouchdb:query-document
+           '(:|rows| :|id|)
+           (clouchdb:invoke-view "submissions" "submitted-questions")))
     (mapc #'delete-document
           (clouchdb:query-document
             '(:|rows| :|id|)

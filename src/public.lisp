@@ -106,10 +106,7 @@ returns NIL."
     ;; idAnswer2   => (Text entered by the user)
     (loop for (key . value) in (post-parameters*)
           do (push value (gethash key ht)))
-    ;; ONLY WHEN THE FORM REQUIRES SCORING we iterate over the questions defined
-    ;; by our form and consult the submitted answers from the hash table.
-    ;;
-    ;; If we require scoring, we'll save the information only when every
+    ;; If we REQUIRE SCORING, we'll save the information only when every
     ;; question has a valid answer. Otherwise we return NIL and let the caller
     ;; deal with it.
     ;;
@@ -122,20 +119,22 @@ returns NIL."
                   for valid = (public%validate-question question ht)
                   unless valid do (setf (question-valid-p question) nil
                                         success nil)
-              finally (return success)))
-      (let* ((time-zone (form-time-zone form))
-             ;; TODO
-             (start-date (make-date start-universal-time time-zone))
-             (finish-date (make-date (get-universal-time) time-zone))
-             (sub (data/create-submission
-                    (make-instance 'submission
-                                   :form (form-id form)
-                                   :start-date start-date
-                                   :finish-date finish-date
-                                   :ip (remote-addr*)
-                                   :user-agent (user-agent)))))
-        (public%save-submitted-answers sub questions ht time-zone))
-      (push-error-msg "Por favor contesta todas las preguntas."))))
+                    finally (return success)))
+        ;; All questions valid, or nor scoring required.
+        (let* ((time-zone (form-time-zone form))
+               ;; TODO (I love it when I do this, write just TODO as if I'm gonna remember what)
+               (start-date (make-date start-universal-time time-zone))
+               (finish-date (make-date (get-universal-time) time-zone))
+               (sub (data/create-submission
+                     (make-instance 'submission
+                                    :form (form-id form)
+                                    :start-date start-date
+                                    :finish-date finish-date
+                                    :ip (remote-addr*)
+                                    :user-agent (user-agent)))))
+          (public%save-submitted-questions sub questions ht))
+        ;; Not all questions answered.
+        (push-error-msg "Por favor contesta todas las preguntas."))))
 
 (defun public%validate-question (question ht-submitted-answers)
   (let ((answers (gethash (question-id question) ht-submitted-answers)))
@@ -151,28 +150,23 @@ returns NIL."
                      (return-from public%validate-question nil))))))))
   t)
 
-(defun public%save-submitted-answers (sub questions ht &optional (time-zone 6))
-  ;; We use the time-zone recorded in the form, which is the time-zone of
-  ;; the user who designed and created the form. That user is the one who
-  ;; will see any dates, therefore we'd like to show them in his/her
-  ;; time-zone.
-  ;; TODO: How is this 'now' related to start-date and finish-date of the
-  ;; submission object?
-  (let ((now (make-date (get-universal-time) time-zone)))
-    (loop for question in questions
-          for qid = (question-id question)
-          for answers = (gethash qid ht)
-          do (loop for answer in answers
-                   for wrap? = (string= "wrap-" answer :end1 5 :end2 5)
-                   for ansid = (or (and wrap? (subseq answer 5)) answer)
-                   do (data/add-submitted-answer
-                        (question-id question)
-                        ansid
-                        (and wrap? (car (gethash ansid ht)))
-                        now
-                        (submission-id sub)))))
-  sub)
-
+(defun public%save-submitted-questions (submission questions answers)
+  (loop with submission-id = (submission-id submission)
+        for question in questions
+        for question-id = (question-id question)
+        for submitted-answers = (gethash question-id answers)
+        when submitted-answers do
+          (data/add-submitted-question
+           submission-id question-id
+           (loop for answer in submitted-answers
+                 for wrap? = (string= "wrap-" answer :end2 5)
+                 for answer-id = (or (and wrap? (subseq answer 5)) answer)
+                 collect
+              (list
+                (cons "answer" answer-id)
+                (cons "value"
+                      (and wrap? (car (gethash answer-id answers))))))))
+  submission)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
