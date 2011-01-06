@@ -650,5 +650,10 @@ This macro saves some typing:
           (clouchdb:query-document
             '(:|rows| :|id|)
             (clouchdb:invoke-view "submissions" "submitted-answers"
-                                  :reduce nil))))
+                                  :reduce nil)))
+    (mapc #'delete-document
+          (clouchdb:query-document
+           '(:|rows| :|id|)
+           (clouchdb:invoke-view "submissions" "submitted-comments-by-form"
+                                 :reduce nil))))
   (values))
