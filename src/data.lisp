@@ -127,7 +127,7 @@ This macro saves some typing:
             (nreverse
               (clouchdb:query-document
                 `(:|rows| :|id| ,#'clouchdb:get-document)
-                (clouchdb:invoke-view "submissions" "submissions-by-form"
+                (clouchdb:invoke-view "submissions" "submitted-forms"
                                       :reduce nil
                                       :descending nil
                                       :start-key (list form)
@@ -139,13 +139,14 @@ This macro saves some typing:
          (value
            (clouchdb:query-document
              '(:|rows| :|value|)
-             (clouchdb:invoke-view "submissions" "submissions-by-form"
+             (clouchdb:invoke-view "submissions" "submitted-forms"
                                    :reduce t
                                    :start-key (list form)
                                    :end-key (list form (make-hash-table))))))
     (car value)))
 
 (defun data/get-submitted-answers-by-question-count (question)
+  (error "this view was removed...")
   (let ((qid (if (eq (type-of question) 'question)
                  (question-id question)
                  question)))
@@ -157,6 +158,7 @@ This macro saves some typing:
                             :group t :reduce t :key qid)))))
 
 (defun data/get-submitted-answers-count (answer)
+  (error "this view was removed...")
   (let ((aid (if (eq (type-of answer) 'answer) (answer-id answer) answer)))
     (car
      (clouchdb:query-document
@@ -166,6 +168,7 @@ This macro saves some typing:
                             :group t :reduce t :key aid)))))
 
 (defun data/get-submitted-answers-by-submission-question (sub question)
+  (error "this view was removed...")
   (let ((sub (if (eq (type-of sub) 'submission) (submission-id sub) sub))
         (qid (if (eq (type-of question) 'question)
                (question-id question)
@@ -552,57 +555,25 @@ This macro saves some typing:
           (if (and type (= type "answer"))
             (emit (array question sort _id) nil))))))
   (clouchdb:create-ps-view "submissions"
-    (clouchdb:ps-view ("submissions-by-form")
+    (clouchdb:ps-view ("submitted-forms")
       (defun map (doc)
         (with-slots (type form :finish-date) doc
           (if (and type (= type "submission"))
-            (emit (array form :finish-date) 1))))
+              (emit (array form :finish-date) 1))))
       (defun reduce (keys values)
         (sum values)))
-    ;#>END
-    ;"submissions-by-form": {
-      ;"map": "function (doc) {
-                ;if (doc.type && doc.type === 'submission') {
-                  ;return emit([doc.form, doc['finish-date']], 1);
-                ;}
-              ;}",
-
-      ;"reduce": "function (keys, values) {
-                  ;return sum(values);
-                ;}"
-    ;}
-    ;END
     (clouchdb:ps-view ("submitted-questions")
       (defun map (doc)
         (with-slots (type question submission) doc
           (if (and type (= type "submitted-question"))
-              (emit question 1)))))
-    (clouchdb:ps-view ("submitted-answers")
-      (defun map (doc)
-        (with-slots (type answer) doc
-          (if (and type (= type "submitted-answer"))
-            (emit answer 1))))
-      (defun reduce (keys values)
-        (sum values)))
-    (clouchdb:ps-view ("submitted-answers-by-question")
-      (defun map (doc)
-        (with-slots (type question) doc
-          (if (and type (= type "submitted-answer"))
               (emit question 1))))
       (defun reduce (keys values)
         (sum values)))
-    (clouchdb:ps-view ("submitted-answers-by-submission-question")
+    (clouchdb:ps-view ("submitted-comments")
       (defun map (doc)
-        (with-slots (type submission question) doc
-          (if (and type (= type "submitted-answer"))
-            (emit (array submission question) nil)))))
-    (clouchdb:ps-view ("submitted-comments-by-form")
-      (defun map (doc)
-        (with-slots (type form) doc
+        (with-slots (type submission) doc
           (if (and type (= type "submitted-comment"))
-            (emit form 1))))
-      (defun reduce (keys values)
-        (sum values)))))
+            (emit submission nil)))))))
 
 (defun %%delete-design-documents ()
   (clouchdb:delete-view "forms")
@@ -640,20 +611,16 @@ This macro saves some typing:
     (mapc #'delete-document
           (clouchdb:query-document
             '(:|rows| :|id|)
-            (clouchdb:invoke-view "submissions" "submissions-by-form"
+            (clouchdb:invoke-view "submissions" "submitted-forms"
                                   :reduce nil)))
     (mapc #'delete-document
           (clouchdb:query-document
            '(:|rows| :|id|)
-           (clouchdb:invoke-view "submissions" "submitted-questions")))
-    (mapc #'delete-document
-          (clouchdb:query-document
-            '(:|rows| :|id|)
-            (clouchdb:invoke-view "submissions" "submitted-answers"
-                                  :reduce nil)))
+           (clouchdb:invoke-view "submissions" "submitted-questions"
+                                 :reduce nil)))
     (mapc #'delete-document
           (clouchdb:query-document
            '(:|rows| :|id|)
-           (clouchdb:invoke-view "submissions" "submitted-comments-by-form"
+           (clouchdb:invoke-view "submissions" "submitted-comments"
                                  :reduce nil))))
   (values))
