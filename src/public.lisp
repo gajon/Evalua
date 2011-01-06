@@ -10,50 +10,35 @@
                          (setf (session-value 'start-time)
                                (get-universal-time))))
          (questions (form-questions form)))
-    ;;
-    ;;
     (awhen (and (eql :post (request-method*))
                 (public%process-submitted-answers form questions start-time))
-      ;; IT is the anaphor that (as the value of AND) refers to the SUBMISSION
-      ;; object returned by public%process-submitted-answers above.
       (redirect (format nil "/thankyou?id=~a&sub=~a"
                         (form-public-id form)
                         (submission-id it))))
-    ;;
-    ;;
-    (standard-page (:title (form-title form)
-                    :show-banner nil
-                    :show-footer nil
-                    :css-files ("public-styles.css?v=20101209"))
+    (standard-page (:title (form-title form) :show-banner nil :show-footer nil
+                           :css-files ("public-styles.css?v=20101209"))
       (:form :method "post" :action "/a"
-        (hidden-input "id" :default-value (form-public-id form))
-        ;;
-        ;; Title and notes.
-        ;;
-        (:section :id "form-title"
-          (:header (:h1 (esc (form-title form))))
-          (:div :id "form-notes" (esc (form-notes form))))
-        ;;
-        ;; Questions.
-        ;;
-        (:section :id "questions"
-          (show-all-messages)
-          (dolist (question questions)
-            (htm (:div :class "question"
-                   (:h2 (esc (format nil "~d. ~a"
-                                     (question-sort question)
-                                     (question-text question))))
-                   (unless (question-valid-p question)
-                     (htm (:span :class "invalid"
-                                 "Por favor contesta la pregunta.")))
-                   (:div :class "answers"
-                     (dolist (answer (question-answers question))
-                       (public%display-answer answer question)))))))
-        ;;
-        ;; Submit button
-        ;;
-        (:section :id "submit"
-          (submit-button "Enviar respuestas"))))))
+             (hidden-input "id" :default-value (form-public-id form))
+             (:section :id "form-title"
+                       (:header (:h1 (esc (form-title form))))
+                       (:div :id "form-notes" (esc (form-notes form))))
+             (:section :id "questions"
+                       (show-all-messages)
+                       (dolist (question questions)
+                         (public%display-question question)))
+             (:section :id "submit" (submit-button "Enviar respuestas"))))))
+
+(defun public%display-question (question)
+  (with-html-output (*standard-output*)
+    (:div :class "question"
+          (:h2 (esc (format nil "~d. ~a"
+                            (question-sort question)
+                            (question-text question))))
+          (unless (question-valid-p question)
+            (htm (:span :class "invalid" "Por favor contesta la pregunta.")))
+          (:div :class "answers"
+                (dolist (answer (question-answers question))
+                  (public%display-answer answer question))))))
 
 (defun public%display-answer (answer question)
   (with-html-output (*standard-output*)
@@ -62,13 +47,9 @@
                  (string= (answer-control answer) "true-false"))
              (radio-choice (answer-text answer) (question-id question)
                            (answer-id answer)))
-            ;;
-            ;;
             ((string= (answer-control answer) "checkbox")
              (checkbox-choice (answer-text answer) (question-id question)
                               (answer-id answer)))
-            ;;
-            ;;
             ((string= (answer-control answer) "textarea")
              (hidden-input
                (escape-string (question-id question))
@@ -179,11 +160,9 @@ returns NIL."
     ;; TODO: Do we really want to redirect to "/" on errors?
     (unless (string= (form-id form) (submission-form sub))
       (redirect "/"))
-    ;;
     (awhen (and (eq :post (request-method*))
-               (form-comments-p form)
-               (trim-or-nil (post-parameter "comments")))
-      ;; IT is the anaphor that (as the value of AND) refers to the "Comments"
+                (form-comments-p form)
+                (trim-or-nil (post-parameter "comments")))
       (data/add-submitted-comments (form-id form)
                                    (submission-id sub)
                                    it
