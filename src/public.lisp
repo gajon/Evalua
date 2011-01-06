@@ -163,11 +163,7 @@ returns NIL."
     (awhen (and (eq :post (request-method*))
                 (form-comments-p form)
                 (trim-or-nil (post-parameter "comments")))
-      (data/add-submitted-comments (form-id form)
-                                   (submission-id sub)
-                                   it
-                                   (make-date (get-universal-time)
-                                              (form-time-zone form)))
+      (data/add-submitted-comment (submission-id sub) it)
       (push-success-msg "Tus comentarios se han enviado, gracias")
       (redirect (format nil "/thankyou?id=~a&sub=~a"
                         (form-public-id form)

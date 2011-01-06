@@ -467,12 +467,10 @@ This macro saves some typing:
      (:|submission| . ,submission-id)
      (:|answers| . ,answers-list))))
 
-(defun data/add-submitted-comments (form-id sub-id comments now)
+(defun data/add-submitted-comment (submission-id comments)
   (clouchdb:create-document
-   `((:|type| . "submitted-comments")
-     (:|form| . ,form-id)
-     (:|submission| . ,sub-id)
-     (:|date| . ,(format-iso8601-date now))
+   `((:|type| . "submitted-comment")
+     (:|submission| . ,submission-id)
      (:|comments| . ,comments))))
 
 
@@ -601,7 +599,7 @@ This macro saves some typing:
     (clouchdb:ps-view ("submitted-comments-by-form")
       (defun map (doc)
         (with-slots (type form) doc
-          (if (and type (= type "submitted-comments"))
+          (if (and type (= type "submitted-comment"))
             (emit form 1))))
       (defun reduce (keys values)
         (sum values)))))
