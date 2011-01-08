@@ -355,37 +355,33 @@
               (dashboard%render-questions-stats form))))))
 
 (defun dashboard%render-questions-stats (form)
-  (let ((questions (form-questions form)))
-    (with-html-output (*standard-output*)
-      (dolist (q questions)
-        (let ((count (data/get-submitted-answers-by-question-count q)))
-          (htm
-           (:div :class "question"
-                 (:div :class "question-title"
-                       (:span :class "title" (esc (question-text q)))
-                       (:ul :class "question-options"
-                            (:li (:a :href "" "ver registros"))
-                            (:li (:a :href "" "gráfica"))
-                            (:li (:a :href "" "exportar")))
-                       (:span :class "count"
-                              (str (format nil "(~a completadas)" count))))
-                 (:div :class "answers"
-                       (dashboard%render-answers-stats
-                        form
-                        (question-answers q))))))))))
+  (dolist (question (form-questions form))
+    (let ((count (data/get-submissions-by-question-count question)))
+      (with-html-output (*standard-output*)
+        (:div :class "question"
+              (:div :class "question-title"
+                    (:span :class "title" (esc (question-text question)))
+                    (:ul :class "question-options"
+                         (:li (:a :href "" "ver registros"))
+                         (:li (:a :href "" "gráfica"))
+                         (:li (:a :href "" "exportar")))
+                    (:span :class "count"
+                           (str (format nil "(~s completadas)" count))))
+              (:div :class "answers"
+                    (dashboard%render-answers-stats (question-answers question)
+                                                    count)))))))
 
-(defun dashboard%render-answers-stats (form answers)
-  (declare (ignore form))
-  (with-html-output (*standard-output*)
-    (dolist (a answers)
-      (htm
-       (:div :class "answer"
-             (:span :class "title" (esc (answer-text a)))
-             (:span :class "bar" "---")
-             (:span :class "stat"
-                    (str
-                     (format nil "(70% ~a)"
-                             (data/get-submitted-answers-count a)))))))))
+(defun dashboard%render-answers-stats (answers submissions-count)
+  (dolist (answer answers)
+    (let* ((answer-count (data/get-submissions-by-answer-count answer))
+           (percent (floor (* 100 (/ answer-count submissions-count)))))
+      (with-html-output (*standard-output*)
+        (:div :class "answer"
+              (:span :class "title" (esc (answer-text answer)))
+              (:span :class "bar" "---")
+              (:span :class "stat"
+                     (str
+                      (format nil "(~s% - ~s)" percent answer-count))))))))
 
 (defun dashboard%render-form-stats (form &key (with-download-button t))
   (with-html-output (*standard-output*)

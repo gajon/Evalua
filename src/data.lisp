@@ -135,37 +135,32 @@ This macro saves some typing:
                                                      (make-hash-table))))))))
 
 (defun data/get-submissions-by-form-count (form)
-  (let* ((form (if (eq (type-of form) 'form) (form-id form) form))
-         (value
-           (clouchdb:query-document
-             '(:|rows| :|value|)
-             (clouchdb:invoke-view "submissions" "submitted-forms"
-                                   :reduce t
-                                   :start-key (list form)
-                                   :end-key (list form (make-hash-table))))))
-    (car value)))
+  (let ((form (if (eq (type-of form) 'form) (form-id form) form)))
+    (or (car (clouchdb:query-document
+              '(:|rows| :|value|)
+              (clouchdb:invoke-view "submissions" "submitted-forms"
+                                    :reduce t
+                                    :start-key (list form)
+                                    :end-key (list form (make-hash-table)))))
+        0)))
 
-(defun data/get-submitted-answers-by-question-count (question)
-  (error "this view was removed...")
-  (let ((qid (if (eq (type-of question) 'question)
-                 (question-id question)
+(defun data/get-submissions-by-question-count (question)
+  (let ((qid (if (eq (type-of question) 'question) (question-id question)
                  question)))
-    (car
-     (clouchdb:query-document
-      '(:|rows| :|value|)
-      (clouchdb:invoke-view "submissions"
-                            "submitted-answers-by-question"
-                            :group t :reduce t :key qid)))))
+    (or (car (clouchdb:query-document
+              '(:|rows| :|value|)
+              (clouchdb:invoke-view "submissions" "submitted-questions"
+                                    :group t :reduce t :key qid)))
+        0)))
 
-(defun data/get-submitted-answers-count (answer)
-  (error "this view was removed...")
-  (let ((aid (if (eq (type-of answer) 'answer) (answer-id answer) answer)))
-    (car
-     (clouchdb:query-document
-      `(:|rows| :|value|)
-      (clouchdb:invoke-view "submissions"
-                            "submitted-answers"
-                            :group t :reduce t :key aid)))))
+(defun data/get-submissions-by-answer-count (answer)
+  (let ((ansid (if (eq (type-of answer) 'answer) (answer-id answer) answer)))
+    (or (car (clouchdb:query-document
+              '(:|rows| :|value|)
+              (clouchdb:invoke-view "submissions"
+                                    "submitted-answers"
+                                    :group t :reduce t :key ansid)))
+        0)))
 
 (defun data/get-submitted-answers-by-submission-question (sub question)
   (error "this view was removed...")
@@ -554,6 +549,9 @@ This macro saves some typing:
         (with-slots (type question sort _id) doc
           (if (and type (= type "answer"))
             (emit (array question sort _id) nil))))))
+  ;;
+  ;; SUBMISSIONS
+  ;;
   (clouchdb:create-ps-view "submissions"
     (clouchdb:ps-view ("submitted-forms")
       (defun map (doc)
@@ -567,6 +565,14 @@ This macro saves some typing:
         (with-slots (type question submission) doc
           (if (and type (= type "submitted-question"))
               (emit question 1))))
+      (defun reduce (keys values)
+        (sum values)))
+    (clouchdb:ps-view ("submitted-answers")
+      (defun map (doc)
+        (with-slots (type answers) doc
+          (if (and answers type (= type "submitted-question"))
+              (dolist (answer answers)
+                (emit (ps:@ answer answer) 1)))))
       (defun reduce (keys values)
         (sum values)))
     (clouchdb:ps-view ("submitted-comments")
