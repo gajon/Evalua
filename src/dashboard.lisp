@@ -374,7 +374,9 @@
 (defun dashboard%render-answers-stats (answers submissions-count)
   (dolist (answer answers)
     (let* ((answer-count (data/get-submissions-by-answer-count answer))
-           (percent (floor (* 100 (/ answer-count submissions-count)))))
+           (percent (if (> submissions-count 0)
+                        (floor (* 100 (/ answer-count submissions-count)))
+                        0)))
       (with-html-output (*standard-output*)
         (:div :class "answer"
               (:span :class "title" (esc (answer-text answer)))
