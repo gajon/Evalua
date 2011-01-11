@@ -216,9 +216,7 @@
                  (:a :href (escape-string
                             (format nil "/dashboard/form-info?id=~a" id))
                      "Cancelar")
-                 (submit-button "Detener evaluaciones")))
-         ;(dashboard%render-form-stats form :with-download-button nil)
-         )))))
+                 (submit-button "Detener evaluaciones"))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -346,12 +344,27 @@
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/"))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
-                    :css-files ("dashboard.css?v=20101209"))
+                    :css-files ("dashboard.css?v=20110110"))
       (dashboard%render-form-title-and-links form)
       (with-tabbed-page ((form-id form) :current :form-stats)
-        (dashboard%render-form-stats form)
-        (:div :id "form-info-question-stats"
-              (:h2 "Resumen de evaluaciones enviadas")
+        (:div :id "form-info-stats"
+              (:h2 "Resumen de evaluaciones")
+              (:div :class "stats"
+                    (:p (str (aif (data/get-submissions-by-form-count form)
+                                  (format nil "~:d evaluaciones enviadas" it)
+                                  "N/A"))
+                        (when (string= (form-status form) "active")
+                          (let* ((start (form-start-date form))
+                                 (now (make-date (get-universal-time)
+                                                 (form-time-zone form)))
+                                 (diff (- (date-universal-time now)
+                                          (date-universal-time start))))
+                            ;; FIXME: Could it happen that DIFF is negative.
+                            (htm
+                             (str (format nil
+                                          " durante ~:d día~:p."
+                                          (ceiling
+                                           (/ diff %secs-in-one-day)))))))))
               (dashboard%render-questions-stats form))))))
 
 (defun dashboard%render-questions-stats (form)
@@ -384,46 +397,6 @@
               (:span :class "stat"
                      (str
                       (format nil "(~s% - ~s)" percent answer-count))))))))
-
-(defun dashboard%render-form-stats (form &key (with-download-button t))
-  (with-html-output (*standard-output*)
-    (:div :id "form-info-stats"
-      (:div :class "stats"
-        (:label "Evaluaciones completadas: ")
-        (str (aif (data/get-submissions-by-form-count form) it "N/A")))
-      (if (string= (form-status form) "active")
-        (htm
-          (:div :class "stats"
-            (:label "Fecha inicio: ")
-            (str (format-date (form-start-date form))))
-          (:div :class "stats"
-            (:label "Días corriendo la evaluación: ")
-            (kmrcl:let-when (start (form-start-date form))
-              (let* ((now (make-date (get-universal-time)
-                                     (form-time-zone form)))
-                     (diff (- (date-universal-time now)
-                              (date-universal-time start))))
-                ;; It shouldn't happen that DIFF is negative.
-                (if (minusp diff)
-                  (htm "N/A")
-                  (htm (str (format nil "~a día~:p"
-                                    (floor (/ diff %secs-in-one-day))))))))))
-        ;;
-        ;; The form is NOT active.
-        ;;
-        (htm
-          (:div :class "stats inactive" (:label "Fecha inicio: ") "N/A")
-          (:div :class "stats inactive"
-            (:label "Días corriendo la evaluación: ") "N/A")))
-      (when with-download-button
-        (htm (:form :method "get" :action "/dashboard/download"
-               (hidden-input "id" :default-value (form-id form))
-               (:p "Haz click en el siguiente botón para descargar la
-                   información de las evaluaciones completadas. Puedes abrir
-                   este archivo en Excel:")
-               (:div :class "button"
-                 (submit-button "Descargar estadísticas"
-                                :name "download"))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
