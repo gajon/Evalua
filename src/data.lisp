@@ -459,17 +459,19 @@ This macro saves some typing:
       sub)))
 
 (defun data/add-submitted-question (submission-id question-id answers-list)
-  (clouchdb:create-document
-   `((:|type| . "submitted-question")
-     (:|question| . ,question-id)
-     (:|submission| . ,submission-id)
-     (:|answers| . ,answers-list))))
+  (when answers-list
+    (clouchdb:create-document
+     `((:|type| . "submitted-question")
+       (:|question| . ,question-id)
+       (:|submission| . ,submission-id)
+       (:|answers| . ,answers-list)))))
 
 (defun data/add-submitted-comment (submission-id comments)
-  (clouchdb:create-document
-   `((:|type| . "submitted-comment")
-     (:|submission| . ,submission-id)
-     (:|comments| . ,comments))))
+  (when comments
+    (clouchdb:create-document
+     `((:|type| . "submitted-comment")
+       (:|submission| . ,submission-id)
+       (:|comments| . ,comments)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

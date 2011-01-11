@@ -142,11 +142,11 @@ returns NIL."
            (loop for answer in submitted-answers
                  for wrap? = (string= "wrap-" answer :end2 5)
                  for answer-id = (or (and wrap? (subseq answer 5)) answer)
-                 collect
-              (list
-                (cons "answer" answer-id)
-                (cons "value"
-                      (and wrap? (car (gethash answer-id answers))))))))
+                 for value = (trim-or-nil (car (gethash answer-id answers)))
+                 unless (and wrap? (not value)) collect
+                   (list
+                     (cons "answer" answer-id)
+                     (cons "value" (and wrap? value))))))
   submission)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
