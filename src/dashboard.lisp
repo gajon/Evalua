@@ -377,10 +377,11 @@
                          (:li (:a :href "" "exportar")))
                     (:span :class "count" (fmt "~d respuesta~:p" count)))
               (:div :class "answers"
-                    (dashboard%render-answers-stats (question-answers question)
+                    (dashboard%render-answers-stats (question-control question)
+                                                    (question-answers question)
                                                     count)))))))
 
-(defun dashboard%render-answers-stats (answers submissions-count)
+(defun dashboard%render-answers-stats (control answers submissions-count)
   (dolist (answer answers)
     (let* ((answer-count (data/get-submissions-by-answer-count answer))
            (percent (if (> submissions-count 0)
@@ -389,11 +390,15 @@
       (with-html-output (*standard-output*)
         (:div :class "answer"
               (:span :class "title" (esc (answer-text answer)))
-              (:span :class "bar"
-                     ;; The width of a 100% bar is 300 pixels.
-                     (:span :style (format nil "width:~dpx;" (* 3 percent))))
-              (:span :class "stat-count" (fmt "~:d" answer-count))
-              (:span :class "stat-percent" (fmt "~d%" percent)))))))
+              (if (string= control "textarea")
+                  (htm (:span :class "bar" (:a :href "#" "Ver respuestas")))
+                  (htm
+                   (:span :class "bar"
+                          ;; A 100% bar is 300 pixels wide
+                          (:span :style (format nil "width:~dpx;"
+                                                (* 3 percent))))
+                   (:span :class "stat-count" (fmt "~:d" answer-count))
+                   (:span :class "stat-percent" (fmt "~d%" percent)))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
