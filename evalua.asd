@@ -24,6 +24,7 @@
   :depends-on (:hunchentoot
                :cl-who
                :clouchdb
-               :kmrcl))
+               :kmrcl
+               :split-sequence))
 
 ;;; vim: set filetype=lisp:

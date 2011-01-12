@@ -373,7 +373,9 @@
                     (:span :class "title"
                            (esc (format nil "~:d. ~a"
                                         (question-sort question)
-                                        (question-text question))))
+                                        (truncate-words
+                                         (question-text question)
+                                         25))))
                     (:ul :class "question-options"
                          (:li (:a :href "" "respuestas"))
                          (:li (:a :href "" "gráfica"))
@@ -392,7 +394,8 @@
                         0)))
       (with-html-output (*standard-output*)
         (:div :class "answer"
-              (:span :class "title" (esc (answer-text answer)))
+              (:span :class "title"
+                     (esc (truncate-words (answer-text answer) 25)))
               (if (string= control "textarea")
                   (htm (:span :class "bar" (:a :href "#" "Ver respuestas")))
                   (htm
@@ -401,7 +404,8 @@
                           (:span :style (format nil "width:~dpx;"
                                                 (* 3 percent))))
                    (:span :class "stat-count" (fmt "~:d" answer-count))
-                   (:span :class "stat-percent" (fmt "~d%" percent)))))))))
+                   (:span :class "stat-percent" (fmt "~d%" percent))))
+              (:div :class "clear"))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

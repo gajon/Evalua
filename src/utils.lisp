@@ -545,6 +545,20 @@ the input string is NIL as well."
       (when (> (length trimmed) 0)
         trimmed))))
 
+(defun truncate-words (string limit)
+  "Truncates a STRING if it exceeds LIMIT number of words, appending
+the chars '...' at the end. This function will also normalize
+whitespace between words (removing newlines, tabs and duplicate
+spaces)."
+  (let ((words (split-sequence:split-sequence-if
+                (lambda (char)
+                  (member char '(#\Space #\Newline #\Tab) :test #'char=))
+                string
+                :remove-empty-subseqs t)))
+    (if (> (length words) limit)
+        (format nil "~V{~a ~}..." limit words)
+        (format nil "~{~a~^ ~}" words))))
+
 (defun parse-int-or-force-value (str default &key (start 0) (end nil)
                                                   (radix 10))
   "Parses an integer from the given string. The string could be NIL or

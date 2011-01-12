@@ -64,7 +64,7 @@
 #form-info-stats .question-title span.count { float:left; width:198px; font-size:10px; font-style:italic; text-align:right; color:#666; line-height:1.5; }
 
 #form-info-stats .answers                  { clear:both; padding-left:30px; margin:1em 0; overflow:auto; }
-#form-info-stats .answer                   { clear:both; }
+#form-info-stats .answer                   { clear:both; border-bottom:1px solid #f0f0f0; padding:3px 0; }
 #form-info-stats .answer span.title        { float:left; width:386px; }
 #form-info-stats .answer span.bar          { float:left; width:300px; }
 #form-info-stats .answer span.bar span     { display:inline-block; height:10px; background-color:#6299c5; border-left:1px solid #6299c5; }
