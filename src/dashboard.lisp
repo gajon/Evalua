@@ -393,7 +393,9 @@
       (with-html-output (*standard-output*)
         (:div :class "answer"
               (:span :class "title" (esc (answer-text answer)))
-              (:span :class "bar" "---")
+              (:span :class "bar"
+                     ;; The width of a 100% bar is 300 pixels.
+                     (:span :style (format nil "width:~dpx;" (* 3 percent))))
               (:span :class "stat"
                      (str
                       (format nil "(~s% - ~s)" percent answer-count))))))))

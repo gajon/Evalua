@@ -66,7 +66,8 @@
 #form-info-stats .answers { clear:both; padding-left:30px; margin:1em 0; overflow:auto; }
 #form-info-stats .answers span.title { float:left; width:386px; }
 #form-info-stats .answers span.bar   { float:left; width:300px; }
-#form-info-stats .answers span.stat  { float:left; width:100px; text-align:right; }
+#form-info-stats .answers span.bar span { display:inline-block; height:10px; background-color:#6299c5; border-left:1px solid #6299c5; }
+#form-info-stats .answers span.stat  { float:left; width:98px; text-align:right; }
 
 
 /* Tabbed navigation {{{1 */
