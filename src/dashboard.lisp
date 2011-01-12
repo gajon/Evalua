@@ -366,16 +366,16 @@
 
 (defun dashboard%render-questions-stats (form)
   (dolist (question (form-questions form))
-    (let ((count (data/get-submissions-by-question-count question)))
+    (let ((count (data/get-submissions-by-question-count question))
+          (question-text (question-text question)))
       (with-html-output (*standard-output*)
         (:div :class "question"
               (:div :class "question-title"
                     (:span :class "title"
+                           :title (esc question-text)
                            (esc (format nil "~:d. ~a"
                                         (question-sort question)
-                                        (truncate-words
-                                         (question-text question)
-                                         25))))
+                                        (truncate-words question-text 25))))
                     (:ul :class "question-options"
                          (:li (:a :href "" "respuestas"))
                          (:li (:a :href "" "gráfica"))
@@ -391,11 +391,13 @@
     (let* ((answer-count (data/get-submissions-by-answer-count answer))
            (percent (if (> submissions-count 0)
                         (floor (* 100 (/ answer-count submissions-count)))
-                        0)))
+                        0))
+           (answer-text (answer-text answer)))
       (with-html-output (*standard-output*)
         (:div :class "answer"
               (:span :class "title"
-                     (esc (truncate-words (answer-text answer) 25)))
+                     :title (esc answer-text)
+                     (esc (truncate-words answer-text 25)))
               (if (string= control "textarea")
                   (htm (:span :class "bar" (:a :href "#" "Ver respuestas")))
                   (htm
