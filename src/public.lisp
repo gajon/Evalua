@@ -31,7 +31,7 @@
 (defun public%display-question (question)
   (with-html-output (*standard-output*)
     (:div :class "question"
-          (:h2 (esc (format nil "~d. ~a"
+          (:h2 (esc (format nil "~:d. ~a"
                             (question-sort question)
                             (question-text question))))
           (unless (question-valid-p question)

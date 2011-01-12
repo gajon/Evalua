@@ -370,7 +370,10 @@
       (with-html-output (*standard-output*)
         (:div :class "question"
               (:div :class "question-title"
-                    (:span :class "title" (esc (question-text question)))
+                    (:span :class "title"
+                           (esc (format nil "~:d. ~a"
+                                        (question-sort question)
+                                        (question-text question))))
                     (:ul :class "question-options"
                          (:li (:a :href "" "respuestas"))
                          (:li (:a :href "" "gráfica"))
