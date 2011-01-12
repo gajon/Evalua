@@ -344,7 +344,7 @@
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/"))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
-                    :css-files ("dashboard.css?v=20110110"))
+                    :css-files ("dashboard.css?v=20110112"))
       (dashboard%render-form-title-and-links form)
       (with-tabbed-page ((form-id form) :current :form-stats)
         (:div :id "form-info-stats"
@@ -360,11 +360,8 @@
                                  (diff (- (date-universal-time now)
                                           (date-universal-time start))))
                             ;; FIXME: Could it happen that DIFF is negative.
-                            (htm
-                             (str (format nil
-                                          " durante ~:d día~:p."
-                                          (ceiling
-                                           (/ diff %secs-in-one-day)))))))))
+                            (htm (fmt " durante ~:d día~:p."
+                                      (ceiling (/ diff %secs-in-one-day))))))))
               (dashboard%render-questions-stats form))))))
 
 (defun dashboard%render-questions-stats (form)
@@ -375,11 +372,10 @@
               (:div :class "question-title"
                     (:span :class "title" (esc (question-text question)))
                     (:ul :class "question-options"
-                         (:li (:a :href "" "ver registros"))
+                         (:li (:a :href "" "respuestas"))
                          (:li (:a :href "" "gráfica"))
                          (:li (:a :href "" "exportar")))
-                    (:span :class "count"
-                           (str (format nil "(~s completadas)" count))))
+                    (:span :class "count" (fmt "~d respuesta~:p" count)))
               (:div :class "answers"
                     (dashboard%render-answers-stats (question-answers question)
                                                     count)))))))
@@ -396,9 +392,8 @@
               (:span :class "bar"
                      ;; The width of a 100% bar is 300 pixels.
                      (:span :style (format nil "width:~dpx;" (* 3 percent))))
-              (:span :class "stat"
-                     (str
-                      (format nil "(~s% - ~s)" percent answer-count))))))))
+              (:span :class "stat-count" (fmt "~:d" answer-count))
+              (:span :class "stat-percent" (fmt "~d%" percent)))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
