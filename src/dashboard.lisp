@@ -60,15 +60,12 @@
 (defun dashboard%render-form-as-row (form-obj &key (start-date t))
   (let ((id (form-id form-obj))
         (title (or (form-title form-obj) "N/A")))
-    ;; We want to limit the title to 50 chars.
-    (when (> (length title) 50)
-      (setf title (escape-string
-                    (format nil "~a..." (subseq title 0 46)))))
     (with-html-output (*standard-output*)
       (:tr
         (:td (:a :href (escape-string ;;TODO: Is escape-string necessary here?
                          (format nil "/dashboard/form-info?id=~a" id))
-                 (str title)))
+                 :title (esc title)
+                 (esc (truncate-words title 10))))
         (when start-date
           (htm (:td (esc (format-date (form-start-date form-obj))))))
         (:td (str (aif (data/get-submissions-by-form-count form-obj) it "N/A")))
@@ -129,7 +126,10 @@
   (with-html-output (*standard-output*)
     (:section :id "form-info-title"
       (:div :class "title"
-            (:h1 "Evaluación: " (:span :class "title" (esc (form-title form))))
+            (:h1 "Evaluación: "
+                 (:span :class "title"
+                        :title (esc (form-title form))
+                        (esc (truncate-words (form-title form) 12))))
             (:p :class "dates"
                 (:em "Fecha de creación: ")
                 (:span :class "date"
