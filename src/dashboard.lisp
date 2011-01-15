@@ -355,12 +355,10 @@
                                   "N/A"))
                         (when (string= (form-status form) "active")
                           (let* ((start (form-start-date form))
-                                 (now (make-date (get-universal-time)
-                                                 (form-time-zone form)))
-                                 (diff (- (date-universal-time now)
+                                 (diff (- (get-universal-time)
                                           (date-universal-time start))))
                             ;; FIXME: Could it happen that DIFF is negative.
-                            (htm (fmt " durante ~:d día~:p."
+                            (htm (fmt " en el transcurso de ~:d día~:p."
                                       (ceiling (/ diff %secs-in-one-day))))))))
               (dashboard%render-questions-stats form))))))
 
@@ -377,7 +375,11 @@
                                         (question-sort question)
                                         (truncate-words question-text 25))))
                     (:ul :class "question-options"
-                         (:li (:a :href "" "respuestas"))
+                         (:li (:a :href (esc (format
+                                              nil
+                                              "/dashboard/form-question-stats?id=~a&qid=~a"
+                                              (form-id form) (question-id question)))
+                                  "respuestas"))
                          (:li (:a :href "" "gráfica"))
                          (:li (:a :href "" "exportar")))
                     (:span :class "count" (fmt "~d respuesta~:p" count)))
@@ -399,7 +401,8 @@
                      :title (esc answer-text)
                      (esc (truncate-words answer-text 25)))
               (if (string= control "textarea")
-                  (htm (:span :class "bar" (:a :href "#" "Ver respuestas")))
+                  (htm (:span :class "bar"
+                              (:small "Haz click en " (:em "respuestas"))))
                   (htm
                    (:span :class "bar"
                           ;; A 100% bar is 300 pixels wide
@@ -409,6 +412,96 @@
                    (:span :class "stat-percent" (fmt "~d%" percent))))
               (:div :class "clear"))))))
 
+
+(define-url-fn dashboard/form-question-stats
+  (let* ((form (or (data/get-form (parameter "id")) (redirect "/")))
+         (question-id (or (trim-or-nil (parameter "qid")) (redirect "/")))
+         (question (or (find question-id (form-questions form)
+                             :key #'question-id :test #'string=)
+                       (redirect "/")))
+         (global-count (data/get-submissions-by-form-count form))
+         (this-count (data/get-submissions-by-question-count question)))
+    (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
+                           :css-files ("dashboard.css?v=20110112"
+                                       "tablesorter/blue/style.css")
+                           :js-files ("jquery-1.4.2.min.js"
+                                      "jquery.tablesorter.min.js"
+                                      "dashboard-stats.js?v=20110113"))
+      (dashboard%render-form-title-and-links form)
+      (with-tabbed-page ((form-id form) :current :form-stats)
+        (:div :id "form-info-stats"
+              (:h2 "Respuestas enviadas")
+              (:div :class "stats"
+                    (:p
+                     (str (format nil "~:d respuestas enviadas de un total ~
+                                        de ~:d evaluaciones (~d%)"
+                                  this-count
+                                  global-count
+                                  (floor (* 100 (/ this-count global-count)))))
+                     (when (string= (form-status form) "active")
+                       (let* ((start (form-start-date form))
+                              (diff (- (get-universal-time)
+                                       (date-universal-time start))))
+                         ;; FIXME: Could it happen that DIFF is negative.
+                         (htm (:br (fmt "En el transcurso de  ~:d día~:p."
+                                        (ceiling
+                                         (/ diff %secs-in-one-day)))))))))
+              (dashboard%render-a-question-stats form question)
+              (:p (:a :class "return"
+                      :href (format nil "/dashboard/form-stats?id=~a"
+                                    (form-id form))
+                      "Regresar a resumen general")))))))
+
+(defun dashboard%render-a-question-stats (form question)
+  (let* ((question-text (question-text question))
+         (submissions (data/get-submissions-by-form form))
+         (answer-texts (loop for a in (question-answers question)
+                             collect (cons (answer-id a) (answer-text a))))
+         (submitted-answers
+          (loop with table = (make-hash-table :test 'equal)
+                for (id keys values) in (data/get-submitted-answers-by-question
+                                             question)
+                for key = (third keys)
+                do (setf (gethash key table) (cdr values))
+                finally (return table))))
+    (with-html-output (*standard-output*)
+      (:div :class "question"
+            (:div :class "question-title"
+                  (:span :class "title"
+                         :title (esc question-text)
+                         (esc (format nil "~:d. ~a"
+                                      (question-sort question)
+                                      (truncate-words question-text 25)))))
+            (:table :id "id-table-stats"
+                    :class "tablesorter"
+                    :cellspacing 1 :cellpadding 0
+                    (table-columns "Fecha" "Respuesta(s)" "ip")
+                    (:tbody
+                     (loop for submission in submissions
+                           for answers = (gethash (submission-id submission)
+                                                  submitted-answers)
+                           when answers
+                             do (dashboard%render-submission
+                                          submission
+                                          answers
+                                          answer-texts
+                                          (question-control question)))))))))
+
+(defun dashboard%render-submission (submission answers answer-texts control-type)
+  (with-html-output (*standard-output*)
+    (:tr
+     (:td (esc (format-iso8601-date (submission-finish-date submission))))
+     (:td
+      (:ul :class (format nil "~a" control-type)
+           (loop for ans in answers
+                 for ansid = (cdr (assoc :|answer| ans))
+                 do
+              (aif (cdr (assoc :|value| ans))
+                   (htm (:li (esc it)))
+                   (htm (:li (esc (cdr (assoc ansid
+                                              answer-texts
+                                              :test #'string=)))))))))
+     (:td (esc (submission-ip submission))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; FORM DOWNLOAD OPTIONS

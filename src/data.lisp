@@ -144,6 +144,17 @@ This macro saves some typing:
                                     :end-key (list form (make-hash-table)))))
         0)))
 
+(defun data/get-submitted-answers-by-question (question)
+  (let ((qid (if (eq (type-of question) 'question) (question-id question)
+                 question)))
+    (car (clouchdb:query-document
+          '(:|rows|)
+          (clouchdb:invoke-view "submissions"
+                                "submitted-answers-by-question"
+                                :descending nil
+                                :start-key (list qid)
+                                :end-key (list qid (make-hash-table)))))))
+
 (defun data/get-submissions-by-question-count (question)
   (let ((qid (if (eq (type-of question) 'question) (question-id question)
                  question)))
@@ -577,6 +588,11 @@ This macro saves some typing:
                 (emit (ps:@ answer answer) 1)))))
       (defun reduce (keys values)
         (sum values)))
+    (clouchdb:ps-view ("submitted-answers-by-question")
+      (defun map (doc)
+        (with-slots (type question submission answers) doc
+          (if (and answers submission type (= type "submitted-question"))
+              (emit (array question submission) answers)))))
     (clouchdb:ps-view ("submitted-comments")
       (defun map (doc)
         (with-slots (type submission) doc
