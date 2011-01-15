@@ -16,19 +16,11 @@
               (:span "Crea una evaluación")))
         (:div :class "listing"
           (:h2 "Mis evaluaciones activas")
-          ;(:h3 "(haz click en una evaluación para ver los reportes)")
           (:table :id "id-table-active"
                   :class "tablesorter"
                   :cellspacing 1 :cellpadding 0
             (table-columns "Evaluación" "Fecha Inicio" "Enviadas"
                            "Promedio Puntos" "Configuración")
-            ;(:tfoot
-            ;  (:tr (:th "Totals:")
-            ;       (:th "")
-            ;       (:th "")
-            ;       (:th "")
-            ;       (:th "")
-            ;       (:th "")))
             (:tbody
               (if active-forms
                 (loop for form-obj in active-forms
@@ -42,13 +34,6 @@
                   :cellspacing 1 :cellpadding 0
             (table-columns "Evaluación" "Enviadas" "Promedio Puntos"
                            "Configuración")
-            ;(:tfoot
-            ;  (:tr (:th "Totals:")
-            ;       (:th "")
-            ;       (:th "")
-            ;       (:th "")
-            ;       (:th "")
-            ;       (:th "")))
             (:tbody
               (if inactive-forms
                 (loop for form-obj in inactive-forms
@@ -62,17 +47,15 @@
         (title (or (form-title form-obj) "N/A")))
     (with-html-output (*standard-output*)
       (:tr
-        (:td (:a :href (escape-string ;;TODO: Is escape-string necessary here?
-                         (format nil "/dashboard/form-info?id=~a" id))
-                 :title (esc title)
-                 (esc (truncate-words title 10))))
-        (when start-date
-          (htm (:td (esc (format-date (form-start-date form-obj))))))
-        (:td (str (aif (data/get-submissions-by-form-count form-obj) it "N/A")))
-        (:td "N/A")
-        (:td (:a :href (escape-string ;; TODO: is escape necessary?
-                         (format nil "/dashboard/form-info?id=~a" id))
-                 "Configuración"))))))
+       (:td (:a :href (format nil "/dashboard/form-info?id=~a" id)
+                :title (escape-string title)
+                (esc (truncate-words title 10))))
+       (when start-date
+         (htm (:td (esc (format-date (form-start-date form-obj))))))
+       (:td (str (aif (data/get-submissions-by-form-count form-obj) it "N/A")))
+       (:td "N/A")
+       (:td (:a :href (format nil "/dashboard/form-info?id=~a" id)
+                "Configuración"))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -87,13 +70,7 @@
                              (form-public-id form))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("dashboard.css?v=20101209"))
-      ;;
-      ;; Form title and links to modify/preview.
-      ;;
       (dashboard%render-form-title-and-links form)
-      ;;
-      ;; Pause/Run button & description, incl. link to form.
-      ;;
       (with-tabbed-page (id :current :form-info)
         (:section :id "form-info-run-button"
           (show-all-messages)
@@ -128,7 +105,7 @@
       (:div :class "title"
             (:h1 "Evaluación: "
                  (:span :class "title"
-                        :title (esc (form-title form))
+                        :title (escape-string (form-title form))
                         (esc (truncate-words (form-title form) 12))))
             (:p :class "dates"
                 (:em "Fecha de creación: ")
@@ -143,14 +120,12 @@
               (:div :class "links"
                     (:ul
                      (:li :class "edit"
-                          (:a :href (escape-string
-                                     (format nil "/design/edit-form?id=~a"
-                                             (form-id form)))
+                          (:a :href (format nil "/design/edit-form?id=~a"
+                                            (form-id form))
                               "Modificar evaluación"))
                      (:li :class "preview"
-                          (:a :href (escape-string
-                                     (format nil "/design/preview-form?id=~a"
-                                             (form-id form)))
+                          (:a :href (format nil "/design/preview-form?id=~a"
+                                            (form-id form))
                               :target "_blank"
                               "Vista preliminar")))))))
 
@@ -162,16 +137,12 @@
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
          (id (form-id form)))
-    ;;
-    ;;
     (let ((now (make-date (get-universal-time) (or time-zone 6))))
       (when (and (eql :post (request-method*))
                  (setf (form-status form) "active"
                        (form-start-date form) now)
                  (dashboard%process-form-options form))
         (redirect (format nil "/dashboard/form-info?id=~a" id))))
-    ;;
-    ;;
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("design-styles.css?v=20101209"
                                 "dashboard.css?v=20101209"))
@@ -183,8 +154,7 @@
                (:p "Al hacer click en el botón de abajo se activara la
                    evaluación; obtendrás una URL, la cual deberás mandar a todas
                    aquellas personas que desees tomen parte en la evaluación.")
-               (:p :class "button"
-                     (submit-button "Activar evaluación")))
+               (:p :class "button" (submit-button "Activar evaluación")))
          (dashboard%render-form-options form
                                         :with-hidden-id nil
                                         :with-submit-button nil))))))
@@ -193,15 +163,11 @@
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
          (id (form-id form)))
-    ;;
-    ;;
     (when (eql :post (request-method*))
       ;; TODO: save settings
       (setf (form-status form) "inactive")
       (data/save-form  form)
       (redirect (format nil "/dashboard/form-info?id=~a" id)))
-    ;;
-    ;;
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("design-styles.css?v=20101209"
                                 "dashboard.css?v=20101209"))
@@ -213,8 +179,7 @@
            (:p "¿Estas seguro(a) que deseas detener las evaluaciones? Al
                 detener las evaluaciones nadie podrá enviar mas respuestas.")
            (:p :class "button"
-                 (:a :href (escape-string
-                            (format nil "/dashboard/form-info?id=~a" id))
+                 (:a :href (format nil "/dashboard/form-info?id=~a" id)
                      "Cancelar")
                  (submit-button "Detener evaluaciones"))))))))
 
@@ -226,21 +191,13 @@
   (let* ((form (or (data/get-form (parameter "id"))
                    (redirect "/")))
          (id (form-id form)))
-    ;;
     (when (and (eql :post (request-method*))
                (dashboard%process-form-options form))
       (push-success-msg "Las opciones se han guardado.")
       (redirect (format nil "/dashboard/form-options?id=~a" id)))
-    ;;
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("dashboard.css?v=20101209"))
-      ;;
-      ;; Form title and links to modify/preview.
-      ;;
       (dashboard%render-form-title-and-links form)
-      ;;
-      ;; Form options box.
-      ;;
       (with-tabbed-page (id :current :form-options)
         (:form :method "post" :action "/dashboard/form-options"
                (dashboard%render-form-options form))))))
@@ -325,7 +282,6 @@
           (score-p (string= (trim-or-nil (post-parameter "score")) "yes"))
           (comments-p (string= (trim-or-nil (post-parameter "comments"))
                                "yes")))
-      ;;
       (when (or (null time-limit)
                 (validate-time-limit time-limit)
                 (push-error-msg "El formato de tiempo límite debe ser hh:mm,
@@ -336,6 +292,7 @@
               (form-comments-p form-obj) comments-p)
         ;; Save it!
         (data/save-form form-obj)))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; FORM STATISTICS.
@@ -370,16 +327,19 @@
         (:div :class "question"
               (:div :class "question-title"
                     (:span :class "title"
-                           :title (esc question-text)
+                           :title (escape-string question-text)
                            (esc (format nil "~:d. ~a"
                                         (question-sort question)
                                         (truncate-words question-text 25))))
                     (:ul :class "question-options"
-                         (:li (:a :href (esc (format
-                                              nil
-                                              "/dashboard/form-question-stats?id=~a&qid=~a"
-                                              (form-id form) (question-id question)))
-                                  "respuestas"))
+                         (:li
+                          (:a :href
+                              (escape-string
+                               (format
+                                nil
+                                "/dashboard/form-question-stats?id=~a&qid=~a"
+                                (form-id form) (question-id question)))
+                              "respuestas"))
                          (:li (:a :href "" "gráfica"))
                          (:li (:a :href "" "exportar")))
                     (:span :class "count" (fmt "~d respuesta~:p" count)))
@@ -398,7 +358,7 @@
       (with-html-output (*standard-output*)
         (:div :class "answer"
               (:span :class "title"
-                     :title (esc answer-text)
+                     :title (escape-string answer-text)
                      (esc (truncate-words answer-text 25)))
               (if (string= control "textarea")
                   (htm (:span :class "bar"
@@ -468,7 +428,7 @@
       (:div :class "question"
             (:div :class "question-title"
                   (:span :class "title"
-                         :title (esc question-text)
+                         :title (escape-string question-text)
                          (esc (format nil "~:d. ~a"
                                       (question-sort question)
                                       (truncate-words question-text 25)))))
@@ -487,12 +447,12 @@
                                           answer-texts
                                           (question-control question)))))))))
 
-(defun dashboard%render-submission (submission answers answer-texts control-type)
+(defun dashboard%render-submission (submission answers answer-texts type)
   (with-html-output (*standard-output*)
     (:tr
      (:td (esc (format-iso8601-date (submission-finish-date submission))))
      (:td
-      (:ul :class (format nil "~a" control-type)
+      (:ul :class (format nil "~a" type)
            (loop for ans in answers
                  for ansid = (cdr (assoc :|answer| ans))
                  do
@@ -502,6 +462,7 @@
                                               answer-texts
                                               :test #'string=)))))))))
      (:td (esc (submission-ip submission))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; FORM DOWNLOAD OPTIONS
