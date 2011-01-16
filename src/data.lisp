@@ -61,7 +61,7 @@ This macro saves some typing:
 ;;; Questions
 ;;;
 
-(defun data/get-questions-by-form (form-id &key raw-alist)
+(defun data/get-questions-by-form (form &key raw-alist)
   ;; The reason we are doing nreverse below is that the function
   ;; clouchdb:query-document reverses the results it receives
   ;; after matching them against the query. For instance, if the
@@ -75,14 +75,23 @@ This macro saves some typing:
   ;;
   ;; Of course we could get the order we want by inverting the order
   ;; in the invoke-view call, but it feels kludgy.
-  (mapcar (if raw-alist #'identity #'data/build-question-from-alist)
-          (nreverse
-            (clouchdb:query-document
+  (let ((form (if (eql (type-of form) 'form)
+                  form
+                  (data/get-form form)))
+        (id (form-id form)))
+    (mapcar (if raw-alist
+                #'identity
+                (lambda (alist)
+                  (let ((q (data/build-question-from-alist alist)))
+                    (setf (question-form q) form)
+                    q)))
+            (nreverse
+             (clouchdb:query-document
               `(:|rows| :|id| ,#'clouchdb:get-document)
               (clouchdb:invoke-view "questions" "questions-by-form"
-                                    :start-key (list form-id)
-                                    :end-key (list form-id
-                                                   (make-hash-table)))))))
+                                    :start-key (list id)
+                                    :end-key (list id
+                                                   (make-hash-table))))))))
 
 (defun data/get-answers-by-question (question-id &key raw-alist)
   (mapcar (if raw-alist #'identity #'data/build-answer-from-alist)
@@ -174,16 +183,18 @@ This macro saves some typing:
         0)))
 
 (defun data/get-submitted-answers-by-submission-question (sub question)
+  (declare (ignore sub question))
   (error "this view was removed...")
-  (let ((sub (if (eq (type-of sub) 'submission) (submission-id sub) sub))
-        (qid (if (eq (type-of question) 'question)
-               (question-id question)
-               question)))
-    (clouchdb:query-document
-      `(:|rows| :|id| ,#'clouchdb:get-document)
-      (clouchdb:invoke-view "submissions"
-                            "submitted-answers-by-submission-question"
-                            :key (list sub qid)))))
+  ;; (let ((sub (if (eq (type-of sub) 'submission) (submission-id sub) sub))
+  ;;       (qid (if (eq (type-of question) 'question)
+  ;;              (question-id question)
+  ;;              question)))
+  ;;   (clouchdb:query-document
+  ;;     `(:|rows| :|id| ,#'clouchdb:get-document)
+  ;;     (clouchdb:invoke-view "submissions"
+  ;;                           "submitted-answers-by-submission-question"
+  ;;                           :key (list sub qid))))
+  )
 
 
 ;;;
@@ -410,12 +421,11 @@ This macro saves some typing:
       (clouchdb:delete-document fid :if-missing :ignore))))
 
 (defun data/delete-form-questions (form)
-  (let* ((fid (if (eq (type-of form) 'form) (form-id form) form))
-         (questions (data/get-questions-by-form fid :raw-alist t)))
+  (let ((questions (data/get-questions-by-form form :raw-alist t)))
     (dolist (question questions)
       (data/delete-question-answers (%lowassoc _id question)))
     (clouchdb:bulk-document-update
-      (mapcar #'clouchdb:as-deleted-document questions))))
+     (mapcar #'clouchdb:as-deleted-document questions))))
 
 (defun data/delete-form-question (form question)
   (let* ((fid (if (eq (type-of form) 'form) (form-id form) form))

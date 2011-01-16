@@ -1,5 +1,69 @@
 (in-package #:evalua)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; UTILS
+
+(defgeneric main-url (object &key id &allow-other-keys)
+  (:documentation "")
+  (:method ((form form) &key id)
+           (format nil "/dashboard/form-info?id=~a" (or id (form-id form)))))
+
+(defgeneric public-url (object &key host &allow-other-keys)
+  (:documentation "")
+  (:method ((form form) &key host)
+           (format nil "http://~a/a?id=~a" (or host (host))
+                   (form-public-id form))))
+
+(defgeneric options-url (object &key id &allow-other-keys)
+  (:documentation "")
+  (:method ((form form) &key id)
+           (format nil "/dashboard/form-options?id=~a"
+                   (or id (form-id form)))))
+
+(defgeneric stats-url (object &key id &allow-other-keys)
+  (:documentation "")
+  (:method ((form form) &key id)
+           (format nil "/dashboard/form-stats?id=~a"
+                   (or id (form-id form))))
+  (:method ((question question) &key id)
+           (declare (ignore id))
+           (format nil "/dashboard/form-question-stats?id=~a&qid=~a"
+                   (form-id (question-form question))
+                   (question-id question))))
+
+(defgeneric edit-url (object &key id &allow-other-keys)
+  (:documentation "")
+  (:method ((form form) &key id)
+           (format nil "/design/edit-form?id=~a"
+                   (or id (form-id form)))))
+
+(defgeneric preview-url (object &key id &allow-other-keys)
+  (:documentation "")
+  (:method ((form form) &key id)
+           (format nil "/design/preview-form?id=~a"
+                   (or id (form-id form)))))
+
+
+(defmacro with-form-tabs ((form &optional current) &body body)
+  `(with-html-output (*standard-output*)
+     (:div :id "tabbed-navigation"
+           (:div :id "tabbed-navigation-tabs"
+                 (:ul
+                  (:li ,@(when (eq current :form-info) `(:class "current"))
+                       (:a :href (main-url ,form) "Información"))
+                  (:li ,@(when (eq current :form-options) `(:class "current"))
+                       (:a :href (options-url ,form) "Opciones"))
+                  (:li ,@(when (eq current :form-stats) `(:class "current"))
+                       (:a :href (stats-url ,form) "Estadísticas"))
+                  (:li ,@(when (eq current :form-download) `(:class "current"))
+                       (:a :href "#" "Exportar"))))
+           (:div :id "tabbed-navigation-content"
+                 ,@body))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DASHBOARD
+
 (define-url-fn dashboard
   (let ((active-forms (data/get-active-forms the-user))
         (inactive-forms (data/get-inactive-forms the-user)))
@@ -43,48 +107,43 @@
                                "No tienes evaluaciones inactivas.")))))))))))
 
 (defun dashboard%render-form-as-row (form-obj &key (start-date t))
-  (let ((id (form-id form-obj))
-        (title (or (form-title form-obj) "N/A")))
+  (let ((title (or (form-title form-obj) "N/A")))
     (with-html-output (*standard-output*)
       (:tr
-       (:td (:a :href (format nil "/dashboard/form-info?id=~a" id)
+       (:td (:a :href (main-url form-obj)
                 :title (escape-string title)
                 (esc (truncate-words title 10))))
        (when start-date
          (htm (:td (esc (format-date (form-start-date form-obj))))))
        (:td (str (aif (data/get-submissions-by-form-count form-obj) it "N/A")))
        (:td "N/A")
-       (:td (:a :href (format nil "/dashboard/form-info?id=~a" id)
-                "Configuración"))))))
+       (:td (:a :href (main-url form-obj) "Configuración"))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; FORM INFORMATION
 
 (define-url-fn dashboard/form-info
-  (let* ((form (or (data/get-form (parameter "id"))
-                   (redirect "/")))
-         (id (form-id form))
-         (public-url (format nil "http://~a/a?id=~a"
-                             (host)
-                             (form-public-id form))))
+  (let ((form (or (data/get-form (parameter "id"))
+                  (redirect "/"))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("dashboard.css?v=20101209"))
       (dashboard%render-form-title-and-links form)
-      (with-tabbed-page (id :current :form-info)
+      (with-form-tabs (form :form-info)
         (:section :id "form-info-run-button"
           (show-all-messages)
           (if (string= (form-status form) "active")
               (htm (:p "La evaluación se encuentra corriendo: ")
                    (:p :class "link"
-                       (:a :target "_blank" :href public-url (esc public-url)))
+                       (:a :target "_blank" :href (public-url form)
+                           (esc (public-url form))))
                    (:p "Deberás enviar la liga mostrada arriba a todas
                         las personas que desees tomen parte en la evaluación.")
                    (:p "Para detener el proceso de evaluación deberás hacer
                         click en el siguiente botón:")
                    (:form :method "get" :action "/dashboard/deactivate-form"
                           (:p :class "button"
-                              (hidden-input "id" :default-value id)
+                              (hidden-input "id" :default-value (form-id form))
                               (submit-button "Detener evaluaciones"))))
               (htm
                (:p "La evaluación se encuentra en pausa, nadie podrá contestar
@@ -96,7 +155,7 @@
                     botón:")
                (:form :method "get" :action "/dashboard/activate-form"
                       (:p :class "button"
-                          (hidden-input "id" :default-value id)
+                          (hidden-input "id" :default-value (form-id form))
                           (submit-button "Comenzar evaluaciones"))))))))))
 
 (defun dashboard%render-form-title-and-links (form)
@@ -120,12 +179,9 @@
               (:div :class "links"
                     (:ul
                      (:li :class "edit"
-                          (:a :href (format nil "/design/edit-form?id=~a"
-                                            (form-id form))
-                              "Modificar evaluación"))
+                          (:a :href (edit-url form) "Modificar evaluación"))
                      (:li :class "preview"
-                          (:a :href (format nil "/design/preview-form?id=~a"
-                                            (form-id form))
+                          (:a :href (preview-url form)
                               :target "_blank"
                               "Vista preliminar")))))))
 
@@ -134,22 +190,21 @@
 ;;; ACTIVATE/DEACTIVATE FORM
 
 (define-url-fn dashboard/activate-form
-  (let* ((form (or (data/get-form (parameter "id"))
-                   (redirect "/")))
-         (id (form-id form)))
+  (let ((form (or (data/get-form (parameter "id"))
+                  (redirect "/"))))
     (let ((now (make-date (get-universal-time) (or time-zone 6))))
       (when (and (eql :post (request-method*))
                  (setf (form-status form) "active"
                        (form-start-date form) now)
                  (dashboard%process-form-options form))
-        (redirect (format nil "/dashboard/form-info?id=~a" id))))
+        (redirect (main-url form))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("design-styles.css?v=20101209"
                                 "dashboard.css?v=20101209"))
       (:form :method "post" :action "/dashboard/activate-form"
-       (hidden-input "id" :default-value id)
+       (hidden-input "id" :default-value (form-id form))
        (dashboard%render-form-title-and-links form)
-       (with-tabbed-page (id :current :form-info)
+       (with-form-tabs (form :form-info)
          (:div :id "form-info-run-button"
                (:p "Al hacer click en el botón de abajo se activara la
                    evaluación; obtendrás una URL, la cual deberás mandar a todas
@@ -160,27 +215,25 @@
                                         :with-submit-button nil))))))
 
 (define-url-fn dashboard/deactivate-form
-  (let* ((form (or (data/get-form (parameter "id"))
-                   (redirect "/")))
-         (id (form-id form)))
+  (let ((form (or (data/get-form (parameter "id"))
+                  (redirect "/"))))
     (when (eql :post (request-method*))
       ;; TODO: save settings
       (setf (form-status form) "inactive")
       (data/save-form  form)
-      (redirect (format nil "/dashboard/form-info?id=~a" id)))
+      (redirect (main-url form)))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("design-styles.css?v=20101209"
                                 "dashboard.css?v=20101209"))
       (:form :method "post" :action "/dashboard/deactivate-form"
-       (hidden-input "id" :default-value id)
+       (hidden-input "id" :default-value (form-id form))
        (dashboard%render-form-title-and-links form)
-       (with-tabbed-page (id :current :form-info)
+       (with-form-tabs (form :form-info)
          (:div :id "form-info-run-button"
            (:p "¿Estas seguro(a) que deseas detener las evaluaciones? Al
                 detener las evaluaciones nadie podrá enviar mas respuestas.")
            (:p :class "button"
-                 (:a :href (format nil "/dashboard/form-info?id=~a" id)
-                     "Cancelar")
+                 (:a :href (main-url form) "Cancelar")
                  (submit-button "Detener evaluaciones"))))))))
 
 
@@ -188,29 +241,27 @@
 ;;; FORM OPTIONS
 
 (define-url-fn dashboard/form-options
-  (let* ((form (or (data/get-form (parameter "id"))
-                   (redirect "/")))
-         (id (form-id form)))
+  (let ((form (or (data/get-form (parameter "id"))
+                  (redirect "/"))))
     (when (and (eql :post (request-method*))
                (dashboard%process-form-options form))
       (push-success-msg "Las opciones se han guardado.")
-      (redirect (format nil "/dashboard/form-options?id=~a" id)))
+      (redirect (options-url form)))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("dashboard.css?v=20101209"))
       (dashboard%render-form-title-and-links form)
-      (with-tabbed-page (id :current :form-options)
+      (with-form-tabs (form :form-options)
         (:form :method "post" :action "/dashboard/form-options"
                (dashboard%render-form-options form))))))
 
 (defun dashboard%render-form-options (form &key (div.id "form-info-options")
                                       (with-hidden-id t)
                                       (with-submit-button t))
-  (let ((tries (form-tries-limit form))
-        (id (form-id form)))
+  (let ((tries (form-tries-limit form)))
     (with-html-output (*standard-output*)
       (:div :id (escape-string div.id)
        (when with-hidden-id
-         (htm (hidden-input "id" :default-value id)))
+         (htm (hidden-input "id" :default-value (form-id form))))
        (show-all-messages)
        (:h2 "Opciones")
        (:div :class "option" :id "form-option-time"
@@ -298,18 +349,21 @@
 ;;; FORM STATISTICS.
 
 (define-url-fn dashboard/form-stats
-  (let* ((form (or (data/get-form (parameter "id"))
-                   (redirect "/"))))
+  (let ((form (or (data/get-form (parameter "id"))
+                  (redirect "/"))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                     :css-files ("dashboard.css?v=20110112"))
       (dashboard%render-form-title-and-links form)
-      (with-tabbed-page ((form-id form) :current :form-stats)
+      (with-form-tabs (form :form-stats)
         (:div :id "form-info-stats"
               (:h2 "Resumen de evaluaciones")
               (:div :class "stats"
-                    (:p (str (aif (data/get-submissions-by-form-count form)
-                                  (format nil "~:d evaluaciones enviadas" it)
-                                  "N/A"))
+                    (:p (str
+                         (aif (data/get-submissions-by-form-count form)
+                              (if (= 1 it)
+                                  "1 evaluación enviada"
+                                  (format nil "~:d evaluaciones enviadas" it))
+                              "N/A"))
                         (when (string= (form-status form) "active")
                           (let* ((start (form-start-date form))
                                  (diff (- (get-universal-time)
@@ -332,14 +386,7 @@
                                         (question-sort question)
                                         (truncate-words question-text 25))))
                     (:ul :class "question-options"
-                         (:li
-                          (:a :href
-                              (escape-string
-                               (format
-                                nil
-                                "/dashboard/form-question-stats?id=~a&qid=~a"
-                                (form-id form) (question-id question)))
-                              "respuestas"))
+                         (:li (:a :href (stats-url question) "respuestas"))
                          (:li (:a :href "" "gráfica"))
                          (:li (:a :href "" "exportar")))
                     (:span :class "count" (fmt "~d respuesta~:p" count)))
@@ -376,7 +423,7 @@
 (define-url-fn dashboard/form-question-stats
   (let* ((form (or (data/get-form (parameter "id")) (redirect "/")))
          (question-id (or (trim-or-nil (parameter "qid")) (redirect "/")))
-         (question (or (find question-id (form-questions form)
+         (question (or (find question-id (form-questions form) ; wasteful?
                              :key #'question-id :test #'string=)
                        (redirect "/")))
          (global-count (data/get-submissions-by-form-count form))
@@ -388,16 +435,17 @@
                                       "jquery.tablesorter.min.js"
                                       "dashboard-stats.js?v=20110113"))
       (dashboard%render-form-title-and-links form)
-      (with-tabbed-page ((form-id form) :current :form-stats)
+      (with-form-tabs (form :form-stats)
         (:div :id "form-info-stats"
               (:h2 "Respuestas enviadas")
               (:div :class "stats"
                     (:p
-                     (str (format nil "~:d respuestas enviadas de un total ~
-                                        de ~:d evaluaciones (~d%)"
-                                  this-count
-                                  global-count
-                                  (floor (* 100 (/ this-count global-count)))))
+                     (fmt "~:d respuesta~:p enviada~:p de un total de"
+                          this-count)
+                     (if (= 1 global-count)
+                         (str " 1 evaluación")
+                         (fmt " ~:d evaluaciones" global-count))
+                     (fmt " (~d%)" (floor (* 100 (/ this-count global-count))))
                      (when (string= (form-status form) "active")
                        (let* ((start (form-start-date form))
                               (diff (- (get-universal-time)
@@ -407,13 +455,11 @@
                                         (ceiling
                                          (/ diff %secs-in-one-day)))))))))
               (:p (:a :class "return"
-                      :href (format nil "/dashboard/form-stats?id=~a"
-                                    (form-id form))
+                      :href (stats-url form)
                       "Regresar a resumen general"))
               (dashboard%render-a-question-stats form question)
               (:p (:a :class "return"
-                      :href (format nil "/dashboard/form-stats?id=~a"
-                                    (form-id form))
+                      :href (stats-url form)
                       "Regresar a resumen general")))))))
 
 (defun dashboard%render-a-question-stats (form question)
@@ -438,7 +484,7 @@
                                       (question-sort question)
                                       (truncate-words question-text 25))))
                   (:ul :class "question-options"
-                       (:li (:a :href "" "respuestas"))
+                       (:li (:a :href (stats-url question) "respuestas"))
                        (:li (:a :href "" "gráfica"))
                        (:li (:a :href "" "exportar")))
                   (:span :class "count" (fmt "~d respuesta~:p" submitted-count)))

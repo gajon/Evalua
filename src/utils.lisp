@@ -171,30 +171,6 @@ var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga
 ANALYTICS
             #| End of analytics code |#)))))
 
-(defmacro with-tabbed-page ((form-id &key current) &body body)
-  `(with-html-output (*standard-output*)
-     (:div :id "tabbed-navigation"
-           (:div :id "tabbed-navigation-tabs"
-                 (:ul
-                  (:li ,@(when (eql current :form-info) `(:class "current"))
-                       (:a :href (format nil "/dashboard/form-info?id=~a"
-                                         ,form-id)
-                           "Información"))
-                  (:li ,@(when (eql current :form-options) `(:class "current"))
-                       (:a :href (format nil "/dashboard/form-options?id=~a"
-                                         ,form-id)
-                           "Opciones"))
-                  (:li ,@(when (eql current :form-stats) `(:class "current"))
-                       (:a :href (format nil "/dashboard/form-stats?id=~a"
-                                         ,form-id)
-                           "Estadísticas"))
-                  (:li ,@(when (eql current :form-download) `(:class "current"))
-                       (:a :href (format nil "/dashboard/form-download?id=~a"
-                                         ,form-id)
-                           "Exportar"))))
-           (:div :id "tabbed-navigation-content"
-                 ,@body))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; QUEUE AND SHOW ERROR/SUCCESS MESSAGES TO THE USER

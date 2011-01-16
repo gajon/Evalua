@@ -70,7 +70,7 @@
                      (data/get-answers-by-question
                        (cdr (assoc :|_id| alist)) :raw-alist t)
                      alist))
-            (data/get-questions-by-form (form-id form-obj) :raw-alist t)))))))
+            (data/get-questions-by-form form-obj :raw-alist t)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; SAVE FORM DESIGN.

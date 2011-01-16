@@ -30,7 +30,8 @@
    (sort    :initarg :sort     :reader question-sort)
    (control :initarg :control  :reader question-control)
    (text    :initarg :text     :reader question-text)
-   (valid-p :initform t :accessor question-valid-p)
+   (valid-p :initform t        :accessor question-valid-p)
+   (form                       :accessor question-form)
    (cached-answer-objs :initform nil))
   (:documentation ""))
 
@@ -112,11 +113,11 @@
 (defgeneric form-questions (form)
   (:documentation "")
   (:method ((form form))
-    (with-slots ((cached cached-question-objs) _id) form
+    (with-slots ((cached cached-question-objs)) form
       (if cached
         cached
         (setf cached
-              (data/get-questions-by-form _id))))))
+              (data/get-questions-by-form form))))))
 
 (defgeneric question-answers (question)
   (:documentation "")
