@@ -406,6 +406,10 @@
                          (htm (:br (fmt "En el transcurso de  ~:d día~:p."
                                         (ceiling
                                          (/ diff %secs-in-one-day)))))))))
+              (:p (:a :class "return"
+                      :href (format nil "/dashboard/form-stats?id=~a"
+                                    (form-id form))
+                      "Regresar a resumen general"))
               (dashboard%render-a-question-stats form question)
               (:p (:a :class "return"
                       :href (format nil "/dashboard/form-stats?id=~a"
@@ -423,7 +427,8 @@
                                              question)
                 for key = (third keys)
                 do (setf (gethash key table) (cdr values))
-                finally (return table))))
+                finally (return table)))
+         (submitted-count (data/get-submissions-by-question-count question)))
     (with-html-output (*standard-output*)
       (:div :class "question"
             (:div :class "question-title"
@@ -431,7 +436,12 @@
                          :title (escape-string question-text)
                          (esc (format nil "~:d. ~a"
                                       (question-sort question)
-                                      (truncate-words question-text 25)))))
+                                      (truncate-words question-text 25))))
+                  (:ul :class "question-options"
+                       (:li (:a :href "" "respuestas"))
+                       (:li (:a :href "" "gráfica"))
+                       (:li (:a :href "" "exportar")))
+                  (:span :class "count" (fmt "~d respuesta~:p" submitted-count)))
             (:table :id "id-table-stats"
                     :class "tablesorter"
                     :cellspacing 1 :cellpadding 0
@@ -457,10 +467,12 @@
                  for ansid = (cdr (assoc :|answer| ans))
                  do
               (aif (cdr (assoc :|value| ans))
-                   (htm (:li (esc it)))
-                   (htm (:li (esc (cdr (assoc ansid
-                                              answer-texts
-                                              :test #'string=)))))))))
+                   (htm (:li :title (escape-string it)
+                             (esc (truncate-words it 25))))
+                   (let ((text (cdr (assoc ansid answer-texts
+                                           :test #'string=))))
+                     (htm (:li :title (escape-string text)
+                               (esc (truncate-words text 25)))))))))
      (:td (esc (submission-ip submission))))))
 
 
