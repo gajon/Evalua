@@ -27,7 +27,8 @@
                    (or id (form-id form))))
   (:method ((question question) &key id)
            (declare (ignore id))
-           (format nil "/dashboard/form-question-stats?id=~a&qid=~a"
+           (format nil
+                   "/dashboard/form-question-stats?id=~a&qid=~a#tabbed-content"
                    (form-id (question-form question))
                    (question-id question))))
 
@@ -58,6 +59,7 @@
                   (:li ,@(when (eq current :form-download) `(:class "current"))
                        (:a :href "#" "Exportar"))))
            (:div :id "tabbed-navigation-content"
+                 (:a :name "tabbed-content")
                  ,@body))))
 
 (defgeneric age-in-days (object &optional now)
@@ -431,9 +433,7 @@ For FORM objects its age is 0 if it is not active.")
          (question-id (or (trim-or-nil (parameter "qid")) (redirect "/")))
          (question (or (find question-id (form-questions form) ; wasteful?
                              :key #'question-id :test #'string=)
-                       (redirect "/")))
-         (global-count (data/get-submissions-by-form-count form))
-         (this-count (data/get-submissions-by-question-count question)))
+                       (redirect "/"))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
                            :css-files ("dashboard.css?v=20110112"
                                        "tablesorter/blue/style.css")
@@ -443,18 +443,6 @@ For FORM objects its age is 0 if it is not active.")
       (dashboard%render-form-title-and-links form)
       (with-form-tabs (form :form-stats)
         (:div :id "form-info-stats"
-              (:h2 "Respuestas enviadas")
-              (:div :class "stats"
-                    (:p
-                     (fmt "~:d respuesta~:p enviada~:p de un total de"
-                          this-count)
-                     (if (= 1 global-count)
-                         (str " 1 evaluación")
-                         (fmt " ~:d evaluaciones" global-count))
-                     (fmt " (~d%)" (floor (* 100 (/ this-count global-count))))
-                     (let-when (age (age-in-days form))
-                       (htm
-                        (:br (fmt "En el transcurso de  ~:d día~:p." age))))))
               (:p (:a :class "return"
                       :href (stats-url form)
                       "Regresar a resumen general"))
@@ -466,6 +454,8 @@ For FORM objects its age is 0 if it is not active.")
 (defun dashboard%render-a-question-stats (form question)
   (let* ((question-text (question-text question))
          (submissions (data/get-submissions-by-form form))
+         (global-count (data/get-submissions-by-form-count form))
+         (this-count (data/get-submissions-by-question-count question))
          (answer-texts (loop for a in (question-answers question)
                              collect (cons (answer-id a) (answer-text a))))
          (submitted-answers
@@ -489,6 +479,13 @@ For FORM objects its age is 0 if it is not active.")
                        (:li (:a :href "" "gráfica"))
                        (:li (:a :href "" "exportar")))
                   (:span :class "count" (fmt "~d respuesta~:p" submitted-count)))
+            (:div :class "stats"
+                  (:p
+                   (fmt "~:d respuesta~:p enviada~:p de un total de" this-count)
+                   (if (= 1 global-count)
+                       (str " 1 evaluación")
+                       (fmt " ~:d evaluaciones" global-count))
+                   (fmt " (~d%)" (floor (* 100 (/ this-count global-count))))))
             (:table :id "id-table-stats"
                     :class "tablesorter"
                     :cellspacing 1 :cellpadding 0

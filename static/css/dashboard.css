@@ -72,6 +72,7 @@
 #form-info-stats .answer span.stat-percent { float:left; width:40px; text-align:right; }
 #form-info-stats .answer span.stat-count   { float:left; width:50px; text-align:right; padding-left:8px; font-size:10px; font-style:italic; color:#666; }
 
+#form-info-stats table { margin-top:0; }
 #form-info-stats table ul { list-style:none; }
 #form-info-stats table ul.checkbox { list-style-position:inside; list-style-type:disc; }
 
