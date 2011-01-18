@@ -423,20 +423,26 @@ parameter."))
   #("January" "February" "March" "April" "May" "June" "July"
     "August" "September" "October" "November" "December"))
 
-(defun format-date (date &key (longform nil))
-    "Returns a string with the date formatted as \"YYYY-MM-DD\" or as
-\"DayOfWeek Month DD, YYYY\" (eg. Tuesday May 4, 2010) if key :longform is t."
+(defun format-date (date &key longform time)
+  "Returns a string with the date formatted as \"YYYY-MM-DD\" or as
+\"DayOfWeek Month DD, YYYY\" (e.g. Tuesday May 4, 2010) if :LONGFORM T.
+If :TIME T is provided append HH:MM to the string (e.g. 2011-03-20 18:33)."
   (multiple-value-bind (s m h date month year day)
       (decode-universal-time (date-universal-time date) (date-time-zone date))
-    (declare (ignore s m h))
+    (declare (ignore s))
     (if longform
-      ;; Thursday May 6, 2010
-      (format nil "~a ~a ~d, ~d"
-              (svref +day-names+ day)
-              (svref +month-names+ (1- month))
-              date year)
-      ;; 2010-05-06
-      (format nil "~d-~2,'0d-~2,'0d" year month date))))
+        ;; Thursday May 6, 2010
+        (format nil (if time
+                        "~a ~a ~d, ~d ~2,'0d:~2,'0d"
+                        "~a ~a ~d, ~d")
+                (svref +day-names+ day)
+                (svref +month-names+ (1- month))
+                date year h m)
+        ;; 2010-05-06
+        (format nil (if time
+                        "~d-~2,'0d-~2,'0d ~2,'0d:~2,'0d"
+                        "~d-~2,'0d-~2,'0d")
+                year month date h m))))
 
 (defun parse-date (date time-zone)
   "Parse a date from a string like \"2010-06-25\" and returns a new DATE

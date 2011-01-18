@@ -507,7 +507,7 @@ For FORM objects its age is 0 if it is not active.")
 (defun dashboard%render-submission (submission answers answer-texts type)
   (with-html-output (*standard-output*)
     (:tr
-     (:td (esc (format-iso8601-date (submission-finish-date submission))))
+     (:td (esc (format-date (submission-finish-date submission) :time t)))
      (:td
       (:ul :class (format nil "~a" type)
            (loop for ans in answers
