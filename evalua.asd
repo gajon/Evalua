@@ -20,6 +20,7 @@
                              (:file "web")
                              (:file "design")
                              (:file "public")
+                             (:file "account")
                              (:file "dashboard"))))
   :depends-on (:hunchentoot
                :cl-who
