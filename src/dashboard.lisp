@@ -60,6 +60,18 @@
            (:div :id "tabbed-navigation-content"
                  ,@body))))
 
+(defgeneric age-in-days (object &optional now)
+  (:documentation
+   "Returns a number of how many days old this OBJECT is.
+For FORM objects its age is 0 if it is not active.")
+  (:method ((form form) &optional now)
+           (let ((start-date (form-start-date form)))
+             (when (and (string= (form-status form) "active")
+                        start-date)
+               (ceiling (/ (- (or now (get-universal-time))
+                              (date-universal-time start-date))
+                           %secs-in-one-day))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DASHBOARD
@@ -199,8 +211,7 @@
                  (dashboard%process-form-options form))
         (redirect (main-url form))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
-                    :css-files ("design-styles.css?v=20101209"
-                                "dashboard.css?v=20101209"))
+                    :css-files ("dashboard.css?v=20101209"))
       (:form :method "post" :action "/dashboard/activate-form"
        (hidden-input "id" :default-value (form-id form))
        (dashboard%render-form-title-and-links form)
@@ -223,8 +234,7 @@
       (data/save-form  form)
       (redirect (main-url form)))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
-                    :css-files ("design-styles.css?v=20101209"
-                                "dashboard.css?v=20101209"))
+                    :css-files ("dashboard.css?v=20101209"))
       (:form :method "post" :action "/dashboard/deactivate-form"
        (hidden-input "id" :default-value (form-id form))
        (dashboard%render-form-title-and-links form)
@@ -364,13 +374,9 @@
                                   "1 evaluación enviada"
                                   (format nil "~:d evaluaciones enviadas" it))
                               "N/A"))
-                        (when (string= (form-status form) "active")
-                          (let* ((start (form-start-date form))
-                                 (diff (- (get-universal-time)
-                                          (date-universal-time start))))
-                            ;; FIXME: Could it happen that DIFF is negative.
-                            (htm (fmt " en el transcurso de ~:d día~:p."
-                                      (ceiling (/ diff %secs-in-one-day))))))))
+                        (let-when (age (age-in-days form))
+                          (htm
+                           (fmt " en el transcurso de ~:d día~:p." age)))))
               (dashboard%render-questions-stats form))))))
 
 (defun dashboard%render-questions-stats (form)
@@ -446,14 +452,9 @@
                          (str " 1 evaluación")
                          (fmt " ~:d evaluaciones" global-count))
                      (fmt " (~d%)" (floor (* 100 (/ this-count global-count))))
-                     (when (string= (form-status form) "active")
-                       (let* ((start (form-start-date form))
-                              (diff (- (get-universal-time)
-                                       (date-universal-time start))))
-                         ;; FIXME: Could it happen that DIFF is negative.
-                         (htm (:br (fmt "En el transcurso de  ~:d día~:p."
-                                        (ceiling
-                                         (/ diff %secs-in-one-day)))))))))
+                     (let-when (age (age-in-days form))
+                       (htm
+                        (:br (fmt "En el transcurso de  ~:d día~:p." age))))))
               (:p (:a :class "return"
                       :href (stats-url form)
                       "Regresar a resumen general"))

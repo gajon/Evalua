@@ -2,6 +2,6 @@
 
 (defpackage #:evalua
   (:use :common-lisp :hunchentoot :cl-who)
-  (:import-from :kmrcl :awhen :it)
+  (:import-from :kmrcl :let-when :awhen :it)
   (:shadow :start :stop)
   (:export :start :stop))

@@ -32,12 +32,11 @@ This macro saves some typing:
     (error () nil)))
 
 (defun data/get-form-by-public-id (public-id)
-  (let ((data
-          (clouchdb:query-document
-            `(:|rows| :|id| ,#'clouchdb:get-document)
-            (clouchdb:invoke-view "forms" "forms-by-pub-id" :key public-id))))
-    (when data
-      (data/build-form-from-alist (car data)))))
+  (let-when (data
+             (clouchdb:query-document
+              `(:|rows| :|id| ,#'clouchdb:get-document)
+              (clouchdb:invoke-view "forms" "forms-by-pub-id" :key public-id)))
+    (data/build-form-from-alist (car data))))
 
 (defun data/get-active-forms (user)
   (let ((user (if (eq (type-of user) 'user) (user-username user) user)))
@@ -384,30 +383,27 @@ This macro saves some typing:
 
 (defun data/create-user (user-obj)
   ;; TODO: Aren't this and data/save-user almost the same?
-  (let ((saved? (clouchdb:create-document
-               `((:|type| . "user")
-                 (:|full-name| .       ,(user-full-name user-obj))
-                 (:|email| .           ,(user-email user-obj))
-                 (:|time-zone| .       ,(user-time-zone user-obj))
-                 (:|password-digest| . ,(user-password-digest user-obj)))
-               :id (user-username user-obj))))
-    (when saved?
-      (setf (user-rev user-obj) (%lowassoc rev saved?))
-      user-obj)))
+  (let-when (saved? (clouchdb:create-document
+                     `((:|type| . "user")
+                       (:|full-name| .       ,(user-full-name user-obj))
+                       (:|email| .           ,(user-email user-obj))
+                       (:|time-zone| .       ,(user-time-zone user-obj))
+                       (:|password-digest| . ,(user-password-digest user-obj)))
+                     :id (user-username user-obj)))
+    (setf (user-rev user-obj) (%lowassoc rev saved?))
+    user-obj))
 
 (defun data/save-user (user-obj)
-  (let ((saved? (clouchdb:put-document
-                  `((:|_id| .             ,(user-username user-obj))
-                    (:|_rev| .            ,(user-rev user-obj))
-                    (:|type| .            "user")
-                    (:|full-name| .       ,(user-full-name user-obj))
-                    (:|email| .           ,(user-email user-obj))
-                    (:|time-zone| .       ,(user-time-zone user-obj))
-                    (:|password-digest| . ,(user-password-digest user-obj))))))
-    (when (%lowassoc ok saved?)
-      ;; Update the _rev info, just in case.
-      (setf (user-rev user-obj) (%lowassoc rev saved?))
-      user-obj)))
+  (let-when (saved? (clouchdb:put-document
+                     `((:|_id| .             ,(user-username user-obj))
+                       (:|_rev| .            ,(user-rev user-obj))
+                       (:|type| .            "user")
+                       (:|full-name| .       ,(user-full-name user-obj))
+                       (:|email| .           ,(user-email user-obj))
+                       (:|time-zone| .       ,(user-time-zone user-obj))
+                       (:|password-digest| . ,(user-password-digest user-obj)))))
+    (setf (user-rev user-obj) (%lowassoc rev saved?))
+    user-obj))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -466,18 +462,17 @@ This macro saves some typing:
 ;;; SUBMITTED ANSWERS
 
 (defun data/create-submission (sub)
-  (let ((doc (clouchdb:create-document
-               `((:|type| . "submission")
-                 (:|form| . ,(submission-form sub))
-                 (:|start-date| . ,(slot-value sub 'start-date))
-                 (:|finish-date| . ,(slot-value sub 'finish-date))
-                 (:|ip| . ,(submission-ip sub))
-                 (:|user-agent| . ,(submission-user-agent sub))))))
+  (let-when (doc (clouchdb:create-document
+                  `((:|type| . "submission")
+                    (:|form| . ,(submission-form sub))
+                    (:|start-date| . ,(slot-value sub 'start-date))
+                    (:|finish-date| . ,(slot-value sub 'finish-date))
+                    (:|ip| . ,(submission-ip sub))
+                    (:|user-agent| . ,(submission-user-agent sub)))))
     ;; TODO: Should we check (eql (%lowassoc ok doc) T)?
-    (when doc
-      (setf (submission-id sub) (%lowassoc id doc)
-            (submission-rev sub) (%lowassoc rev doc))
-      sub)))
+    (setf (submission-id sub) (%lowassoc id doc)
+          (submission-rev sub) (%lowassoc rev doc))
+    sub))
 
 (defun data/add-submitted-question (submission-id question-id answers-list)
   (when answers-list

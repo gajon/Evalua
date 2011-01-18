@@ -186,16 +186,15 @@ ANALYTICS
   (push (cons group msg) (session-value 'info-msgs)))
 
 (defun %show-messages (messages group css-id)
-  (let ((msgs (if group
-                  (filter (lambda (x) (when (eql group (car x)) x))
-                          messages)
-                  messages)))
-    (when msgs
-      (with-html-output (*standard-output*)
-        (:div :id (escape-string css-id)
-              (:ul (mapcar
-                    (lambda (msg) (htm (:li (esc (cdr msg)))))
-                    msgs)))))))
+  (let-when (msgs (if group
+                      (filter (lambda (x) (when (eql group (car x)) x))
+                              messages)
+                      messages))
+    (with-html-output (*standard-output*)
+      (:div :id (escape-string css-id)
+            (:ul (mapcar
+                  (lambda (msg) (htm (:li (esc (cdr msg)))))
+                  msgs))))))
 
 (defun %clear-messages (group session-key)
   (if group
