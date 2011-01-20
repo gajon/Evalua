@@ -24,8 +24,10 @@
                              (:file "dashboard"))))
   :depends-on (:hunchentoot
                :cl-who
+               :cl-json
                :clouchdb
                :kmrcl
-               :split-sequence))
+               :split-sequence
+               :cl-charter))
 
 ;;; vim: set filetype=lisp:

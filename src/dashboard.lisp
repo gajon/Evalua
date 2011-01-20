@@ -32,6 +32,14 @@
                    (form-id (question-form question))
                    (question-id question))))
 
+(defgeneric graphs-url (object)
+  (:documentation "")
+  (:method ((question question))
+           (format nil
+                   "/dashboard/form-question-graphs?id=~a&qid=~a#tabbed-content"
+                   (form-id (question-form question))
+                   (question-id question))))
+
 (defgeneric edit-url (object &key id &allow-other-keys)
   (:documentation "")
   (:method ((form form) &key id)
@@ -395,7 +403,7 @@ For FORM objects its age is 0 if it is not active.")
                                         (truncate-words question-text 25))))
                     (:ul :class "question-options"
                          (:li (:a :href (stats-url question) "respuestas"))
-                         (:li (:a :href "" "gráfica"))
+                         (:li (:a :href (graphs-url question) "gráfica"))
                          (:li (:a :href "" "exportar")))
                     (:span :class "count" (fmt "~d respuesta~:p" count)))
               (:div :class "answers"
@@ -431,7 +439,7 @@ For FORM objects its age is 0 if it is not active.")
 (define-url-fn dashboard/form-question-stats
   (let* ((form (or (data/get-form (parameter "id")) (redirect "/")))
          (question-id (or (trim-or-nil (parameter "qid")) (redirect "/")))
-         (question (or (find question-id (form-questions form) ; wasteful?
+         (question (or (find question-id (form-questions form) ; TODO: wasteful?
                              :key #'question-id :test #'string=)
                        (redirect "/"))))
     (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
@@ -476,7 +484,7 @@ For FORM objects its age is 0 if it is not active.")
                                       (truncate-words question-text 25))))
                   (:ul :class "question-options"
                        (:li (:a :href (stats-url question) "respuestas"))
-                       (:li (:a :href "" "gráfica"))
+                       (:li (:a :href (graphs-url question) "gráfica"))
                        (:li (:a :href "" "exportar")))
                   (:span :class "count" (fmt "~d respuesta~:p" submitted-count)))
             (:div :class "stats"
@@ -518,6 +526,84 @@ For FORM objects its age is 0 if it is not active.")
                      (htm (:li :title (escape-string text)
                                (esc (truncate-words text 25)))))))))
      (:td (esc (submission-ip submission))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GRAPHS
+
+;; (defmacro! embed-chart (source &key (width 756) (height 400))
+;;   (let ((source (url-encode (mkstr "/ofc-json/?data=" source))))
+;;     `(with-html-output (*standard-output*)
+;;        (:script :type "text/javascript"
+;;          ,(format nil "swfobject.embedSWF('/static/open-flash-chart.swf',
+;;                                           '~a','~d','~d','9.0.0',
+;;                                           'expressInstall.swf',
+;;                                           {'data-file':'~a'});"
+;;                   g!div-id width height source))
+;;        (:div :id ,(format nil "~a" g!div-id)))))
+
+
+(define-url-fn dashboard/form-question-graphs
+  (let* ((form (or (data/get-form (parameter "id")) (redirect "/")))
+         (question-id (or (trim-or-nil (parameter "qid")) (redirect "/")))
+         (question (or (find question-id (form-questions form) ; TODO: wasteful?
+                             :key #'question-id :test #'string=)
+                       (redirect "/"))))
+    (standard-page (:title (format nil "Evaluación: ~a" (form-title form))
+                           :css-files ("dashboard.css?v=20110112"
+                                       "tablesorter/blue/style.css")
+                           :js-files ("jquery-1.4.2.min.js"
+                                      "jquery.tablesorter.min.js"
+                                      "json2.min.js"
+                                      "swfobject.js"))
+      (dashboard%render-form-title-and-links form)
+      (with-form-tabs (form :form-stats)
+        (:div :id "form-info-stats"
+              (:p (:a :class "return"
+                      :href (stats-url form)
+                      "Regresar a resumen general"))
+              (dashboard%render-a-question-graph form question)
+              (:p (:a :class "return"
+                      :href (stats-url form)
+                      "Regresar a resumen general")))))))
+
+(defun dashboard%render-a-question-graph (form question)
+  (let* ((question-text (question-text question))
+         (answer-texts (loop for a in (question-answers question)
+                             collecting (answer-text a)))
+         (submitted-count (data/get-submissions-by-question-count question)))
+    (with-html-output (*standard-output*)
+      (:div :class "question"
+            (let* ((chart-widget
+  (make-instance 'cl-charter:chart
+                 :title (truncate-words question-text 25)
+                 :width 600 :height 400
+                 :item-axis (make-instance 'cl-charter:item-axis
+                                           :axis-label "Preguntas"
+                                           :minor-tics-per-major-tic 3
+                                           :draw-minor-labels nil
+                                           :on-print-major-label
+                                           (lambda (item)
+                                             (format nil "~:(~a~)" item)))
+                 :value-axis (make-instance 'cl-charter:value-axis
+                                            :axis-label "Respuestas"
+                                            :range-bottom 0 :range-top 900
+                                            :major-tic-increment 300)
+                 :view (make-instance 'cl-charter:bar-chart-view
+                                      :bar-width 16
+                                      :bar-spacing 8)
+                 :legend (make-instance 'cl-charter:chart-legend
+                                        :on-print-chart-object
+                                        (lambda (value)
+                                          (format nil "~:(~a~)" value))))))
+              (dolist (answer answer-texts)
+                (cl-charter:set-chart-value chart-widget
+                                            :item answer
+                                            :value (+ 100 (random 150))))
+              (str (let ((cl-charter:*ofc-swf-url*
+                          "/static/open-flash-chart.swf"))
+                     (cl-charter:render-to-ofc chart-widget)
+                     )))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
