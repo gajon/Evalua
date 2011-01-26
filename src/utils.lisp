@@ -579,3 +579,36 @@ elements of the list."
 
 ;;; I think I saw this function in a Naggum's news post.
 (defun repeatedly (&rest x) (nconc x x))
+
+
+
+
+
+
+
+;;; from    Peter Seibel <peter@gigamonkeys.com>
+;;; to      Edi Weitz <edi@weitz.de>
+;;; cc      Common Lisp pros <pro@common-lisp.net>
+;;; date    Tue, Jan 25, 2011 at 1:52 PM
+;;; subject Re: [pro] User defined format functions
+;;; mailing list   pro.common-lisp.net
+;;; 
+;;; Of course they are. That's what allows this hack (first suggested by
+;;; Erik Naggum, I believe):
+;;; 
+;;; (defpackage :iso (:use) (:export :|8601|))
+;;; 
+;;; (defun iso:8601 (out arg colon-p at-sign-p &rest params)
+;;;  (write-string (format-iso-8601-time
+;;;                 arg
+;;;                 :time-zone (first params)
+;;;                 :omit-time (and at-sign-p (not colon-p))
+;;;                 :omit-date colon-p
+;;;                 :omit-time-zone (and colon-p (not at-sign-p))) out))
+;;; 
+;;; 
+;;; And then:
+;;; 
+;;; CL-USER> (format t "~/iso:8601/" (get-universal-time))
+;;; 2011-01-25T11:51:15-8:00
+;;; NIL
